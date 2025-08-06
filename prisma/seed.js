@@ -33,10 +33,8 @@ async function main() {
 
   // Create sample restaurants
   const restaurants = await Promise.all([
-    prisma.restaurant.upsert({
-      where: { name: "Pizza Palace" },
-      update: {},
-      create: {
+    prisma.restaurant.create({
+      data: {
         name: "Pizza Palace",
         address: "123 Main St, Downtown",
         cuisine: "Italian",
@@ -45,10 +43,8 @@ async function main() {
         imageUrl: "https://via.placeholder.com/300x200",
       },
     }),
-    prisma.restaurant.upsert({
-      where: { name: "Sushi Master" },
-      update: {},
-      create: {
+    prisma.restaurant.create({
+      data: {
         name: "Sushi Master",
         address: "456 Oak Ave, Midtown",
         cuisine: "Japanese",
@@ -57,10 +53,8 @@ async function main() {
         imageUrl: "https://via.placeholder.com/300x200",
       },
     }),
-    prisma.restaurant.upsert({
-      where: { name: "Taco Fiesta" },
-      update: {},
-      create: {
+    prisma.restaurant.create({
+      data: {
         name: "Taco Fiesta",
         address: "789 Pine St, Uptown",
         cuisine: "Mexican",

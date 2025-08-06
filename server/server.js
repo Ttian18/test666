@@ -8,6 +8,7 @@ import profileRoutes from "./routes/profileRoutes.js";
 import recommendationRoutes from "./routes/recommendationRoutes.js";
 import transactionRoutes from "./routes/transactionRoutes.js";
 import insightsRoutes from "./routes/insightsRoutes.js";
+import dataRoutes from "./routes/dataRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -24,6 +25,7 @@ app.use("/profile", profileRoutes);
 app.use("/recommendations", recommendationRoutes);
 app.use("/transactions", transactionRoutes);
 app.use("/insights", insightsRoutes);
+app.use("/data", dataRoutes);
 
 // Start the server
 app.listen(PORT, () => {

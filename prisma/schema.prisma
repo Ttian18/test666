@@ -71,6 +71,7 @@ model Restaurant {
 
   // Relations
   recommendations Recommendation[]
+  menuItems       MenuItem[]
 
   @@map("restaurants")
 }
