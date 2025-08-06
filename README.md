@@ -1,6 +1,6 @@
 # NextAI Finance App - Backend API
 
-A modern, AI-powered financial management application backend built with Node.js, Express, and PostgreSQL. This API provides intelligent restaurant recommendations, transaction management, and spending insights.
+A modern, AI-powered financial management application backend built with Node.js, Express, and PostgreSQL. This API provides intelligent restaurantfecommendations, transaction management, and spending insights.
 
 ## 🚀 Features
 
