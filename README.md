@@ -1,6 +1,6 @@
-# NextAI Finance App - Backend API
+# NextAI Finance App - Full Stack Application
 
-A modern, AI-powered financial management application backend built with Node.js, Express, and PostgreSQL. This API provides intelligent restaurantfecommendations, transaction management, and spending insights.
+A modern, AI-powered financial management application built with Node.js, Express, React, and PostgreSQL. This full-stack application provides intelligent restaurant recommendations, transaction management, and spending insights with a beautiful frontend interface.
 
 ## 🚀 Features
 
@@ -15,27 +15,44 @@ A modern, AI-powered financial management application backend built with Node.js
 ## 🛠️ Tech Stack
 
 - **Runtime:** Node.js 18+
-- **Framework:** Express.js
-- **Database:** PostgreSQL
+- **Backend Framework:** Express.js
+- **Frontend Framework:** React with Vite
+- **Database:** PostgreSQL with Prisma ORM
 - **Authentication:** JWT + bcrypt
 - **File Upload:** Multer
 - **Environment:** dotenv
 - **CORS:** Enabled for cross-origin requests
+- **Package Management:** NPM Workspaces
 
 ## 📁 Project Structure
 
 ```
-server/
-├── routes/
-│   ├── authRoutes.js          # Authentication endpoints
-│   ├── profileRoutes.js       # User profile management
-│   ├── recommendationRoutes.js # Restaurant recommendations
-│   ├── transactionRoutes.js   # Transaction management
-│   └── insightsRoutes.js      # Spending analytics
+nextai-finance-app/
+├── client/                    # React frontend
+│   ├── src/
+│   │   ├── App.jsx           # Main React component
+│   │   ├── App.css           # Component styles
+│   │   ├── main.jsx          # React entry point
+│   │   └── index.css         # Global styles
+│   ├── index.html            # HTML template
+│   ├── vite.config.js        # Vite configuration
+│   └── package.json          # Frontend dependencies
+├── server/                    # Node.js backend
+│   ├── routes/
+│   │   ├── authRoutes.js     # Authentication endpoints
+│   │   ├── profileRoutes.js  # User profile management
+│   │   ├── recommendationRoutes.js # Restaurant recommendations
+│   │   ├── transactionRoutes.js # Transaction management
+│   │   ├── insightsRoutes.js # Spending analytics
+│   │   └── dataRoutes.js     # Data display endpoints
+│   ├── package.json          # Backend dependencies
+│   └── server.js             # Main server file
+├── prisma/                    # Database configuration
+│   ├── schema.prisma         # Database schema
+│   └── seed.js               # Database seeding
 ├── .env                       # Environment variables
-├── .gitignore                 # Git ignore rules
-├── package.json               # Dependencies and scripts
-└── server.js                  # Main server file
+├── .gitignore                # Git ignore rules
+└── package.json              # Root workspace configuration
 ```
 
 ## 🚀 Quick Start
@@ -43,7 +60,7 @@ server/
 ### Prerequisites
 
 - Node.js 18+ installed
-- PostgreSQL database (optional for current version)
+- PostgreSQL database
 - Git
 
 ### Installation
@@ -55,23 +72,16 @@ server/
    cd test666
    ```
 
-2. **Navigate to server directory**
-
-   ```bash
-   cd server
-   ```
-
-3. **Install dependencies**
+2. **Install all dependencies (root, client, and server)**
 
    ```bash
    npm install
    ```
 
-4. **Configure environment variables**
+3. **Configure environment variables**
 
    ```bash
-   # Copy and edit the .env file
-   cp .env.example .env
+   # Edit the .env file in the root directory
    ```
 
    Update the `.env` file with your actual values:
@@ -83,13 +93,49 @@ server/
    JWT_SECRET="YOUR_SUPER_SECRET_KEY_FOR_JSON_WEB_TOKENS"
    ```
 
-5. **Start the server**
+4. **Set up the database**
 
    ```bash
-   npm start
+   # Generate Prisma client
+   npm run db:generate
+
+   # Push schema to database
+   npm run db:push
+
+   # Seed the database with sample data
+   npm run db:seed
    ```
 
-   The server will start on `http://localhost:5001`
+5. **Start the development servers**
+
+   ```bash
+   npm run dev
+   ```
+
+   This will start both:
+
+   - **Backend API** on `http://localhost:5001`
+   - **Frontend React App** on `http://localhost:3000`
+
+### Alternative Commands
+
+```bash
+# Start only the backend server
+npm run start
+
+# Start only the frontend
+npm run dev --workspace=client
+
+# Start only the backend
+npm run dev --workspace=server
+
+# Database operations
+npm run db:generate    # Generate Prisma client
+npm run db:push        # Push schema to database
+npm run db:migrate     # Run database migrations
+npm run db:studio      # Open Prisma Studio
+npm run db:seed        # Seed database with sample data
+```
 
 ## 📡 API Endpoints
 
@@ -205,6 +251,35 @@ POST /recommendations/menu-analysis
 
 ### 💳 Transaction Management
 
+#### Get All Transactions
+
+```http
+GET /transactions
+```
+
+**Response:**
+
+```json
+[
+  {
+    "id": "transaction_id",
+    "userId": "user_id",
+    "amount": "25.50",
+    "description": "Dinner at Pizza Palace",
+    "category": "Food & Dining",
+    "restaurant": "Pizza Palace",
+    "date": "2024-01-15T00:00:00.000Z",
+    "createdAt": "2024-01-15T00:00:00.000Z",
+    "updatedAt": "2024-01-15T00:00:00.000Z",
+    "user": {
+      "id": "user_id",
+      "name": "Test User",
+      "email": "test@example.com"
+    }
+  }
+]
+```
+
 #### Upload Receipt/Voucher
 
 ```http
@@ -289,6 +364,9 @@ curl -X POST http://localhost:5001/recommendations/menu-analysis
 ### Test Transactions
 
 ```bash
+# Get all transactions
+curl http://localhost:5001/transactions
+
 # Upload receipt
 curl -X POST http://localhost:5001/transactions/upload
 
@@ -308,8 +386,25 @@ curl http://localhost:5001/insights/summary
 ### Available Scripts
 
 ```bash
-npm start          # Start the server
-npm install        # Install dependencies
+# Development
+npm run dev                    # Start both frontend and backend
+npm run dev --workspace=client # Start only frontend
+npm run dev --workspace=server # Start only backend
+
+# Production
+npm run start                  # Start production backend
+npm run build                  # Build both frontend and backend
+
+# Database
+npm run db:generate            # Generate Prisma client
+npm run db:push                # Push schema to database
+npm run db:migrate             # Run database migrations
+npm run db:studio              # Open Prisma Studio
+npm run db:seed                # Seed database with sample data
+
+# Installation
+npm install                    # Install all dependencies
+npm install:all               # Install dependencies for all workspaces
 ```
 
 ### Environment Variables
@@ -338,13 +433,16 @@ The backend follows a modular architecture:
 
 ## 🚧 Current Status
 
-This is a **skeleton implementation** with placeholder endpoints. The following features are ready for development:
+This is a **fully functional full-stack application** with the following features implemented:
 
-- ✅ Project structure and routing
-- ✅ Express server configuration
-- ✅ CORS and middleware setup
-- ✅ Environment variable configuration
-- 🔄 Database integration (PostgreSQL)
+- ✅ **Complete project structure** with NPM workspaces
+- ✅ **Backend API** with Express.js and all endpoints
+- ✅ **Frontend React app** with Vite and beautiful UI
+- ✅ **Database integration** with PostgreSQL and Prisma ORM
+- ✅ **Sample data seeding** with comprehensive test data
+- ✅ **Data display functionality** with real-time API integration
+- ✅ **Transaction management** with full CRUD operations
+- ✅ **Responsive design** for mobile and desktop
 - 🔄 JWT authentication implementation
 - 🔄 AI features integration
 - 🔄 File upload handling
@@ -364,6 +462,25 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 For support and questions, please contact the development team or create an issue in the repository.
+
+## 🌐 Accessing the Application
+
+Once you've started the development servers:
+
+- **Frontend**: Visit `http://localhost:3000` to see the React application
+- **Backend API**: Access the API at `http://localhost:5001`
+- **API Documentation**: All endpoints are documented above
+- **Database**: Use `npm run db:studio` to open Prisma Studio for database management
+
+## 📊 Sample Data
+
+The application comes with pre-seeded sample data including:
+
+- 1 test user with profile and preferences
+- 3 restaurants (Pizza Palace, Sushi Master, Taco Fiesta)
+- 3 sample transactions
+- 3 menu items
+- 2 AI recommendations
 
 ---
 
