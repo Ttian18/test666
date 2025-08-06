@@ -55,16 +55,22 @@ server/
    cd test666
    ```
 
-2. **Navigate to server directory**
-
-   ```bash
-   cd server
-   ```
-
-3. **Install dependencies**
+2. **Install dependencies**
 
    ```bash
    npm install
+   ```
+
+3. **Initialize the database**
+
+   ```bash
+   npx prisma init
+   ```
+
+   This will create a `prisma` directory with the necessary files.
+
+   ```bash
+   npx prisma migrate dev --name init
    ```
 
 4. **Configure environment variables**
