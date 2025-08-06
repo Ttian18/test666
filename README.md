@@ -60,20 +60,7 @@ server/
    ```bash
    npm install
    ```
-
-3. **Initialize the database**
-
-   ```bash
-   npx prisma init
-   ```
-
-   This will create a `prisma` directory with the necessary files.
-
-   ```bash
-   npx prisma migrate dev --name init
-   ```
-
-4. **Configure environment variables**
+3. **Configure environment variables**
 
    ```bash
    # Copy and edit the .env file
@@ -87,6 +74,17 @@ server/
    DATABASE_URL="postgresql://user:password@localhost:5432/database_name"
    OPENAI_API_KEY="YOUR_OPENAI_API_KEY"
    JWT_SECRET="YOUR_SUPER_SECRET_KEY_FOR_JSON_WEB_TOKENS"
+
+4. **Initialize the database**
+
+   ```bash
+   npx prisma init
+   ```
+
+   This will create a `prisma` directory with the necessary files.
+
+   ```bash
+   npx prisma migrate dev --name init
    ```
 
 5. **Start the server**
