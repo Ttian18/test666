@@ -51,7 +51,7 @@ server/
 1. **Clone the repository**
 
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/Ttian18/test666.git
    cd test666
    ```
 
