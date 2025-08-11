@@ -86,8 +86,8 @@ server/
 5. **Start the server**
 
    ```bash
-   npm start
-   ```
+  npm run dev --workspace=server   
+  ```
 
    The server will start on `http://localhost:5001`
 
