@@ -86,18 +86,22 @@ server/
 5. **Start the server**
 
    ```bash
-  npm run dev --workspace=server   
-  ```
+   npm run dev --workspace=server
+   ```
 
-   The server will start on `http://localhost:5001`
+```
+
+ The server will start on `http://localhost:5001`
 
 ## 📡 API Endpoints
 
 ### Base URL
 
 ```
+
 http://localhost:5001
-```
+
+````
 
 ### 🔐 Authentication Endpoints
 
@@ -105,7 +109,7 @@ http://localhost:5001
 
 ```http
 POST /auth/register
-```
+````
 
 **Response:**
 
@@ -328,6 +332,63 @@ The backend follows a modular architecture:
 - **Routes Layer** - Handles HTTP requests and responses
 - **Middleware Layer** - CORS, JSON parsing, authentication
 - **Server Layer** - Express app configuration and startup
+
+## 🔄 Social Media Image Analysis Flow
+
+The zhongcao feature provides AI-powered analysis of restaurant images from social media:
+
+```mermaid
+sequenceDiagram
+    participant Frontend as 🖥️ Frontend
+    participant Backend as Backend
+    participant OpenAI as 🤖 OpenAI API
+
+    Note over Frontend, OpenAI: Social Media Image Analysis Flow
+
+    %% User uploads image
+    Frontend->>Frontend: 📸 User selects image file
+    Frontend->>Frontend: ✅ Validate file type (image/*)
+
+    %% Frontend sends to backend
+    Frontend->>Backend: POST /api/recommendations/social-upload
+    Note right of Frontend: FormData with image file
+
+    %% Backend processes image
+    Backend->>Backend: 📤 Save image to /uploads/
+    Backend->>Backend: 🔧 Convert image to base64
+    Backend->>Backend: 📝 Create prompt with image
+
+    %% Backend calls OpenAI
+    Backend->>OpenAI: 🧠 Analyze image with structured output
+    Note right of Backend: GPT-4o-mini with Zod schema:<br/>- restaurant_name<br/>- dish_name (nullable)<br/>- address (nullable)<br/>- description<br/>- social_media_handle (nullable)
+
+    %% OpenAI returns results
+    OpenAI-->>Backend: 📊 Structured restaurant data
+    Backend->>Backend: 🗑️ Clean up uploaded file
+    Backend-->>Frontend: JSON response with analysis
+
+    %% Frontend displays results
+    Frontend->>Frontend: 🎨 Update UI with results
+    Note right of Frontend: Display:<br/>- Restaurant name<br/>- Address (if available)<br/>- Dish info (if available)<br/>- Description<br/>- Social media handle (if available)
+
+    Frontend-->>Frontend: 📱 Show analysis results to user
+
+    Note over Frontend, OpenAI: Error Handling Flow
+
+    alt Error during processing
+        Backend->>Backend: 🗑️ Cleanup file on error
+        Backend-->>Frontend: ❌ Error response (500)
+        Frontend-->>Frontend: ⚠️ Show error message to user
+    end
+```
+
+### Key Features:
+
+- **📸 Image Upload**: Support for PNG, JPG, and other image formats
+- **🤖 AI Analysis**: GPT-4o-mini with structured output using Zod schema
+- **📊 Structured Data**: Extracts restaurant name, address, dish info, description, and social media handles
+- **🗑️ Auto Cleanup**: Automatic file cleanup after processing
+- **🛡️ Error Handling**: Comprehensive error handling with user feedback
 
 ## 🔒 Security
 
