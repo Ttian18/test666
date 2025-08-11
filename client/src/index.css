@@ -55,6 +55,40 @@ body {
   font-size: 1.1rem;
 }
 
+/* Tab Navigation */
+.tab-navigation {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+  gap: 10px;
+}
+
+.tab-button {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.tab-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.tab-button.active {
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
 .search-form {
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
@@ -92,6 +126,32 @@ body {
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   background: rgba(255, 255, 255, 1);
+}
+
+/* File Upload Styles */
+.file-input {
+  padding: 10px !important;
+  border: 2px dashed rgba(102, 126, 234, 0.3) !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.file-input:hover {
+  border-color: rgba(102, 126, 234, 0.6) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+.file-input:focus {
+  border-color: #667eea !important;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+}
+
+.file-help {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
 }
 
 .search-button {
@@ -184,4 +244,13 @@ body {
 .restaurant-recommendation {
   color: #28a745;
   font-weight: 500;
+}
+
+/* Analysis Results Styles */
+.analysis-meta {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid #e1e1e1;
+  color: #999;
+  font-size: 12px;
 }
