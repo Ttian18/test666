@@ -1,5 +1,5 @@
 import express from "express";
-import { searchWithCustomAgent } from "../test_1.mjs";
+import { getRestaurantRecommendations } from "../services/recommendationService.mjs";
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
     // Create a query for restaurant recommendations in the specified location
     const query = `I'm looking for restaurant recommendations in ${location}. Please suggest good places to eat.`;
 
-    const result = await searchWithCustomAgent(query);
+    const result = await getRestaurantRecommendations(query);
 
     res.status(200).json({
       message: "Personalized restaurant recommendations",
