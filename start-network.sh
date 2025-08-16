@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Get the local network IP address
-NETWORK_IP=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}' | head -1)
+# Use specific network IP address
+NETWORK_IP="192.168.50.174"
 
-echo "🌐 Network IP detected: $NETWORK_IP"
+echo "🌐 Using network IP: $NETWORK_IP"
 echo "🚀 Starting development servers for network access..."
 echo "📱 Frontend will be available at: http://$NETWORK_IP:3000"
 echo "🔧 Backend will be available at: http://$NETWORK_IP:5001"

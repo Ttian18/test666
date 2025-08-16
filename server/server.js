@@ -17,7 +17,7 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 5001;
-const HOST = "0.0.0.0"; // Bind to all network interfaces
+const HOST = "192.168.50.174"; // Bind to specific network interface
 
 // Assign routes to the app
 app.use("/auth", authRoutes);

@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
-    host: "0.0.0.0", // Expose on all network interfaces
+    host: "192.168.50.174", // Bind to specific network interface
     proxy: {
       "/api": {
         target: BACKEND_URL,
