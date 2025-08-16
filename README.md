@@ -93,9 +93,7 @@ server/
    npm run dev
    ```
 
-```
-
- The server will start on `http://localhost:5001`
+The server will start on `http://localhost:5001`
 
 ## 📡 API Endpoints
 
@@ -105,7 +103,7 @@ server/
 
 http://localhost:5001
 
-````
+```
 
 ### Zhongcao (Social Image Analysis) CRUD
 
@@ -118,6 +116,7 @@ POST   /recommendations/social-upload     # Upload an image; analyzes + saves to
 ```
 
 Validation and errors:
+
 - 400 Invalid ID format when `:id` is not a positive number
 - 400 Missing required fields for update
 - 404 Record not found
@@ -146,6 +145,7 @@ When `USE_MOCK_DB=true` or `DATABASE_URL` is absent, the server uses an in‑mem
 ### UI Enhancements
 
 The Saved Zhongcao Results table now features:
+
 - Sticky header, zebra rows, hover highlight
 - Pill badges for Dish, Address, Social
 - Scrollable wrapper with custom scrollbars
@@ -157,7 +157,7 @@ The Saved Zhongcao Results table now features:
 
 ```http
 POST /auth/register
-````
+```
 
 **Response:**
 
