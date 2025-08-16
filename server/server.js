@@ -9,7 +9,7 @@ import recommendationRoutes from "./routes/recommendationRoutes.js";
 import transactionRoutes from "./routes/transactionRoutes.js";
 import insightsRoutes from "./routes/insightsRoutes.js";
 
-dotenv.config();
+dotenv.config({ debug: false });
 const app = express();
 
 // Middleware to enable CORS and parse JSON bodies
