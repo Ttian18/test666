@@ -86,7 +86,11 @@ server/
 5. **Start the server**
 
    ```bash
+   # Start backend only
    npm run dev --workspace=server
+
+   # Or start both frontend and backend together (root package.json)
+   npm run dev
    ```
 
 ```
@@ -102,6 +106,50 @@ server/
 http://localhost:5001
 
 ````
+
+### Zhongcao (Social Image Analysis) CRUD
+
+```http
+GET    /recommendations/zhongcao          # List all results (newest first)
+GET    /recommendations/zhongcao/:id      # Get a single result
+PUT    /recommendations/zhongcao/:id      # Update a result (requires restaurantName, description)
+DELETE /recommendations/zhongcao/:id      # Delete a result
+POST   /recommendations/social-upload     # Upload an image; analyzes + saves to DB and returns {result}
+```
+
+Validation and errors:
+- 400 Invalid ID format when `:id` is not a positive number
+- 400 Missing required fields for update
+- 404 Record not found
+- 500 Server error details
+
+### Frontend Dev Proxy
+
+The frontend (Vite on port 3000) proxies `/api` to the backend:
+
+```
+/api/*  → http://localhost:5001/*
+```
+
+So the UI calls, for example, `GET /api/recommendations/zhongcao`.
+
+### Running without a real database (development)
+
+You can run the backend against a mock in‑memory store by setting:
+
+```bash
+USE_MOCK_DB=true npm run dev --workspace=server
+```
+
+When `USE_MOCK_DB=true` or `DATABASE_URL` is absent, the server uses an in‑memory client for Zhongcao CRUD so the UI works without Postgres.
+
+### UI Enhancements
+
+The Saved Zhongcao Results table now features:
+- Sticky header, zebra rows, hover highlight
+- Pill badges for Dish, Address, Social
+- Scrollable wrapper with custom scrollbars
+- Inline edit and delete with better error messages
 
 ### 🔐 Authentication Endpoints
 
