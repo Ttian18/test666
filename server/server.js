@@ -17,7 +17,7 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 5001;
-const HOST = "192.168.50.174"; // Bind to specific network interface
+const HOST = "0.0.0.0"; // Bind to all network interfaces for better network access
 
 // Assign routes to the app
 app.use("/auth", authRoutes);
@@ -30,4 +30,5 @@ app.use("/insights", insightsRoutes);
 app.listen(PORT, HOST, () => {
   console.log(`Server is running on http://${HOST}:${PORT}`);
   console.log(`Local: http://localhost:${PORT}`);
+  console.log(`Network: http://192.168.50.174:${PORT}`);
 });
