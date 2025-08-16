@@ -10,14 +10,14 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "prisma": "^5.12.1"
+    "prisma": "^5.22.0"
   },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.4.2",
     "@langchain/community": "^0.3.50",
     "@langchain/core": "^0.3.68",
     "@langchain/openai": "^0.6.7",
-    "@prisma/client": "^5.12.1",
+    "@prisma/client": "^5.22.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",

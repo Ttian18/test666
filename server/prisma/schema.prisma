@@ -18,3 +18,16 @@ model User {
   email String  @unique
   name  String?
 }
+
+model ZhongcaoResult {
+  id                  Int      @id @default(autoincrement())
+  originalFilename    String
+  restaurantName      String
+  dishName            String?
+  address             String?
+  description         String
+  socialMediaHandle   String?
+  processedAt         DateTime
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
