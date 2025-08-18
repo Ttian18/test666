@@ -30,6 +30,26 @@ function App() {
   const [rebudgetLoading, setRebudgetLoading] = useState(false);
   const [lastLoading, setLastLoading] = useState(false);
   const [showExtractedMenu, setShowExtractedMenu] = useState(false);
+  // Transactions state
+  const [txUserId, setTxUserId] = useState("1");
+  const [receiptFile, setReceiptFile] = useState(null);
+  const [bulkFiles, setBulkFiles] = useState([]);
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [vouchers, setVouchers] = useState([]);
+  const [vouchersLoading, setVouchersLoading] = useState(false);
+  const [transactions, setTransactions] = useState([]);
+  const [transactionsLoading, setTransactionsLoading] = useState(false);
+  const [voucherEditId, setVoucherEditId] = useState(null);
+  const [voucherEditForm, setVoucherEditForm] = useState({
+    merchant: "",
+    date: "",
+    total_amount: "",
+    category: "",
+    notes: "",
+  });
+  const [confirmingVoucherId, setConfirmingVoucherId] = useState(null);
+  const [deletingVoucherId, setDeletingVoucherId] = useState(null);
 
   const fetchZhongcaoResults = async () => {
     try {
@@ -54,6 +74,12 @@ function App() {
       fetchZhongcaoResults();
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === "transactions") {
+      refreshVouchersAndTransactions();
+    }
+  }, [activeTab, txUserId]);
 
   const handleLocationSubmit = async (e) => {
     e.preventDefault();
@@ -126,7 +152,7 @@ function App() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setSelectedFile(file);
-    setError(null); // Clear any previous errors when new file is selected
+    setError(null);
   };
 
   const handleMenuFileChange = (e) => {
@@ -238,7 +264,7 @@ function App() {
       description: row.description || "",
       socialMediaHandle: row.socialMediaHandle || "",
     });
-    setError(null); // Clear any previous errors
+    setError(null);
   };
 
   const cancelEdit = () => {
@@ -287,10 +313,6 @@ function App() {
   };
 
   const handleDelete = async (id) => {
-    // if (!window.confirm("Are you sure you want to delete this record?")) {
-    //   return;
-    // }
-
     try {
       setDeleteLoading(id);
       setError(null);
@@ -538,7 +560,7 @@ function App() {
     if (c === "$" || c.toUpperCase() === "USD") return "$";
     if (c.toUpperCase() === "EUR" || c === "€") return "€";
     if (c.toUpperCase() === "GBP" || c === "£") return "£";
-    return c.length <= 3 ? c : ""; // Fallback
+    return c.length <= 3 ? c : "";
   };
 
   const formatMoney = (amount, currency) => {
@@ -677,6 +699,207 @@ function App() {
     );
   };
 
+  // Transactions: API helpers
+  const fetchVouchers = async () => {
+    try {
+      setVouchersLoading(true);
+      const res = await fetch(
+        `${BACKEND_URL}/transactions/vouchers?user_id=${encodeURIComponent(
+          txUserId || "1"
+        )}`
+      );
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      setVouchers(Array.isArray(data.vouchers) ? data.vouchers : []);
+    } catch (e) {
+      setError(`Failed to fetch vouchers: ${e.message}`);
+    } finally {
+      setVouchersLoading(false);
+    }
+  };
+
+  const fetchUserTransactions = async () => {
+    try {
+      setTransactionsLoading(true);
+      const res = await fetch(
+        `${BACKEND_URL}/transactions/transactions?user_id=${encodeURIComponent(
+          txUserId || "1"
+        )}`
+      );
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      setTransactions(
+        Array.isArray(data.transactions) ? data.transactions : []
+      );
+    } catch (e) {
+      setError(`Failed to fetch transactions: ${e.message}`);
+    } finally {
+      setTransactionsLoading(false);
+    }
+  };
+
+  const refreshVouchersAndTransactions = async () => {
+    await Promise.all([fetchVouchers(), fetchUserTransactions()]);
+  };
+
+  const onReceiptFileChange = (e) => {
+    setReceiptFile(e.target.files?.[0] || null);
+    setError(null);
+  };
+
+  const onBulkFilesChange = (e) => {
+    setBulkFiles(Array.from(e.target.files || []));
+    setError(null);
+  };
+
+  const handleReceiptUpload = async (e) => {
+    e.preventDefault();
+    if (!receiptFile) {
+      setError("Please select a receipt image file");
+      return;
+    }
+    try {
+      setUploadLoading(true);
+      setError(null);
+      const form = new FormData();
+      form.append("receipt", receiptFile);
+      form.append("user_id", String(parseInt(txUserId) || 1));
+      const res = await fetch(`${BACKEND_URL}/transactions/upload`, {
+        method: "POST",
+        body: form,
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      await refreshVouchersAndTransactions();
+      setReceiptFile(null);
+    } catch (e) {
+      setError(`Upload failed: ${e.message}`);
+    } finally {
+      setUploadLoading(false);
+    }
+  };
+
+  const handleBulkUpload = async (e) => {
+    e.preventDefault();
+    if (!bulkFiles.length) {
+      setError("Please select one or more receipt files");
+      return;
+    }
+    try {
+      setBulkLoading(true);
+      setError(null);
+      const form = new FormData();
+      for (const f of bulkFiles) form.append("receipts", f);
+      form.append("user_id", String(parseInt(txUserId) || 1));
+      const res = await fetch(
+        `${BACKEND_URL}/transactions/voucher/bulk-upload`,
+        {
+          method: "POST",
+          body: form,
+        }
+      );
+      if (!res.ok && res.status !== 207) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      await refreshVouchersAndTransactions();
+      setBulkFiles([]);
+    } catch (e) {
+      setError(`Bulk upload failed: ${e.message}`);
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
+  const startVoucherEdit = (v) => {
+    setVoucherEditId(v.id);
+    const p = v.parsed_data || {};
+    setVoucherEditForm({
+      merchant: p.merchant || "",
+      date: p.date || "",
+      total_amount: p.total_amount ?? "",
+      category: p.category || p.transaction_category || "",
+      notes: p.notes || "",
+    });
+  };
+
+  const cancelVoucherEdit = () => {
+    setVoucherEditId(null);
+  };
+
+  const saveVoucherEdit = async (id) => {
+    try {
+      const payload = {};
+      for (const k of Object.keys(voucherEditForm)) {
+        if (voucherEditForm[k] !== "" && voucherEditForm[k] !== null) {
+          payload[k] = voucherEditForm[k];
+        }
+      }
+      const res = await fetch(`${BACKEND_URL}/transactions/voucher/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      await fetchVouchers();
+      setVoucherEditId(null);
+    } catch (e) {
+      setError(`Failed to save voucher: ${e.message}`);
+    }
+  };
+
+  const confirmVoucher = async (id) => {
+    try {
+      setConfirmingVoucherId(id);
+      const res = await fetch(
+        `${BACKEND_URL}/transactions/voucher/${id}/confirm`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        }
+      );
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      await refreshVouchersAndTransactions();
+    } catch (e) {
+      setError(`Failed to confirm voucher: ${e.message}`);
+    } finally {
+      setConfirmingVoucherId(null);
+    }
+  };
+
+  const deleteVoucher = async (id) => {
+    try {
+      setDeletingVoucherId(id);
+      const res = await fetch(`${BACKEND_URL}/transactions/voucher/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      await fetchVouchers();
+    } catch (e) {
+      setError(`Failed to delete voucher: ${e.message}`);
+    } finally {
+      setDeletingVoucherId(null);
+    }
+  };
+
   return (
     <div className="container">
       <div className="header">
@@ -705,6 +928,14 @@ function App() {
           onClick={() => setActiveTab("menu")}
         >
           📜 Menu Budget
+        </button>
+        <button
+          className={`tab-button ${
+            activeTab === "transactions" ? "active" : ""
+          }`}
+          onClick={() => setActiveTab("transactions")}
+        >
+          💳 Transactions
         </button>
       </div>
 
@@ -931,6 +1162,282 @@ function App() {
           </div>
 
           {renderMenuRecommendation()}
+        </>
+      )}
+
+      {/* Transactions Tab */}
+      {activeTab === "transactions" && (
+        <>
+          <form className="search-form" onSubmit={handleReceiptUpload}>
+            <div className="form-group">
+              <label htmlFor="tx-user">User ID:</label>
+              <input
+                type="number"
+                id="tx-user"
+                value={txUserId}
+                onChange={(e) => setTxUserId(e.target.value)}
+                min="1"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="receipt-file">Upload receipt:</label>
+              <input
+                type="file"
+                id="receipt-file"
+                accept="image/*"
+                onChange={onReceiptFileChange}
+                disabled={uploadLoading}
+                className="file-input"
+              />
+              <p className="file-help">
+                Supported: JPG, PNG, WEBP, HEIC/HEIF, GIF, BMP, TIFF. Max 10MB.
+              </p>
+            </div>
+            <button
+              type="submit"
+              className="search-button"
+              disabled={uploadLoading || !receiptFile}
+            >
+              {uploadLoading ? "Uploading..." : "Upload & Parse"}
+            </button>
+          </form>
+
+          <form
+            className="search-form"
+            onSubmit={handleBulkUpload}
+            style={{ marginTop: 12 }}
+          >
+            <div className="form-group">
+              <label htmlFor="bulk-files">Bulk upload (up to 10):</label>
+              <input
+                type="file"
+                id="bulk-files"
+                multiple
+                accept="image/*"
+                onChange={onBulkFilesChange}
+                disabled={bulkLoading}
+                className="file-input"
+              />
+            </div>
+            <button
+              type="submit"
+              className="search-button"
+              disabled={bulkLoading || bulkFiles.length === 0}
+            >
+              {bulkLoading
+                ? "Uploading..."
+                : `Upload ${bulkFiles.length || 0} files`}
+            </button>
+            <button
+              type="button"
+              className="search-button refresh-button"
+              onClick={refreshVouchersAndTransactions}
+              disabled={vouchersLoading || transactionsLoading}
+              style={{ marginLeft: 8 }}
+            >
+              {vouchersLoading || transactionsLoading
+                ? "Refreshing..."
+                : "🔄 Refresh"}
+            </button>
+          </form>
+
+          <div className="results" style={{ marginTop: 16 }}>
+            <div className="restaurant-card">
+              <div className="menu-summary__title">Vouchers</div>
+              <div className="table-wrapper" style={{ marginTop: 12 }}>
+                <table className="results-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: 70 }}>ID</th>
+                      <th>Merchant</th>
+                      <th style={{ width: 140 }}>Total</th>
+                      <th style={{ width: 130 }}>Date</th>
+                      <th>Status</th>
+                      <th style={{ width: 280 }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {vouchersLoading ? (
+                      <tr>
+                        <td colSpan={6}>Loading…</td>
+                      </tr>
+                    ) : vouchers.length === 0 ? (
+                      <tr>
+                        <td colSpan={6}>No vouchers found.</td>
+                      </tr>
+                    ) : (
+                      vouchers.map((v) => {
+                        const p = v.parsed_data || {};
+                        const isEditing = voucherEditId === v.id;
+                        const status =
+                          p && Object.keys(p).length ? "processed" : "pending";
+                        return (
+                          <tr key={v.id}>
+                            <td>{v.id}</td>
+                            <td>
+                              {isEditing ? (
+                                <input
+                                  value={voucherEditForm.merchant}
+                                  onChange={(e) =>
+                                    setVoucherEditForm({
+                                      ...voucherEditForm,
+                                      merchant: e.target.value,
+                                    })
+                                  }
+                                  className="edit-input"
+                                  placeholder="Merchant"
+                                />
+                              ) : (
+                                p.merchant || "—"
+                              )}
+                            </td>
+                            <td>
+                              {isEditing ? (
+                                <input
+                                  type="number"
+                                  value={voucherEditForm.total_amount}
+                                  onChange={(e) =>
+                                    setVoucherEditForm({
+                                      ...voucherEditForm,
+                                      total_amount: e.target.value,
+                                    })
+                                  }
+                                  className="edit-input"
+                                  placeholder="Total"
+                                />
+                              ) : p.total_amount != null ? (
+                                `$${Number(p.total_amount).toFixed(2)}`
+                              ) : (
+                                "—"
+                              )}
+                            </td>
+                            <td>
+                              {isEditing ? (
+                                <input
+                                  value={voucherEditForm.date}
+                                  onChange={(e) =>
+                                    setVoucherEditForm({
+                                      ...voucherEditForm,
+                                      date: e.target.value,
+                                    })
+                                  }
+                                  className="edit-input"
+                                  placeholder="YYYY-MM-DD"
+                                />
+                              ) : (
+                                p.date || "—"
+                              )}
+                            </td>
+                            <td>
+                              <span
+                                className={`chip ${
+                                  status === "processed"
+                                    ? "chip--ok"
+                                    : "chip--muted"
+                                }`}
+                              >
+                                {status}
+                              </span>
+                            </td>
+                            <td>
+                              {isEditing ? (
+                                <>
+                                  <button
+                                    className="search-button"
+                                    onClick={() => saveVoucherEdit(v.id)}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    className="search-button cancel-button"
+                                    onClick={cancelVoucherEdit}
+                                    style={{ marginLeft: 6 }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    className="search-button edit-button"
+                                    onClick={() => startVoucherEdit(v)}
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    className="search-button"
+                                    onClick={() => confirmVoucher(v.id)}
+                                    disabled={confirmingVoucherId === v.id}
+                                    style={{ marginLeft: 6 }}
+                                  >
+                                    {confirmingVoucherId === v.id
+                                      ? "Confirming..."
+                                      : "Confirm"}
+                                  </button>
+                                  <button
+                                    className="search-button delete-button"
+                                    onClick={() => deleteVoucher(v.id)}
+                                    disabled={deletingVoucherId === v.id}
+                                    style={{ marginLeft: 6 }}
+                                  >
+                                    {deletingVoucherId === v.id
+                                      ? "Deleting..."
+                                      : "Delete"}
+                                  </button>
+                                </>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="restaurant-card" style={{ marginTop: 16 }}>
+              <div className="menu-summary__title">Transactions</div>
+              <div className="table-wrapper" style={{ marginTop: 12 }}>
+                <table className="results-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: 70 }}>ID</th>
+                      <th>Date</th>
+                      <th>Merchant</th>
+                      <th style={{ width: 140 }}>Amount</th>
+                      <th>Category</th>
+                      <th>Merchant Category</th>
+                      <th>Source</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {transactionsLoading ? (
+                      <tr>
+                        <td colSpan={7}>Loading…</td>
+                      </tr>
+                    ) : transactions.length === 0 ? (
+                      <tr>
+                        <td colSpan={7}>No transactions found.</td>
+                      </tr>
+                    ) : (
+                      transactions.map((t) => (
+                        <tr key={t.id}>
+                          <td>{t.id}</td>
+                          <td>{new Date(t.date).toISOString().slice(0, 10)}</td>
+                          <td>{t.merchant || "—"}</td>
+                          <td>${Number(t.amount).toFixed(2)}</td>
+                          <td>{t.category || "—"}</td>
+                          <td>{t.merchant_category || "—"}</td>
+                          <td>{t.source || "—"}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </>
       )}
 
