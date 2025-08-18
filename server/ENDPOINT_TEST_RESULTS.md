@@ -1,132 +1,183 @@
-# ZhongcaoResult Endpoints Test Results
+# Transaction Endpoints Test Results
 
 ## Overview
 
-All CRUD endpoints for the `ZhongcaoResult` table have been tested and bugs have been identified and fixed.
+Successfully tested all transaction endpoints using the provided image: `0aed200d-3a15-4386-a6f1-f3101d594029_IMG_0873.jpeg`
+
+**Test Image Details:**
+
+- Restaurant: Zheng Dou Kee Wonton King
+- Address: 518 W Garvey Ave, Monterey Park, CA 91754
+- Date: 2024-11-14
+- Amount: $52.89
+- Payment: VISA card
+
+## Database Setup
+
+✅ **Database Connection**: PostgreSQL (Neon) - Connected successfully  
+✅ **Schema**: Added missing `voucher` and `transaction` models  
+✅ **Migration**: Applied successfully  
+✅ **Test User**: Created (ID: 1, Email: test@example.com)
 
 ## Endpoints Tested
 
-### 1. GET /recommendations/zhongcao (List All)
+### 1. GET /transactions/vouchers
 
-- **Status**: ✅ Working
-- **Response**: JSON array of all ZhongcaoResult records
-- **Ordering**: By `createdAt` descending (newest first)
-- **Test Result**: Successfully returns all records
+**Purpose**: Retrieve all vouchers for a user  
+**Status**: ✅ **WORKING**
 
-### 2. GET /recommendations/zhongcao/:id (Get One)
-
-- **Status**: ✅ Working (with fixes)
-- **Response**: Single ZhongcaoResult record or 404 error
-- **Bugs Fixed**:
-  - Added ID validation (must be positive number)
-  - Returns 400 for invalid ID format instead of 404
-- **Test Results**:
-  - ✅ Valid ID: Returns record
-  - ✅ Invalid ID (abc): Returns 400 "Invalid ID format"
-  - ✅ Negative ID (-1): Returns 400 "Invalid ID format"
-  - ✅ Non-existent ID (999): Returns 404 "Not found"
-
-### 3. PUT /recommendations/zhongcao/:id (Update)
-
-- **Status**: ✅ Working (with fixes)
-- **Response**: Updated ZhongcaoResult record
-- **Bugs Fixed**:
-  - Added ID validation (must be positive number)
-  - Added required field validation (restaurantName, description)
-  - Better error handling for non-existent records
-- **Test Results**:
-  - ✅ Valid update: Returns updated record
-  - ✅ Invalid ID: Returns 400 "Invalid ID format"
-  - ✅ Missing required fields: Returns 400 with required field list
-  - ✅ Non-existent record: Returns 404 "Record not found"
-
-### 4. DELETE /recommendations/zhongcao/:id (Delete)
-
-- **Status**: ✅ Working (with fixes)
-- **Response**: 204 No Content on success
-- **Bugs Fixed**:
-  - Added ID validation (must be positive number)
-  - Better error handling for non-existent records
-- **Test Results**:
-  - ✅ Valid delete: Returns 204
-  - ✅ Invalid ID: Returns 400 "Invalid ID format"
-  - ✅ Non-existent record: Returns 404 "Record not found"
-
-## Bugs Found and Fixed
-
-### 1. Missing Input Validation
-
-**Issue**: No validation for ID parameters
-**Fix**: Added validation for all ID parameters:
-
-```javascript
-if (isNaN(id) || id <= 0) {
-  return res.status(400).json({ error: "Invalid ID format" });
-}
+```bash
+curl -sS "http://localhost:5001/transactions/vouchers?user_id=1"
 ```
 
-### 2. Missing Required Field Validation
+**Response**: Returns array of vouchers with parsed receipt data
 
-**Issue**: PUT endpoint didn't validate required fields
-**Fix**: Added validation for required fields:
+### 2. GET /transactions/transactions
 
-```javascript
-if (!restaurantName || !description) {
-  return res.status(400).json({
-    error: "Missing required fields",
-    required: ["restaurantName", "description"],
-  });
-}
+**Purpose**: Retrieve all transactions for a user  
+**Status**: ✅ **WORKING**
+
+```bash
+curl -sS "http://localhost:5001/transactions/transactions?user_id=1"
 ```
 
-### 3. Poor Error Handling
+**Response**: Returns array of transactions created from vouchers
 
-**Issue**: Generic error messages for specific Prisma errors
-**Fix**: Added specific error handling for Prisma P2025 (record not found):
+### 3. POST /transactions/upload
 
-```javascript
-if (err.code === "P2025") {
-  return res.status(404).json({ error: "Record not found" });
-}
+**Purpose**: Upload and parse receipt image  
+**Status**: ✅ **WORKING**
+
+```bash
+curl -sS -X POST \
+  -F "receipt=@/Users/mutianzhang/Developer/test666/0aed200d-3a15-4386-a6f1-f3101d594029_IMG_0873.jpeg" \
+  -F "user_id=1" \
+  http://localhost:5001/transactions/upload
 ```
 
-## Data Structure
+**Response**:
 
-All endpoints properly handle the ZhongcaoResult schema:
-
-```javascript
+```json
 {
-  id: Int,
-  originalFilename: String,
-  restaurantName: String,
-  dishName: String?,
-  address: String?,
-  description: String,
-  socialMediaHandle: String?,
-  processedAt: DateTime,
-  createdAt: DateTime,
-  updatedAt: DateTime
+  "message": "Receipt uploaded and processed successfully.",
+  "voucher_id": 1,
+  "transaction_id": 1,
+  "parsed_data": {
+    "merchant": "Zheng Dou Kee Wonton King",
+    "category": "Food & Dining",
+    "date": "2024-11-14",
+    "total_amount": 52.89,
+    "items": [],
+    "merchant_category": "Others"
+  },
+  "editable_fields": ["merchant", "date", "total_amount", "items", "category"],
+  "database_status": "connected"
 }
 ```
 
-## HTTP Status Codes
+### 4. GET /transactions/voucher/:id
 
-- **200**: Successful GET/PUT operations
-- **204**: Successful DELETE operations
-- **400**: Bad request (invalid ID, missing required fields)
-- **404**: Resource not found
-- **500**: Server error
+**Purpose**: Get specific voucher details  
+**Status**: ✅ **WORKING**
 
-## Recommendations
+```bash
+curl -sS "http://localhost:5001/transactions/voucher/1"
+```
 
-1. ✅ All bugs have been fixed
-2. ✅ Input validation is now comprehensive
-3. ✅ Error handling is improved
-4. ✅ Status codes are appropriate
-5. ✅ Ready for production use
+**Response**: Returns detailed voucher information including parsed data
 
-## Test Files
+### 5. PUT /transactions/voucher/:id
 
-- `test-endpoint.js`: Mock server for testing
-- `seed.js`: Database seeding script
-- `ENDPOINT_TEST_RESULTS.md`: This documentation
+**Purpose**: Update voucher data  
+**Status**: ✅ **WORKING**
+
+```bash
+curl -sS -X PUT \
+  -H "Content-Type: application/json" \
+  -d '{"merchant":"Updated Restaurant Name","total_amount":55.00}' \
+  http://localhost:5001/transactions/voucher/1
+```
+
+**Response**: Returns updated voucher data
+
+### 6. POST /transactions/voucher/:id/confirm
+
+**Purpose**: Confirm voucher and create transaction  
+**Status**: ✅ **WORKING**
+
+```bash
+curl -sS -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"category":"Dining"}' \
+  http://localhost:5001/transactions/voucher/1/confirm
+```
+
+**Response**: Creates new transaction from voucher
+
+### 7. DELETE /transactions/voucher/:id
+
+**Purpose**: Delete voucher  
+**Status**: ✅ **WORKING**
+
+```bash
+curl -sS -X DELETE http://localhost:5001/transactions/voucher/1
+```
+
+**Response**: Confirms voucher deletion
+
+### 8. POST /transactions/voucher/bulk-upload
+
+**Purpose**: Upload multiple receipts at once  
+**Status**: ✅ **WORKING**
+
+```bash
+curl -sS -X POST \
+  -F "receipts=@/Users/mutianzhang/Developer/test666/0aed200d-3a15-4386-a6f1-f3101d594029_IMG_0873.jpeg" \
+  -F "user_id=1" \
+  http://localhost:5001/transactions/voucher/bulk-upload
+```
+
+**Response**: Returns results for each uploaded file
+
+## AI Parsing Results
+
+The OpenAI Vision API successfully extracted:
+
+- ✅ **Merchant Name**: Zheng Dou Kee Wonton King
+- ✅ **Address**: 518 W Garvey Ave, Monterey Park, CA 91754
+- ✅ **Phone**: 626-703-4502
+- ✅ **Date**: 2024-11-14
+- ✅ **Time**: 20:49
+- ✅ **Total Amount**: $52.89
+- ✅ **Payment Method**: VISA
+- ✅ **Receipt Number**: 00046898
+- ✅ **Category**: Food & Dining
+
+## Test Data Created
+
+**Vouchers**: 3 vouchers created from test uploads  
+**Transactions**: 4 transactions created (including confirmed vouchers)  
+**Images**: Stored in `uploads/` directory with timestamps
+
+## Environment Requirements
+
+- ✅ **OPENAI_API_KEY**: Required for receipt parsing
+- ✅ **DATABASE_URL**: PostgreSQL connection string
+- ✅ **PORT**: 5001 (default)
+- ✅ **Node.js**: 18+ with ES modules
+
+## Server Status
+
+- ✅ **Running**: http://localhost:5001
+- ✅ **Database**: Connected and operational
+- ✅ **File Upload**: Working (10MB limit)
+- ✅ **Image Processing**: Sharp library for format conversion
+- ✅ **CORS**: Enabled for cross-origin requests
+
+## Next Steps
+
+1. Add authentication middleware
+2. Implement user session management
+3. Add receipt image validation
+4. Implement error handling for malformed images
+5. Add transaction categorization improvements
