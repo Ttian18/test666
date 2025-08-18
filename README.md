@@ -90,18 +90,70 @@ server/
 5. **Start the server**
 
    ```bash
-   npm start
+   # Start backend only
+   npm run dev --workspace=server
+
+   # Or start both frontend and backend together (root package.json)
+   npm run dev
    ```
 
-   The server will start on `http://localhost:5001`
+The server will start on `http://localhost:5001`
 
 ## 📡 API Endpoints
 
 ### Base URL
 
 ```
+
 http://localhost:5001
+
 ```
+
+### Zhongcao (Social Image Analysis) CRUD
+
+```http
+GET    /recommendations/zhongcao          # List all results (newest first)
+GET    /recommendations/zhongcao/:id      # Get a single result
+PUT    /recommendations/zhongcao/:id      # Update a result (requires restaurantName, description)
+DELETE /recommendations/zhongcao/:id      # Delete a result
+POST   /recommendations/social-upload     # Upload an image; analyzes + saves to DB and returns {result}
+```
+
+Validation and errors:
+
+- 400 Invalid ID format when `:id` is not a positive number
+- 400 Missing required fields for update
+- 404 Record not found
+- 500 Server error details
+
+### Frontend Dev Proxy
+
+The frontend (Vite on port 3000) proxies `/api` to the backend:
+
+```
+/api/*  → http://localhost:5001/*
+```
+
+So the UI calls, for example, `GET /api/recommendations/zhongcao`.
+
+### Running without a real database (development)
+
+You can run the backend against a mock in‑memory store by setting:
+
+```bash
+USE_MOCK_DB=true npm run dev --workspace=server
+```
+
+When `USE_MOCK_DB=true` or `DATABASE_URL` is absent, the server uses an in‑memory client for Zhongcao CRUD so the UI works without Postgres.
+
+### UI Enhancements
+
+The Saved Zhongcao Results table now features:
+
+- Sticky header, zebra rows, hover highlight
+- Pill badges for Dish, Address, Social
+- Scrollable wrapper with custom scrollbars
+- Inline edit and delete with better error messages
 
 ### 🔐 Authentication Endpoints
 
@@ -332,6 +384,63 @@ The backend follows a modular architecture:
 - **Routes Layer** - Handles HTTP requests and responses
 - **Middleware Layer** - CORS, JSON parsing, authentication
 - **Server Layer** - Express app configuration and startup
+
+## 🔄 Social Media Image Analysis Flow
+
+The zhongcao feature provides AI-powered analysis of restaurant images from social media:
+
+```mermaid
+sequenceDiagram
+    participant Frontend as 🖥️ Frontend
+    participant Backend as Backend
+    participant OpenAI as 🤖 OpenAI API
+
+    Note over Frontend, OpenAI: Social Media Image Analysis Flow
+
+    %% User uploads image
+    Frontend->>Frontend: 📸 User selects image file
+    Frontend->>Frontend: ✅ Validate file type (image/*)
+
+    %% Frontend sends to backend
+    Frontend->>Backend: POST /api/recommendations/social-upload
+    Note right of Frontend: FormData with image file
+
+    %% Backend processes image
+    Backend->>Backend: 📤 Save image to /uploads/
+    Backend->>Backend: 🔧 Convert image to base64
+    Backend->>Backend: 📝 Create prompt with image
+
+    %% Backend calls OpenAI
+    Backend->>OpenAI: 🧠 Analyze image with structured output
+    Note right of Backend: GPT-4o-mini with Zod schema:<br/>- restaurant_name<br/>- dish_name (nullable)<br/>- address (nullable)<br/>- description<br/>- social_media_handle (nullable)
+
+    %% OpenAI returns results
+    OpenAI-->>Backend: 📊 Structured restaurant data
+    Backend->>Backend: 🗑️ Clean up uploaded file
+    Backend-->>Frontend: JSON response with analysis
+
+    %% Frontend displays results
+    Frontend->>Frontend: 🎨 Update UI with results
+    Note right of Frontend: Display:<br/>- Restaurant name<br/>- Address (if available)<br/>- Dish info (if available)<br/>- Description<br/>- Social media handle (if available)
+
+    Frontend-->>Frontend: 📱 Show analysis results to user
+
+    Note over Frontend, OpenAI: Error Handling Flow
+
+    alt Error during processing
+        Backend->>Backend: 🗑️ Cleanup file on error
+        Backend-->>Frontend: ❌ Error response (500)
+        Frontend-->>Frontend: ⚠️ Show error message to user
+    end
+```
+
+### Key Features:
+
+- **📸 Image Upload**: Support for PNG, JPG, and other image formats
+- **🤖 AI Analysis**: GPT-4o-mini with structured output using Zod schema
+- **📊 Structured Data**: Extracts restaurant name, address, dish info, description, and social media handles
+- **🗑️ Auto Cleanup**: Automatic file cleanup after processing
+- **🛡️ Error Handling**: Comprehensive error handling with user feedback
 
 ## 🔒 Security
 

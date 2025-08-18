@@ -9,10 +9,6 @@
     "dev": "concurrently \"npm run dev --workspace=server\" \"npm run dev --workspace=client\""
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "prisma": "^5.12.1"
-  },
-  "dependencies": {
-    "@prisma/client": "^5.12.1"
+    "concurrently": "^8.2.2"
   }
 }
