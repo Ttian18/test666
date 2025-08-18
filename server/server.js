@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 import recommendationRoutes from "./routes/recommendationRoutes.js";
+import restaurantRoutes from "./routes/restaurantRoutes.js";
 import transactionRoutes from "./routes/transactionRoutes.js";
 import insightsRoutes from "./routes/insightsRoutes.js";
 
@@ -23,6 +24,7 @@ const HOST = "0.0.0.0"; // Bind to all network interfaces for better network acc
 app.use("/auth", authRoutes);
 app.use("/profile", profileRoutes);
 app.use("/recommendations", recommendationRoutes);
+app.use("/restaurants", restaurantRoutes);
 app.use("/transactions", transactionRoutes);
 app.use("/insights", insightsRoutes);
 
