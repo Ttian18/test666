@@ -1,7 +1,7 @@
 import express from "express";
-import { PrismaClient } from '@prisma/client';
-import dotenv from 'dotenv';
-import { category, findMerchantCategory } from '../category.js';
+import { PrismaClient } from "@prisma/client";
+import dotenv from "dotenv";
+import { findMerchantCategory } from "../category.js";
 
 // Configure dotenv
 // http://localhost:5001/insights/summary?user_id=1&period=yearly&start_year=2023
@@ -15,7 +15,7 @@ const prisma = new PrismaClient({
       url: process.env.DATABASE_URL,
     },
   },
-  log: ['query', 'info', 'warn', 'error'],
+  log: ["query", "info", "warn", "error"],
 });
 
 const router = express.Router();
@@ -24,10 +24,10 @@ const router = express.Router();
 async function testDatabaseConnection() {
   try {
     await prisma.$connect();
-    console.log('Database connection successful');
+    console.log("Database connection successful");
     return true;
   } catch (error) {
-    console.error('Database connection failed:', error.message);
+    console.error("Database connection failed:", error.message);
     return false;
   }
 }
@@ -39,28 +39,35 @@ testDatabaseConnection();
 async function getAvailableCategories() {
   try {
     const uniqueCategories = await prisma.transaction.groupBy({
-      by: ['category', 'merchant_category'],
+      by: ["category", "merchant_category"],
       _count: {
         id: true,
       },
     });
-    
-    return uniqueCategories.map(item => ({
+
+    return uniqueCategories.map((item) => ({
       category: item.category,
       merchant_category: item.merchant_category,
       count: item._count.id,
     }));
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    console.error("Error fetching categories:", error);
     return [];
   }
 }
 
 // Fetch transactions for a user from database
-async function getUserTransactions(userId, startDate, endDate, category = null) {
+async function getUserTransactions(
+  userId,
+  startDate,
+  endDate,
+  category = null
+) {
   try {
-    console.log(`Fetching transactions for user ${userId} from ${startDate.toISOString()} to ${endDate.toISOString()}`);
-    
+    console.log(
+      `Fetching transactions for user ${userId} from ${startDate.toISOString()} to ${endDate.toISOString()}`
+    );
+
     const whereCondition = {
       user_id: userId, // userId is already an integer
       date: {
@@ -75,15 +82,15 @@ async function getUserTransactions(userId, startDate, endDate, category = null) 
         {
           category: {
             contains: category,
-            mode: 'insensitive'
-          }
+            mode: "insensitive",
+          },
         },
         {
           merchant_category: {
             contains: category,
-            mode: 'insensitive'
-          }
-        }
+            mode: "insensitive",
+          },
+        },
       ];
     }
 
@@ -99,21 +106,23 @@ async function getUserTransactions(userId, startDate, endDate, category = null) 
         source: true,
       },
       orderBy: {
-        date: 'asc'
-      }
+        date: "asc",
+      },
     });
 
     console.log(`Found ${transactions.length} transactions`);
 
     // Convert Decimal amounts to numbers and ensure dates are Date objects
-    return transactions.map(tx => ({
+    return transactions.map((tx) => ({
       ...tx,
       amount: parseFloat(tx.amount.toString()),
-      date: new Date(tx.date)
+      date: new Date(tx.date),
     }));
   } catch (error) {
-    console.error('Error fetching transactions:', error);
-    throw new Error(`Failed to fetch transactions from database: ${error.message}`);
+    console.error("Error fetching transactions:", error);
+    throw new Error(
+      `Failed to fetch transactions from database: ${error.message}`
+    );
   }
 }
 
@@ -164,7 +173,7 @@ function formatISODate(date) {
 function getWindowForPeriod(period, startYear = null) {
   const currentYear = new Date().getFullYear();
   const targetStartYear = startYear || currentYear;
-  
+
   switch ((period || "weekly").toLowerCase()) {
     case "daily": {
       const start = new Date(targetStartYear, 0, 1); // Jan 1 of start year
@@ -200,11 +209,11 @@ function buildTrendBuckets(start, end, bucket) {
   const buckets = [];
   const labels = [];
   let cursor = new Date(start); // Changed to 'let' so we can reassign it
-  
+
   while (cursor <= end) {
     let bucketStart = new Date(cursor);
     let bucketEnd, label;
-    
+
     switch (bucket) {
       case "day": {
         bucketEnd = endOfDay(cursor);
@@ -232,7 +241,9 @@ function buildTrendBuckets(start, end, bucket) {
       case "month": {
         bucketStart = startOfMonth(cursor);
         bucketEnd = endOfMonth(cursor);
-        label = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`;
+        label = `${cursor.getFullYear()}-${String(
+          cursor.getMonth() + 1
+        ).padStart(2, "0")}`;
         cursor.setMonth(cursor.getMonth() + 1, 1);
         break;
       }
@@ -249,20 +260,20 @@ function buildTrendBuckets(start, end, bucket) {
         cursor.setDate(cursor.getDate() + 1);
       }
     }
-    
+
     // Don't add buckets that start after our end date
     if (bucketStart > end) break;
-    
+
     // Ensure bucket end doesn't exceed the overall end date
     if (bucketEnd > end) bucketEnd = new Date(end);
-    
-    buckets.push({ 
+
+    buckets.push({
       from: bucketStart,
-      to: bucketEnd
+      to: bucketEnd,
     });
     labels.push(label);
   }
-  
+
   return { buckets, labels };
 }
 
@@ -274,13 +285,13 @@ function summarize(transactions, start, end, bucket) {
   const transactionCategoryTotals = {};
 
   // Initialize all predefined merchant categories
-  Object.keys(category).forEach(merchantCat => {
+  Object.keys(category).forEach((merchantCat) => {
     merchantCategoryTotals[merchantCat] = 0;
   });
 
   for (const tx of inWindow) {
     total += tx.amount;
-    
+
     // Group by merchant category (from transaction table)
     const merchantCat = tx.merchant_category || "Others";
     if (merchantCategoryTotals[merchantCat] !== undefined) {
@@ -311,11 +322,17 @@ function summarize(transactions, start, end, bucket) {
 
   // Round to 2 decimals for presentation
   const roundedMerchantCategories = Object.fromEntries(
-    Object.entries(merchantCategoryTotals).map(([k, v]) => [k, Math.round(v * 100) / 100])
+    Object.entries(merchantCategoryTotals).map(([k, v]) => [
+      k,
+      Math.round(v * 100) / 100,
+    ])
   );
 
   const roundedTransactionCategories = Object.fromEntries(
-    Object.entries(transactionCategoryTotals).map(([k, v]) => [k, Math.round(v * 100) / 100])
+    Object.entries(transactionCategoryTotals).map(([k, v]) => [
+      k,
+      Math.round(v * 100) / 100,
+    ])
   );
 
   return {
@@ -332,7 +349,7 @@ function summarize(transactions, start, end, bucket) {
 router.get("/summary", async (req, res) => {
   try {
     const { period = "weekly", category, start_year } = req.query || {};
-    
+
     // Check if user is authenticated (using same logic as transactionRoutes.js)
     const userId = parseInt(req.query.user_id) || 1; // Convert to integer and default to 1
 
@@ -344,10 +361,10 @@ router.get("/summary", async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    
+
     // Parse start year if provided
     const startYear = start_year ? parseInt(start_year) : null;
-    
+
     const window = getWindowForPeriod(period, startYear);
     if (!window) {
       return res.status(400).json({
@@ -357,10 +374,15 @@ router.get("/summary", async (req, res) => {
     }
 
     const { start, end, bucket } = window;
-    
+
     // Fetch transaction data from database
-    const transactions = await getUserTransactions(userId, start, end, category);
-    
+    const transactions = await getUserTransactions(
+      userId,
+      start,
+      end,
+      category
+    );
+
     // Generate summary from transaction data
     const summary = summarize(transactions, start, end, bucket);
 
@@ -391,7 +413,7 @@ router.get("/categories", async (req, res) => {
   try {
     const [availableCategories, predefinedCategories] = await Promise.all([
       getAvailableCategories(),
-      Promise.resolve(category)
+      Promise.resolve(category),
     ]);
 
     return res.status(200).json({
@@ -412,7 +434,7 @@ router.get("/categories", async (req, res) => {
 router.get("/merchants", async (req, res) => {
   try {
     const { period = "monthly", limit = 10, start_year } = req.query || {};
-    
+
     // Check if user is authenticated (using same logic as transactionRoutes.js)
     const userId = parseInt(req.query.user_id) || 1; // Convert to integer and default to 1
 
@@ -424,10 +446,10 @@ router.get("/merchants", async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    
+
     // Parse start year if provided
     const startYear = start_year ? parseInt(start_year) : null;
-    
+
     const window = getWindowForPeriod(period, startYear);
     if (!window) {
       return res.status(400).json({
@@ -437,9 +459,9 @@ router.get("/merchants", async (req, res) => {
     }
 
     const { start, end } = window;
-    
+
     const merchantSummary = await prisma.transaction.groupBy({
-      by: ['merchant', 'merchant_category'],
+      by: ["merchant", "merchant_category"],
       where: {
         user_id: userId,
         date: {
@@ -455,13 +477,13 @@ router.get("/merchants", async (req, res) => {
       },
       orderBy: {
         _sum: {
-          amount: 'desc',
+          amount: "desc",
         },
       },
       take: parseInt(limit),
     });
 
-    const formattedSummary = merchantSummary.map(item => ({
+    const formattedSummary = merchantSummary.map((item) => ({
       merchant: item.merchant,
       merchant_category: item.merchant_category,
       total_spent: parseFloat(item._sum.amount.toString()),
@@ -494,9 +516,9 @@ router.get("/merchants", async (req, res) => {
 //         name: "Test User"
 //       }
 //     });
-    
-//     res.json({ 
-//       message: "Test user created successfully", 
+
+//     res.json({
+//       message: "Test user created successfully",
 //       user: { id: user.id, email: user.email, name: user.name }
 //     });
 //   } catch (error) {
