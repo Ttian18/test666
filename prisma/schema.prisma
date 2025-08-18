@@ -12,63 +12,8 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
 model User {
   id    Int     @id @default(autoincrement())
   email String  @unique
   name  String?
-  
-  // Relations
-  vouchers    Voucher[]
-  transactions Transaction[]
-}
-
-model Voucher {
-  id          Int      @id @default(autoincrement())
-  user_id     Int
-  image_path  String
-  parsed_data Json     // Stores the parsed receipt data from OpenAI
-  timestamp   DateTime @default(now())
-  
-  // Relations
-  user User @relation(fields: [user_id], references: [id])
-  
-  @@index([user_id])
-}
-
-model Transaction {
-  id               Int      @id @default(autoincrement())
-  user_id          Int
-  date             DateTime
-  amount           Decimal  @db.Decimal(10, 2)
-  category         String   // Transaction category (e.g., "Groceries - Fresh Produce")
-  merchant         String   // Store/restaurant name
-  source           String   // "voucher", "manual", "bank_feed", etc.
-  receipt_img      String?  // Optional backreference to Vouchers.image_path
-  merchant_category String  // Merchant category (e.g., "Grocery / Supermarket")
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
-  
-  // Relations
-  user User @relation(fields: [user_id], references: [id])
-  
-  @@index([user_id])
-  @@index([date])
-  @@index([category])
-}
-
-model Summary {
-  id           Int      @id @default(autoincrement())
-  user_id      Int
-  start_date   DateTime
-  end_date     DateTime
-  time_period  String   // "daily", "weekly", "biweekly", "monthly"
-  summary_json Json     // Stores aggregated data and charts
-  created_at   DateTime @default(now())
-  
-  // Relations
-  user User @relation(fields: [user_id], references: [id])
-  
-  @@index([user_id])
-  @@index([time_period])
 }
