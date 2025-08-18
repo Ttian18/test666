@@ -20,7 +20,9 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "langchain": "^0.3.30",
-    "multer": "^2.0.2"
+    "multer": "^2.0.2",
+    "openai": "^5.12.2",
+    "sharp": "^0.34.3"
   },
   "devDependencies": {
     "prisma": "^5.22.0"
