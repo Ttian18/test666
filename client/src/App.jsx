@@ -20,6 +20,16 @@ function App() {
   });
   const [updateLoading, setUpdateLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(null);
+  const BACKEND_URL =
+    import.meta.env?.VITE_BACKEND_URL || "http://localhost:5001";
+  const [menuBudget, setMenuBudget] = useState("");
+  const [menuNote, setMenuNote] = useState("");
+  const [menuSelectedFile, setMenuSelectedFile] = useState(null);
+  const [menuResult, setMenuResult] = useState(null);
+  const [menuLoading, setMenuLoading] = useState(false);
+  const [rebudgetLoading, setRebudgetLoading] = useState(false);
+  const [lastLoading, setLastLoading] = useState(false);
+  const [showExtractedMenu, setShowExtractedMenu] = useState(false);
 
   const fetchZhongcaoResults = async () => {
     try {
@@ -117,6 +127,106 @@ function App() {
     const file = e.target.files[0];
     setSelectedFile(file);
     setError(null); // Clear any previous errors when new file is selected
+  };
+
+  const handleMenuFileChange = (e) => {
+    const file = e.target.files[0] || null;
+    setMenuSelectedFile(file);
+    setError(null);
+  };
+
+  const handleMenuRecommendSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!menuSelectedFile) {
+      setError("Please select a menu image file");
+      return;
+    }
+    const budgetNumber = Number(menuBudget);
+    if (!Number.isFinite(budgetNumber) || budgetNumber <= 0) {
+      setError("Please enter a valid budget (> 0)");
+      return;
+    }
+
+    setMenuLoading(true);
+    setError(null);
+    setMenuResult(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("image", menuSelectedFile);
+      formData.append("budget", String(budgetNumber));
+      if (menuNote) formData.append("note", menuNote);
+
+      const response = await fetch(`${BACKEND_URL}/recommendations/recommend`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      setMenuResult(data);
+      setShowExtractedMenu(false);
+    } catch (err) {
+      setError(`Failed to recommend: ${err.message}`);
+    } finally {
+      setMenuLoading(false);
+    }
+  };
+
+  const handleRebudget = async () => {
+    const budgetNumber = Number(menuBudget);
+    if (!Number.isFinite(budgetNumber) || budgetNumber <= 0) {
+      setError("Please enter a valid budget (> 0)");
+      return;
+    }
+
+    setRebudgetLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/recommendations/rebudget`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ budget: budgetNumber, note: menuNote || "" }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      setMenuResult(data);
+    } catch (err) {
+      setError(`Failed to re-budget: ${err.message}`);
+    } finally {
+      setRebudgetLoading(false);
+    }
+  };
+
+  const handleFetchLast = async () => {
+    setLastLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/recommendations/last`);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
+      const data = await response.json();
+      setMenuResult(data);
+      if (data?.budget) setMenuBudget(String(data.budget));
+    } catch (err) {
+      setError(`Failed to fetch last recommendation: ${err.message}`);
+    } finally {
+      setLastLoading(false);
+    }
   };
 
   const startEdit = (row) => {
@@ -422,6 +532,151 @@ function App() {
     }
   };
 
+  const getCurrencySymbol = (currency) => {
+    if (!currency) return "";
+    const c = String(currency).trim();
+    if (c === "$" || c.toUpperCase() === "USD") return "$";
+    if (c.toUpperCase() === "EUR" || c === "€") return "€";
+    if (c.toUpperCase() === "GBP" || c === "£") return "£";
+    return c.length <= 3 ? c : ""; // Fallback
+  };
+
+  const formatMoney = (amount, currency) => {
+    const symbol = getCurrencySymbol(currency);
+    const value = Number(amount);
+    if (!Number.isFinite(value)) return "—";
+    return `${symbol}${value.toFixed(2)}`;
+  };
+
+  const renderMenuRecommendation = () => {
+    if (!menuResult) return null;
+    const mi = menuResult.menuInfo || null;
+    const rec = menuResult.recommendation || null;
+
+    if (!rec) {
+      return (
+        <div className="restaurant-card" style={{ marginTop: 16 }}>
+          <div className="restaurant-name">Menu Recommendation</div>
+          <pre style={{ whiteSpace: "pre-wrap" }}>
+            {JSON.stringify(menuResult, null, 2)}
+          </pre>
+        </div>
+      );
+    }
+
+    const currency = rec.currency || mi?.currency || "$";
+
+    return (
+      <div className="results" style={{ marginTop: 16 }}>
+        <div className="restaurant-card">
+          <div className="menu-summary">
+            <div className="menu-summary__title">Menu Recommendation</div>
+            <div className="menu-summary__chips">
+              <span
+                className={`chip ${
+                  rec.withinBudget ? "chip--ok" : "chip--over"
+                }`}
+              >
+                {rec.withinBudget ? "Within budget" : "Over budget"}
+              </span>
+              {typeof rec.budget === "number" && (
+                <span className="chip">
+                  Budget: {formatMoney(rec.budget, currency)}
+                </span>
+              )}
+              <span className="chip">
+                Total: {formatMoney(rec.total, currency)}
+              </span>
+              {menuResult.cached && (
+                <span className="chip chip--info">Cached</span>
+              )}
+            </div>
+          </div>
+
+          {rec.rationale && (
+            <div className="restaurant-reason" style={{ marginTop: 10 }}>
+              {rec.rationale}
+            </div>
+          )}
+
+          <div className="table-wrapper" style={{ marginTop: 12 }}>
+            <table className="results-table menu-items-table">
+              <thead>
+                <tr>
+                  <th style={{ width: 60 }}>Qty</th>
+                  <th>Item</th>
+                  <th style={{ width: 140 }}>Unit</th>
+                  <th style={{ width: 160 }}>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(rec.items || []).map((it, idx) => (
+                  <tr key={idx}>
+                    <td>{Number(it.qty) || 1}</td>
+                    <td>{it.name}</td>
+                    <td>{formatMoney(it.unit_price, currency)}</td>
+                    <td>{formatMoney(it.subtotal, currency)}</td>
+                  </tr>
+                ))}
+                <tr>
+                  <td
+                    colSpan={3}
+                    style={{ textAlign: "right", fontWeight: 700 }}
+                  >
+                    Total
+                  </td>
+                  <td style={{ fontWeight: 700 }}>
+                    {formatMoney(rec.total, currency)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {mi?.items?.length ? (
+            <div style={{ marginTop: 16 }}>
+              <button
+                className="search-button refresh-button"
+                onClick={() => setShowExtractedMenu((v) => !v)}
+              >
+                {showExtractedMenu
+                  ? "Hide Extracted Menu"
+                  : `Show Extracted Menu (${mi.items.length})`}
+              </button>
+
+              {showExtractedMenu && (
+                <div className="table-wrapper" style={{ marginTop: 12 }}>
+                  <table className="results-table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th style={{ width: 160 }}>Price</th>
+                        <th style={{ width: 140 }}>Category</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {mi.items.map((m, i) => (
+                        <tr key={i}>
+                          <td>{m.name}</td>
+                          <td className="description-cell">
+                            {m.description || "—"}
+                          </td>
+                          <td>{formatMoney(m.price, mi.currency)}</td>
+                          <td>{m.category || "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="container">
       <div className="header">
@@ -444,6 +699,12 @@ function App() {
           onClick={() => setActiveTab("social")}
         >
           📸 Social Media Analysis
+        </button>
+        <button
+          className={`tab-button ${activeTab === "menu" ? "active" : ""}`}
+          onClick={() => setActiveTab("menu")}
+        >
+          📜 Menu Budget
         </button>
       </div>
 
@@ -594,6 +855,82 @@ function App() {
           )}
 
           {renderTable()}
+        </>
+      )}
+
+      {/* Menu Budget Tab */}
+      {activeTab === "menu" && (
+        <>
+          <form className="search-form" onSubmit={handleMenuRecommendSubmit}>
+            <div className="form-group">
+              <label htmlFor="menu-image">Upload Menu Image:</label>
+              <input
+                type="file"
+                id="menu-image"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleMenuFileChange}
+                disabled={menuLoading}
+                className="file-input"
+              />
+              <p className="file-help">Supported: JPG, PNG, WEBP. Max 6MB.</p>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="menu-budget">Budget:</label>
+              <input
+                type="number"
+                id="menu-budget"
+                placeholder="Enter your budget"
+                value={menuBudget}
+                onChange={(e) => setMenuBudget(e.target.value)}
+                min="1"
+                step="1"
+                disabled={menuLoading}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="menu-note">Note (optional):</label>
+              <input
+                type="text"
+                id="menu-note"
+                placeholder="Any preferences or notes"
+                value={menuNote}
+                onChange={(e) => setMenuNote(e.target.value)}
+                disabled={menuLoading}
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="search-button"
+              disabled={menuLoading || !menuSelectedFile}
+            >
+              {menuLoading ? "Recommending..." : "Recommend within Budget"}
+            </button>
+          </form>
+
+          <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
+            <button
+              className="search-button"
+              onClick={handleRebudget}
+              disabled={rebudgetLoading}
+              title="Recalculate using cached menu"
+            >
+              {rebudgetLoading
+                ? "Recalculating..."
+                : "♻️ Recalculate Budget Only"}
+            </button>
+            <button
+              className="search-button refresh-button"
+              onClick={handleFetchLast}
+              disabled={lastLoading}
+            >
+              {lastLoading ? "Loading..." : "📦 Load Last Result"}
+            </button>
+          </div>
+
+          {renderMenuRecommendation()}
         </>
       )}
 
