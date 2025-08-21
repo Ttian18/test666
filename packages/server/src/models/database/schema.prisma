@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+  
+  // Relations
+  vouchers     Voucher[]
+  transactions Transaction[]
+}
+
+model ZhongcaoResult {
+  id                  Int      @id @default(autoincrement())
+  originalFilename    String
+  restaurantName      String
+  dishName            String?
+  address             String?
+  description         String
+  socialMediaHandle   String?
+  processedAt         DateTime
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model Voucher {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  image_path  String
+  parsed_data Json?
+  timestamp   DateTime @default(now())
+  
+  // Relations
+  user User @relation(fields: [user_id], references: [id])
+  
+  @@map("vouchers")
+}
+
+model Transaction {
+  id                Int      @id @default(autoincrement())
+  user_id           Int
+  date              DateTime
+  amount            Float
+  category          String
+  merchant          String
+  source            String
+  receipt_img       String?
+  merchant_category String?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+  
+  // Relations
+  user User @relation(fields: [user_id], references: [id])
+  
+  @@map("transactions")
+}
