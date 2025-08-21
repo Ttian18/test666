@@ -1,14 +1,19 @@
 {
-  "name": "nextai-finance-app",
+  "name": "nextai-finance-app-monorepo",
   "private": true,
   "workspaces": [
-    "client",
-    "server"
+    "packages/client",
+    "packages/server",
+    "packages/common"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev --workspace=server\" \"npm run dev --workspace=client\""
+    "dev": "npm run dev --workspace=server & npm run dev --workspace=client"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "prisma": "^5.22.0"
+  },
+  "dependencies": {
+    "form-data": "^4.0.4"
   }
 }
