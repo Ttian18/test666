@@ -93,6 +93,7 @@ temp/
 
 # Uploads directory
 uploads/
+packages/*/uploads/
 
 # IDE files
 .vscode/
