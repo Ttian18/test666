@@ -131,17 +131,12 @@ function App() {
         method: "POST",
         body: formData,
       });
-
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
-        );
+        throw new Error(errorData.error || `HTTP ${response.status}`);
       }
-
       const data = await response.json();
-      setSocialAnalysis(data.result);
-      await fetchZhongcaoResults();
+      setSocialAnalysis(data);
     } catch (err) {
       setError(`Failed to analyze image: ${err.message}`);
     } finally {
@@ -529,8 +524,13 @@ function App() {
     );
   };
 
-  const parseRecommendations = (text) => {
+  const parseRecommendations = (value) => {
     try {
+      if (Array.isArray(value)) return value;
+      if (value && Array.isArray(value.recommendations)) {
+        return value.recommendations;
+      }
+      const text = String(value ?? "");
       const fenced = text.match(/```(?:json)?\n([\s\S]*?)\n```/);
       if (fenced && fenced[1]) {
         const parsed = JSON.parse(fenced[1]);
@@ -968,32 +968,135 @@ function App() {
           {recommendations && (
             <div className="recommendations">
               <h2>Recommended Restaurants</h2>
-              {parseRecommendations(recommendations.recommendations).map(
-                (r, idx) => (
-                  <div key={idx} className="restaurant-card">
-                    <div className="restaurant-name">{r.name}</div>
-                    {r.address && (
-                      <div className="restaurant-info">
-                        📍 Address: {r.address}
-                      </div>
-                    )}
+              {parseRecommendations(recommendations).map((r, index) => (
+                <div
+                  key={index}
+                  style={{
+                    background: "white",
+                    borderRadius: "12px",
+                    padding: "20px",
+                    marginBottom: "20px",
+                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                    borderLeft: "4px solid #4CAF50",
+                  }}
+                >
+                  <h3
+                    style={{
+                      color: "#2c3e50",
+                      margin: "0 0 15px 0",
+                      fontSize: "1.4em",
+                      fontWeight: "600",
+                    }}
+                  >
+                    {r.name}
+                  </h3>
+                  <div>
+                    <p
+                      style={{
+                        margin: "8px 0",
+                        lineHeight: "1.5",
+                        color: "#555",
+                      }}
+                    >
+                      <strong style={{ color: "#2c3e50" }}>📍 Address:</strong>{" "}
+                      {r.address}
+                    </p>
                     {r.phone && (
-                      <div className="restaurant-info">📞 Phone: {r.phone}</div>
+                      <p
+                        style={{
+                          margin: "8px 0",
+                          lineHeight: "1.5",
+                          color: "#555",
+                        }}
+                      >
+                        <strong style={{ color: "#2c3e50" }}>📞 Phone:</strong>{" "}
+                        {r.phone}
+                      </p>
                     )}
                     {r.website && (
-                      <div className="restaurant-info">
-                        🔗 Website:{" "}
-                        <a href={r.website} target="_blank" rel="noreferrer">
+                      <p
+                        style={{
+                          margin: "8px 0",
+                          lineHeight: "1.5",
+                          color: "#555",
+                        }}
+                      >
+                        <strong style={{ color: "#2c3e50" }}>
+                          🌐 Website:
+                        </strong>{" "}
+                        <a
+                          href={
+                            r.website.startsWith("http")
+                              ? r.website
+                              : `https://${r.website}`
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: "#3498db", textDecoration: "none" }}
+                          onMouseOver={(e) =>
+                            (e.target.style.textDecoration = "underline")
+                          }
+                          onMouseOut={(e) =>
+                            (e.target.style.textDecoration = "none")
+                          }
+                        >
                           {r.website}
                         </a>
-                      </div>
+                      </p>
                     )}
-                    {r.reason && (
-                      <div className="restaurant-reason">📝 {r.reason}</div>
+                    <p
+                      style={{
+                        margin: "8px 0",
+                        lineHeight: "1.5",
+                        color: "#555",
+                      }}
+                    >
+                      <strong style={{ color: "#2c3e50" }}>
+                        💡 Why Recommended:
+                      </strong>{" "}
+                      {r.reason}
+                    </p>
+                    {r.recommendation && (
+                      <p
+                        style={{
+                          margin: "8px 0",
+                          lineHeight: "1.5",
+                          color: "#555",
+                        }}
+                      >
+                        <strong style={{ color: "#2c3e50" }}>✨ Tip:</strong>{" "}
+                        {r.recommendation}
+                      </p>
                     )}
+                    <div style={{ marginTop: "15px" }}>
+                      <a
+                        href={r.googleMapsLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: "inline-block",
+                          background: "#4CAF50",
+                          color: "white",
+                          padding: "10px 20px",
+                          textDecoration: "none",
+                          borderRadius: "6px",
+                          fontWeight: "500",
+                          transition: "background-color 0.3s",
+                        }}
+                        onMouseOver={(e) =>
+                          (e.target.style.background = "#45a049")
+                        }
+                        onMouseOut={(e) =>
+                          (e.target.style.background = "#4CAF50")
+                        }
+                      >
+                        🗺️{" "}
+                        {r.googleMapsLinkDescription || "Open in Google Maps"}
+                      </a>
+                    </div>
                   </div>
-                )
-              )}
+                </div>
+              ))}
             </div>
           )}
         </>
