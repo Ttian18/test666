@@ -1,7 +1,7 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 import dotenv from "dotenv";
-import { findMerchantCategory } from "common";
+import { findMerchantCategory, getAllCategories } from "common";
 
 // Configure dotenv
 // http://localhost:5001/insights/summary?user_id=1&period=yearly&start_year=2023
@@ -285,7 +285,7 @@ function summarize(transactions, start, end, bucket) {
   const transactionCategoryTotals = {};
 
   // Initialize all predefined merchant categories
-  Object.keys(category).forEach((merchantCat) => {
+  getAllCategories().forEach((merchantCat) => {
     merchantCategoryTotals[merchantCat] = 0;
   });
 
@@ -413,7 +413,7 @@ router.get("/categories", async (req, res) => {
   try {
     const [availableCategories, predefinedCategories] = await Promise.all([
       getAvailableCategories(),
-      Promise.resolve(category),
+      Promise.resolve(getAllCategories()),
     ]);
 
     return res.status(200).json({
@@ -505,26 +505,167 @@ router.get("/merchants", async (req, res) => {
   }
 });
 
-// // POST /insights/create-test-user - Create a test user for development
-// router.post("/create-test-user", async (req, res) => {
-//   try {
-//     const user = await prisma.user.upsert({
-//       where: { email: "test@example.com" },
-//       update: {},
-//       create: {
-//         email: "test@example.com",
-//         name: "Test User"
-//       }
-//     });
+// GET /insights/chart-data
+// Returns chart-friendly data with proper formatting for frontend charts
+router.get("/chart-data", async (req, res) => {
+  try {
+    const { period = "weekly", category, start_year, chart_type = "spending" } = req.query || {};
 
-//     res.json({
-//       message: "Test user created successfully",
-//       user: { id: user.id, email: user.email, name: user.name }
-//     });
-//   } catch (error) {
-//     console.error("Error creating test user:", error);
-//     res.status(500).json({ error: "Failed to create test user" });
-//   }
-// });
+    // Check if user is authenticated
+    const userId = parseInt(req.query.user_id) || 1;
+
+    // Validate user exists in database
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Parse start year if provided
+    const startYear = start_year ? parseInt(start_year) : null;
+
+    const window = getWindowForPeriod(period, startYear);
+    if (!window) {
+      return res.status(400).json({
+        error: "Invalid period",
+        supported: ["daily", "weekly", "biweekly", "monthly", "yearly"],
+      });
+    }
+
+    const { start, end, bucket } = window;
+
+    // Fetch transaction data from database
+    const transactions = await getUserTransactions(
+      userId,
+      start,
+      end,
+      category
+    );
+
+    // Generate chart data based on chart type
+    let chartData = {};
+
+    if (chart_type === "spending") {
+      // Spending trend chart data
+      const summary = summarize(transactions, start, end, bucket);
+      chartData = {
+        type: "line",
+        title: `Spending Trend - ${period.charAt(0).toUpperCase() + period.slice(1)}`,
+        labels: summary.trendLabels,
+        // datasets: [
+        //   {
+        //     label: "Total Spent",
+        //     data: summary.trend,
+        //     backgroundColor: "rgba(54, 162, 235, 0.2)",
+        //     borderColor: "rgba(54, 162, 235, 1)",
+        //     borderWidth: 2,
+        //     fill: true,
+        //   }
+        // ],
+        totalSpent: summary.totalSpent,
+      };
+    } else if (chart_type === "category") {
+      // Category breakdown pie/doughnut chart
+      const summary = summarize(transactions, start, end, bucket);
+      const categories = Object.entries(summary.transactionCategoryBreakdown)
+        .filter(([_, value]) => value > 0)
+        .sort(([_, a], [__, b]) => b - a);
+
+      chartData = {
+        type: "doughnut",
+        title: "Spending by Category",
+        labels: categories.map(([category, _]) => category),
+        // datasets: [
+        //   {
+        //     label: "Amount Spent",
+        //     data: categories.map(([_, amount]) => amount),
+        //     backgroundColor: [
+        //       "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF",
+        //       "#FF9F40", "#FF6384", "#C9CBCF", "#4BC0C0", "#FF6384"
+        //     ],
+        //     borderWidth: 1,
+        //   }
+        // ],
+        totalSpent: summary.totalSpent,
+      };
+    } else if (chart_type === "merchant") {
+      // Top merchants bar chart
+      const merchantData = await prisma.transaction.groupBy({
+        by: ["merchant"],
+        where: {
+          user_id: userId,
+          date: {
+            gte: start,
+            lte: end,
+          },
+          ...(category && {
+            OR: [
+              { category: { contains: category, mode: "insensitive" } },
+              { merchant_category: { contains: category, mode: "insensitive" } }
+            ]
+          })
+        },
+        _sum: {
+          amount: true,
+        },
+        orderBy: {
+          _sum: {
+            amount: "desc",
+          },
+        },
+        take: 10,
+      });
+
+      const merchants = merchantData.map(item => ({
+        merchant: item.merchant,
+        amount: parseFloat(item._sum.amount.toString())
+      }));
+
+      chartData = {
+        type: "bar",
+        title: "Top 10 Merchants",
+        labels: merchants.map(m => m.merchant),
+        // datasets: [
+        //   {
+        //     label: "Amount Spent",
+        //     data: merchants.map(m => m.amount),
+        //     backgroundColor: "rgba(75, 192, 192, 0.6)",
+        //     borderColor: "rgba(75, 192, 192, 1)",
+        //     borderWidth: 1,
+        //   }
+        // ],
+        totalSpent: merchants.reduce((sum, m) => sum + m.amount, 0),
+      };
+    } else {
+      return res.status(400).json({
+        error: "Invalid chart_type",
+        supported: ["spending", "category", "merchant"],
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      period: String(period).toLowerCase(),
+      start_date: formatISODate(start),
+      end_date: formatISODate(end),
+      chart_type,
+      category: category || "all",
+      transaction_count: transactions.length,
+      chart_data: chartData,
+    });
+
+  } catch (error) {
+    console.error("Error generating chart data:", error);
+    return res.status(500).json({
+      error: "Internal server error",
+      message: "Failed to generate chart data",
+      details: error.message,
+    });
+  }
+});
+
+
 
 export default router;
