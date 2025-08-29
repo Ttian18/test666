@@ -1,9 +1,8 @@
 import express from "express";
 import { getRestaurantRecommendations } from "../../services/restaurant/recommendationService.js";
 import { validateLocation } from "../../utils/validation/validationUtils.js";
-import recommendationRoutes from "./recommendationRoutes.js";
-import zhongcaoRoutes from "./zhongcaoRoutes.js";
 import menuAnalysisRoutes from "./menuAnalysisRoutes.js";
+import zhongcaoRoutes from "./zhongcaoRoutes.js";
 
 const router = express.Router();
 
@@ -42,8 +41,9 @@ router.get("/", async (req, res) => {
 });
 
 // Mount sub-routes
-router.use("/recommendations", recommendationRoutes);
-router.use("/zhongcao", zhongcaoRoutes);
+// Use the merged menuAnalysisRoutes for both paths to maintain backward compatibility
+
 router.use("/menu-analysis", menuAnalysisRoutes);
+router.use("/zhongcao", zhongcaoRoutes);
 
 export default router;

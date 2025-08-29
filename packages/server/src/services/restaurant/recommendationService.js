@@ -42,6 +42,11 @@ try {
 const RecommendationSchema = z.object({
   name: z.string().describe("The restaurant name"),
   address: z.string().describe("The full street address of the restaurant"),
+  placeId: z
+    .string()
+    .optional()
+    .default("")
+    .describe("Google Places place_id for the restaurant"),
   phone: z
     .string()
     .optional()
@@ -119,6 +124,8 @@ User profile:
 
 IMPORTANT: When using the google_places tool, be as specific as possible. Include keywords from the user's request like "chain," "cafe," "restaurant," etc., in your Action Input to get the best results.
 
+CRITICAL: When you find restaurant information, you MUST capture the Google Places place_id and include it in your Final Answer as placeId for each restaurant.
+
 To use a tool, use exactly this format (one per line):
 Thought: your reasoning about whether to use a tool
 Action: the tool name, must be one of [{tool_names}]
@@ -127,7 +134,7 @@ Observation: the tool result
 
 When you have a response to say to the Human, or if you do not need to use a tool, you MUST use the format:
 Thought: I now have all the information I need.
-Final Answer: Provide the final recommendations list only (no code fences, no extra commentary, no markdown links).
+Final Answer: Provide the final recommendations list only (no code fences, no extra commentary, no markdown links). Include placeId for each restaurant when available.
 
 For any place, you should attach a google maps link to the place.
 
@@ -219,7 +226,7 @@ export async function getRestaurantRecommendations(query) {
       envelope = await structuredModel.invoke(
         "Extract a detailed list of restaurant recommendations from the following assistant answer. " +
           "Return ONLY a JSON object with a 'recommendations' array where each item has: " +
-          "name, address, phone, website, googleMapsLink, reason, recommendation, cuisine, priceRange, rating, hours, specialFeatures. " +
+          "name, address, placeId, phone, website, googleMapsLink, reason, recommendation, cuisine, priceRange, rating, hours, specialFeatures. " +
           "For each field, provide detailed information when available. If a field is unknown, leave it as an empty string. " +
           "Make the reason and recommendation fields detailed and personalized based on the user profile.\n\nAnswer:\n" +
           String(result.output)
@@ -254,14 +261,23 @@ export async function getRestaurantRecommendations(query) {
     const normalizedRecommendations = (envelope?.recommendations || []).map(
       (r) => {
         const q = [r.name, r.address].filter(Boolean).join(" ");
-        const computedLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        let computedLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
           q
         )}`;
+
+        // If placeId exists, use it to construct a more precise link
+        if (r.placeId) {
+          computedLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+            q
+          )}&query_place_id=${r.placeId}`;
+        }
+
         return {
           ...r,
           googleMapsLink: computedLink,
           googleMapsLinkDescription: `Open Google Maps for ${r.name}`,
           // Ensure all optional fields have default values
+          placeId: r.placeId || "",
           phone: r.phone || "",
           website: r.website || "",
           cuisine: r.cuisine || "",
@@ -295,6 +311,7 @@ export async function getRestaurantRecommendations(query) {
         {
           name: "Fallback Restaurant",
           address: "Los Angeles, CA",
+          placeId: "",
           phone: "",
           website: "",
           googleMapsLink:

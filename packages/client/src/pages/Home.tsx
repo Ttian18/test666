@@ -18,7 +18,6 @@ const Home = () => {
     restaurant: "Healthy Bowl Co.",
     dish: "Mediterranean Bowl + Green Smoothie",
     price: "$18.5",
-    calories: "520 cal",
   };
 
   return (
@@ -137,9 +136,6 @@ const Home = () => {
                   <div className="text-right">
                     <p className="font-bold text-xl text-primary">
                       {todayRecommendation.price}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {todayRecommendation.calories}
                     </p>
                   </div>
                 </div>

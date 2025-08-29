@@ -5,11 +5,11 @@
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js",
-    "seed": "node seed.js",
     "test:reco": "node test/runRecommendation.mjs"
   },
   "prisma": {
-    "schema": "src/models/database/schema.prisma"
+    "schema": "src/models/database/schema.prisma",
+    "seed": "node src/models/database/seed.js"
   },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.4.2",
@@ -26,6 +26,7 @@
     "multer": "^2.0.2",
     "openai": "^5.12.2",
     "sharp": "^0.34.3",
+    "tesseract.js": "^5.0.4",
     "zod": "^3.23.8"
   }
 }

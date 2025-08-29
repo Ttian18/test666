@@ -14,7 +14,7 @@ export default class BudgetRecommendationService {
    * Consumes extracted menu info and budget and asks OpenAI to recommend dishes.
    * Returns a structure with selected dishes and a short rationale.
    */
-  async recommendDishes({ menuInfo, budget, userNote = "" }) {
+  async recommendDishes({ menuInfo, budget, userNote = "", calories }) {
     // Handle empty menu gracefully
     if (
       !menuInfo ||
@@ -64,10 +64,10 @@ export default class BudgetRecommendationService {
     const systemPrompt =
       "You are a helpful dining planner. Choose a set of dishes that maximizes value and taste while staying within budget." +
       " Prefer variety (appetizer/main/drink/dessert if applicable), account for sharing when logical, and avoid exceeding the budget." +
-      " Output clear JSON strictly matching the schema.";
+      " For each item, estimate calories based on typical portion sizes and ingredients. Output clear JSON strictly matching the schema.";
 
     const schemaHint =
-      '{ "total": number, "currency": string, "items": [{ "name": string, "qty": number, "unit_price": number, "subtotal": number }], "rationale": string }';
+      '{ "total": number, "currency": string, "items": [{ "name": string, "qty": number, "unit_price": number, "subtotal": number, "estimatedCalories": number }], "rationale": string }';
 
     const payload = {
       currency,
@@ -77,7 +77,7 @@ export default class BudgetRecommendationService {
     };
 
     if (this.isMock) {
-      return this.getMockRecommendation(validItems, budget, currency);
+      return this.getMockRecommendation(validItems, budget, currency, calories);
     }
 
     try {
@@ -118,6 +118,7 @@ export default class BudgetRecommendationService {
           qty: Math.max(1, Number(it.qty) || 1),
           unit_price: Number(it.unit_price) || 0,
           subtotal: Number(it.subtotal) || 0,
+          estimatedCalories: Number(it.estimatedCalories) || null,
         }))
         .filter((it) => it.name && it.unit_price > 0);
 
@@ -127,7 +128,12 @@ export default class BudgetRecommendationService {
       // Validate the recommendation
       if (normalized.length === 0 || total === 0) {
         console.warn("Invalid recommendation from AI, using fallback");
-        return this.getFallbackRecommendation(validItems, budget, currency);
+        return this.getFallbackRecommendation(
+          validItems,
+          budget,
+          currency,
+          calories
+        );
       }
 
       return {
@@ -140,26 +146,41 @@ export default class BudgetRecommendationService {
       };
     } catch (error) {
       console.error("Budget API error:", error.message);
-      return this.getFallbackRecommendation(validItems, budget, currency);
+      return this.getFallbackRecommendation(
+        validItems,
+        budget,
+        currency,
+        calories
+      );
     }
   }
 
   /**
    * Provides mock recommendation for test mode
    */
-  getMockRecommendation(items, budget, currency) {
+  getMockRecommendation(items, budget, currency, calories) {
     const chosen = [];
     let running = 0;
+    let runningCalories = 0;
+    const maxCalories = calories?.maxPerPerson || Infinity;
 
     for (const item of items) {
-      if (running + item.price <= budget) {
+      const itemCalories = this.estimateCalories(item.name);
+
+      // Check both budget and calorie constraints
+      if (
+        running + item.price <= budget &&
+        runningCalories + itemCalories <= maxCalories
+      ) {
         chosen.push({
           name: item.name,
           qty: 1,
           unit_price: item.price,
           subtotal: item.price,
+          estimatedCalories: itemCalories,
         });
         running += item.price;
+        runningCalories += itemCalories;
       }
     }
 
@@ -177,20 +198,30 @@ export default class BudgetRecommendationService {
   /**
    * Provides fallback recommendation when AI fails
    */
-  getFallbackRecommendation(items, budget, currency) {
+  getFallbackRecommendation(items, budget, currency, calories) {
     const chosen = [];
     let running = 0;
+    let runningCalories = 0;
+    const maxCalories = calories?.maxPerPerson || Infinity;
 
-    // Simple greedy selection as fallback
+    // Simple greedy selection as fallback, respecting both budget and calories
     for (const item of items) {
-      if (running + item.price <= budget) {
+      const itemCalories = this.estimateCalories(item.name);
+
+      // Check both budget and calorie constraints
+      if (
+        running + item.price <= budget &&
+        runningCalories + itemCalories <= maxCalories
+      ) {
         chosen.push({
           name: item.name,
           qty: 1,
           unit_price: item.price,
           subtotal: item.price,
+          estimatedCalories: itemCalories,
         });
         running += item.price;
+        runningCalories += itemCalories;
       }
     }
 
@@ -202,5 +233,48 @@ export default class BudgetRecommendationService {
       budget,
       withinBudget: running <= budget,
     };
+  }
+
+  /**
+   * Estimates calories for a dish based on its name
+   */
+  estimateCalories(dishName) {
+    const name = dishName.toLowerCase();
+
+    // Simple calorie estimation based on dish type
+    if (name.includes("salad") || name.includes("vegetable")) {
+      return 150;
+    } else if (name.includes("soup")) {
+      return 200;
+    } else if (name.includes("pasta") || name.includes("noodle")) {
+      return 400;
+    } else if (name.includes("pizza")) {
+      return 300;
+    } else if (name.includes("burger") || name.includes("sandwich")) {
+      return 500;
+    } else if (name.includes("steak") || name.includes("meat")) {
+      return 450;
+    } else if (name.includes("fish") || name.includes("seafood")) {
+      return 350;
+    } else if (name.includes("rice") || name.includes("grain")) {
+      return 250;
+    } else if (
+      name.includes("dessert") ||
+      name.includes("cake") ||
+      name.includes("ice cream")
+    ) {
+      return 300;
+    } else if (
+      name.includes("drink") ||
+      name.includes("beverage") ||
+      name.includes("juice")
+    ) {
+      return 100;
+    } else if (name.includes("appetizer") || name.includes("starter")) {
+      return 200;
+    } else {
+      // Default estimate for unknown dishes
+      return 300;
+    }
   }
 }

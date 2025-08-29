@@ -9,7 +9,6 @@ export interface User {
   preferences: {
     dietaryRestrictions: string[];
     cuisinePreferences: string[];
-    maxCaloriesPerMeal: number;
     allergies: string[];
   };
 }
@@ -61,7 +60,6 @@ export const createAuthSlice: StateCreator<
           preferences: {
             dietaryRestrictions: [],
             cuisinePreferences: ['Italian', 'Asian'],
-            maxCaloriesPerMeal: 800,
             allergies: [],
           },
         };

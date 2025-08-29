@@ -7,7 +7,9 @@
     "packages/common"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=server & npm run dev --workspace=client"
+    "dev": "concurrently \"cd packages/server && npm run dev\" \"cd packages/client && npm run dev:npm\"",
+    "dev:server": "cd packages/server && npm run dev",
+    "dev:client": "cd packages/client && npm run dev:npm"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

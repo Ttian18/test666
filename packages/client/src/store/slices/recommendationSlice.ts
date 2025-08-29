@@ -5,7 +5,6 @@ export interface MealRecommendation {
   restaurantName: string;
   dishName: string;
   price: number;
-  calories: number;
   rating: number;
   cuisine: string;
   estimatedDeliveryTime: number;
@@ -48,7 +47,6 @@ export interface RecommendationPreferences {
   maxPrice: number;
   preferredCuisines: string[];
   dietaryRestrictions: string[];
-  maxCalories: number;
   maxDeliveryTime: number;
   maxDistance: number;
   allergies: string[];
@@ -86,7 +84,6 @@ export const createRecommendationSlice: StateCreator<
       restaurantName: 'Healthy Bowl Co.',
       dishName: 'Mediterranean Bowl + Green Smoothie',
       price: 18.5,
-      calories: 520,
       rating: 4.7,
       cuisine: 'Mediterranean',
       estimatedDeliveryTime: 25,
@@ -102,8 +99,7 @@ export const createRecommendationSlice: StateCreator<
       reasonForRecommendation: [
         'Fits your $20 budget',
         'High protein content',
-        'Mediterranean cuisine preference',
-        'Under 600 calories'
+        'Mediterranean cuisine preference'
       ],
       restaurantLocation: {
         address: '123 Health St, Downtown',
@@ -132,7 +128,7 @@ export const createRecommendationSlice: StateCreator<
     maxPrice: 25,
     preferredCuisines: ['Mediterranean', 'Asian', 'American'],
     dietaryRestrictions: [],
-    maxCalories: 800,
+
     maxDeliveryTime: 45,
     maxDistance: 5,
     allergies: [],
@@ -161,7 +157,6 @@ export const createRecommendationSlice: StateCreator<
           restaurantName: 'AI Bistro',
           dishName: 'Smart Protein Bowl',
           price: Math.min(recommendationPreferences.maxPrice * 0.8, 22),
-          calories: Math.min(recommendationPreferences.maxCalories * 0.7, 580),
           rating: 4.8,
           cuisine: recommendationPreferences.preferredCuisines[0] || 'Fusion',
           estimatedDeliveryTime: Math.min(recommendationPreferences.maxDeliveryTime * 0.6, 30),
@@ -190,7 +185,6 @@ export const createRecommendationSlice: StateCreator<
           restaurantName: 'Green Machine',
           dishName: 'Plant Power Wrap',
           price: Math.min(recommendationPreferences.maxPrice * 0.6, 15),
-          calories: Math.min(recommendationPreferences.maxCalories * 0.5, 420),
           rating: 4.6,
           cuisine: 'Vegan',
           estimatedDeliveryTime: Math.min(recommendationPreferences.maxDeliveryTime * 0.5, 20),
