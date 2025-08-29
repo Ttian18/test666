@@ -3,6 +3,11 @@ import { PrismaClient } from "@prisma/client";
 import dotenv from "dotenv";
 import { findMerchantCategory } from "common";
 
+// SECURITY WARNING: This file contains critical security vulnerabilities
+// Routes temporarily disabled until Phase 3 authentication is implemented
+// Issue: req.query.user_id allows access to any user's data
+// TODO: Apply authentication middleware in Phase 3
+
 // Configure dotenv
 // http://localhost:5001/insights/summary?user_id=1&period=yearly&start_year=2023
 // http://localhost:5001/insights/summary?user_id=1&period=yearly&start_year=2023&category=Food

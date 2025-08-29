@@ -9,16 +9,16 @@ const router = express.Router();
 const prisma = new PrismaClient();
 
 // GET /transactions - Get all transactions for a user
+// TODO: This route will be updated in Phase 3 to use authentication middleware
+// For now, removing the dangerous user_id query parameter
 router.get("/", async (req, res) => {
   try {
-    const userId = parseInt(req.query.user_id) || 1;
-
-    const transactions = await prisma.transaction.findMany({
-      where: { user_id: userId },
-      orderBy: { date: "desc" },
+    // TEMPORARY: Return empty array until authentication is properly implemented
+    // This removes the security vulnerability where any user could access any user's data
+    res.json({
+      transactions: [],
+      message: "Authentication required - will be implemented in Phase 3",
     });
-
-    res.json({ transactions });
   } catch (error) {
     console.error("Error fetching transactions:", error);
     res.status(500).json({ error: "Failed to fetch transactions" });

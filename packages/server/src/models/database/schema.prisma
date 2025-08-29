@@ -14,9 +14,13 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+  id              Int      @id @default(autoincrement())
+  email           String   @unique
+  name            String?
+  password        String   // Required for authentication
+  profileComplete Boolean  @default(false) // Track profile completion
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
   
   // Relations
   vouchers     Voucher[]

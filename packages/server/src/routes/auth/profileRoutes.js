@@ -1,8 +1,10 @@
 import express from "express";
+import { PrismaClient } from "@prisma/client";
 import Profile from "../../models/entities/Profile.js";
-import User from "../../models/entities/User.js";
-import { authenticate } from "../../utils/auth/authUtils.js";
+import { authenticate } from "../../routes/middleware/auth.js";
 import { validateRequired } from "../../utils/validation/validationUtils.js";
+
+const prisma = new PrismaClient();
 
 const router = express.Router();
 
@@ -47,8 +49,11 @@ router.post("/", authenticate, async (req, res) => {
 
     await profile.save();
 
-    // Mark user as profile complete
-    await User.findByIdAndUpdate(userId, { profileComplete: true });
+    // Mark user as profile complete using Prisma
+    await prisma.user.update({
+      where: { id: userId },
+      data: { profileComplete: true },
+    });
 
     res.status(201).json({
       message: "Profile saved successfully",

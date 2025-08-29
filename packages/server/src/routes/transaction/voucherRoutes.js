@@ -2,6 +2,10 @@ import express from "express";
 import OpenAI from "openai";
 import { PrismaClient } from "@prisma/client";
 import { findMerchantCategory, getAllCategories } from "common";
+
+// SECURITY WARNING: This file contains critical security vulnerabilities
+// Some routes use req.query.user_id allowing access to any user's data
+// TODO: Apply authentication middleware in Phase 3
 import {
   uploadExtended,
   normalizeImageForOpenAI,

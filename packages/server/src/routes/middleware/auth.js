@@ -1,9 +1,11 @@
 import jwt from "jsonwebtoken";
+import { PrismaClient } from "@prisma/client";
 
+const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || "your_secure_secret";
 
-// Authentication middleware
-export const authenticate = (req, res, next) => {
+// Enhanced authentication middleware with database validation
+export const authenticate = async (req, res, next) => {
   const token = req.header("x-auth-token");
 
   if (!token) {
@@ -12,9 +14,21 @@ export const authenticate = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = { id: decoded.id };
+
+    // CRITICAL: Validate user exists in database (Prisma User model)
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id }, // Using integer ID from Prisma model
+      select: { id: true, email: true, name: true },
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    req.user = user; // Now contains validated Prisma user data
     next();
   } catch (error) {
+    console.error("Authentication error:", error);
     res.status(401).json({ message: "Token is not valid" });
   }
 };
