@@ -1,7 +1,7 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 import Profile from "../../models/entities/Profile.js";
-import { authenticate } from "../../routes/middleware/auth.js";
+import { authenticate } from "../middleware/auth.js";
 import { validateRequired } from "../../utils/validation/validationUtils.js";
 
 const prisma = new PrismaClient();

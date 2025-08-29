@@ -5,9 +5,9 @@ import insightsRoutes from "./insightsRoutes.js";
 
 const router = express.Router();
 
-// Mount sub-routes
-router.use("/", transactionRoutes);
+// Mount sub-routes - specific routes MUST come before general routes
 router.use("/vouchers", voucherRoutes);
 router.use("/insights", insightsRoutes);
+router.use("/", transactionRoutes);
 
 export default router;
