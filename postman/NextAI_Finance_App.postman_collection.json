@@ -300,9 +300,138 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/insights/summary",
+              "raw": "{{baseUrl}}/transactions/insights/summary",
               "host": ["{{baseUrl}}"],
-              "path": ["insights", "summary"]
+              "path": ["transactions", "insights", "summary"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category Analysis",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-auth-token",
+                "value": "{{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/transactions/insights/categories?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["transactions", "insights", "categories"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Merchant Analysis",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-auth-token",
+                "value": "{{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/transactions/insights/merchants?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["transactions", "insights", "merchants"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Spending Trends",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-auth-token",
+                "value": "{{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/transactions/insights/trends?period=monthly&periods=6",
+              "host": ["{{baseUrl}}"],
+              "path": ["transactions", "insights", "trends"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "monthly"
+                },
+                {
+                  "key": "periods",
+                  "value": "6"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Budget Analysis",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-auth-token",
+                "value": "{{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/transactions/insights/budget?monthlyBudget=2000",
+              "host": ["{{baseUrl}}"],
+              "path": ["transactions", "insights", "budget"],
+              "query": [
+                {
+                  "key": "monthlyBudget",
+                  "value": "2000"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Dashboard Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-auth-token",
+                "value": "{{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/transactions/insights/dashboard?monthlyBudget=2000",
+              "host": ["{{baseUrl}}"],
+              "path": ["transactions", "insights", "dashboard"],
+              "query": [
+                {
+                  "key": "monthlyBudget",
+                  "value": "2000"
+                }
+              ]
             }
           },
           "response": []
@@ -312,6 +441,50 @@
     {
       "name": "Restaurant & Menu Analysis",
       "item": [
+        {
+          "name": "Get Restaurant Recommendations (No Auth)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurants?location=downtown Los Angeles",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants"],
+              "query": [
+                {
+                  "key": "location",
+                  "value": "downtown Los Angeles"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Personalized Restaurant Recommendations (With Auth)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-auth-token",
+                "value": "{{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/restaurants?location=downtown Los Angeles",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants"],
+              "query": [
+                {
+                  "key": "location",
+                  "value": "downtown Los Angeles"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
         {
           "name": "Menu Analysis",
           "request": {
@@ -570,6 +743,87 @@
               "raw": "{{baseUrl}}/restaurants/zhongcao/1",
               "host": ["{{baseUrl}}"],
               "path": ["restaurants", "zhongcao", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Legacy Menu Recommendation (No Auth)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "budget",
+                  "value": "25",
+                  "type": "text"
+                },
+                {
+                  "key": "note",
+                  "value": "Looking for healthy options",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/recommendations/recommend",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants", "recommendations", "recommend"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Last Menu Recommendation (No Auth)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/recommendations/last",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants", "recommendations", "last"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Rebudget Last Menu (No Auth)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"budget\": 30,\n  \"note\": \"Updated budget preferences\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/recommendations/rebudget",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants", "recommendations", "rebudget"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Recommendation Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/recommendations/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurants", "recommendations", "health"]
             }
           },
           "response": []
