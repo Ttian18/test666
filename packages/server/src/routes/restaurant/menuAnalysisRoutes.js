@@ -7,10 +7,9 @@ import {
 import menuAnalysisCache from "../../utils/cache/menuAnalysisCache.js";
 import { uploadImageMemory } from "../../utils/upload/uploadUtils.js";
 import { validateBudget } from "../../utils/validation/validationUtils.js";
-import { PrismaClient } from "@prisma/client";
+import { optionalAuthenticate } from "../../services/auth/authUtils.js";
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 // Initialize controller
 const menuAnalysisController = new MenuAnalysisController();
@@ -18,29 +17,10 @@ const menuAnalysisController = new MenuAnalysisController();
 // POST /menu-analysis - Analyze menu image and provide budget recommendations (optional auth)
 router.post("/", uploadImageMemory.single("image"), async (req, res) => {
   try {
-    let userId = null;
-
     // Check for optional authentication
     const token = req.header("x-auth-token");
-    if (token) {
-      try {
-        const jwt = await import("jsonwebtoken");
-        const decoded = jwt.default.verify(
-          token,
-          process.env.JWT_SECRET || "your_secure_secret"
-        );
-        const user = await prisma.user.findUnique({
-          where: { id: decoded.id },
-          select: { id: true },
-        });
-        if (user) {
-          userId = user.id;
-        }
-      } catch (authError) {
-        // Ignore auth errors for optional authentication
-        console.log("Optional auth failed:", authError.message);
-      }
-    }
+    const user = await optionalAuthenticate(token);
+    const userId = user ? user.id : null;
 
     if (!req.file) {
       return handleError(createError.missingImage(), res);

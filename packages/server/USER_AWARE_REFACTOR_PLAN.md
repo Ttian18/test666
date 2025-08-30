@@ -4,13 +4,14 @@ The goal is to ensure that all relevant API endpoints and database queries are s
 
 ## 📋 Overall Progress Tracker
 
-### 🎯 **Status: Phase 3 Complete - Ready for Phase 4**
+### 🎯 **Status: Phase 4 Complete - Ready for Phase 5**
 
 - ✅ **Phase 1**: Foundation and Security Fixes (COMPLETED)
 - ✅ **Phase 2**: Create Service Layer (COMPLETED)
 - ✅ **Phase 3**: Apply Authentication Middleware (COMPLETED)
-- 🔄 **Phase 4**: Update Route Handlers (NEXT)
-- ⏳ **Phase 5-7**: Pending Phase 4 completion
+- ✅ **Phase 4**: Update Route Handlers (COMPLETED)
+- 🔄 **Phase 5**: Handle Models Without User Relationships (NEXT)
+- ⏳ **Phase 6-7**: Pending Phase 5 completion
 
 ---
 
@@ -62,17 +63,26 @@ The goal is to ensure that all relevant API endpoints and database queries are s
   - [x] Public routes (categories) remain accessible
   - [x] Optional authentication routes work with and without tokens
 
-**Phase 4: Update Route Handlers**
+**Phase 4: Update Route Handlers** ✅ **COMPLETED**
 
-- [ ] **4.1** Refactor Routes to Use Services
-  - [ ] `transactionRoutes.js` - Remove direct Prisma access
-  - [ ] `insightsRoutes.js` - Ensure uses service layer
-  - [ ] `voucherRoutes.js` - Move DB access to service
-  - [ ] `profileRoutes.js` - Use service layer
-  - [ ] Other routes as needed
-- [ ] **4.2** Test Route Integration
-  - [ ] All routes use service layer correctly
-  - [ ] No direct database access in routes
+- [x] **4.1** Refactor Routes to Use Services
+  - [x] `transactionRoutes.js` - Already using service layer exclusively
+  - [x] `insightsRoutes.js` - Already using service layer exclusively
+  - [x] `voucherRoutes.js` - Already using service layer exclusively
+  - [x] `profileRoutes.js` - Refactored to use new profileService
+  - [x] `restaurantRoutes.js` - Refactored to use authUtils service
+  - [x] `menuAnalysisRoutes.js` - Refactored to use authUtils service
+- [x] **4.2** Test Route Integration
+  - [x] All routes verified to use service layer correctly
+  - [x] No direct database access in route handlers
+  - [x] Profile creation/retrieval tested with service layer
+  - [x] Restaurant personalization tested with user profile data
+  - [x] Transaction and insights routes confirmed working with services
+- [x] **4.3** Service Layer Architecture
+  - [x] Created `profileService.js` for user profile operations
+  - [x] Created `authUtils.js` for optional authentication helpers
+  - [x] Removed all direct Prisma imports from route handlers
+  - [x] Centralized database access through service functions
 
 **Phase 5: Handle Models Without User Relationships**
 
