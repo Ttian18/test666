@@ -1,46 +1,31 @@
 import express from "express";
-import { extractInfoFromImage } from "../../services/restaurant/zhongcaoService.js";
+import {
+  processImageForUser,
+  getAllZhongcaoResults,
+  getZhongcaoResultById,
+  updateZhongcaoResult,
+  deleteZhongcaoResult,
+} from "../../services/restaurant/zhongcaoService.js";
 import { uploadImage } from "../../utils/upload/uploadUtils.js";
 import { validateFile } from "../../utils/validation/validationUtils.js";
-import prisma from "../../models/database/client.js";
+import { authenticate } from "../middleware/auth.js";
 
 const router = express.Router();
+
+// Apply authentication middleware to all routes
+router.use(authenticate);
 
 // POST /social-upload - Analyze restaurant images from social media
 router.post("/social-upload", uploadImage.single("image"), async (req, res) => {
   try {
+    const userId = req.user.id; // Guaranteed to exist after authentication
     validateFile(req.file, "image");
 
-    console.log(`📸 Processing uploaded image: ${req.file.filename}`);
-
-    // Extract restaurant information from the uploaded image
-    const extractedInfo = await extractInfoFromImage(req.file.filename);
-
-    // Persist to DB
-    const created = await prisma.zhongcaoResult.create({
-      data: {
-        originalFilename: req.file.originalname,
-        restaurantName: extractedInfo.restaurant_name,
-        dishName: extractedInfo.dish_name || null,
-        address: extractedInfo.address || null,
-        description: extractedInfo.description,
-        socialMediaHandle: extractedInfo.social_media_handle || null,
-        processedAt: new Date(),
-      },
-    });
+    const result = await processImageForUser(userId, req.file);
 
     res.status(201).json({
       message: "Image processed successfully",
-      result: created,
-      extractedInfo,
-      // Expose key fields at top-level for easier FE consumption
-      restaurant_name:
-        extractedInfo?.restaurant_name || created.restaurantName || "",
-      dish_name: extractedInfo?.dish_name ?? created.dishName ?? null,
-      address: extractedInfo?.address ?? created.address ?? null,
-      description: extractedInfo?.description || created.description || "",
-      social_media_handle:
-        extractedInfo?.social_media_handle ?? created.socialMediaHandle ?? null,
+      ...result,
     });
   } catch (error) {
     console.error("Error processing image:", error);
@@ -51,24 +36,27 @@ router.post("/social-upload", uploadImage.single("image"), async (req, res) => {
   }
 });
 
-// GET /zhongcao - list all
+// GET /zhongcao - list all for authenticated user
 router.get("/", async (req, res) => {
-  console.log("Fetching zhongcao results");
   try {
-    const results = await prisma.zhongcaoResult.findMany({
-      orderBy: { createdAt: "desc" },
-    });
+    const userId = req.user.id; // Guaranteed to exist after authentication
+    console.log(`Fetching zhongcao results for user ${userId}`);
+
+    const results = await getAllZhongcaoResults(userId);
     res.json(results);
-  } catch (err) {
-    res
-      .status(500)
-      .json({ error: "Failed to fetch results", details: err.message });
+  } catch (error) {
+    console.error("Error fetching zhongcao results:", error);
+    res.status(500).json({
+      error: "Failed to fetch results",
+      details: error.message,
+    });
   }
 });
 
-// GET /zhongcao/:id - get one
+// GET /zhongcao/:id - get one for authenticated user
 router.get("/:id", async (req, res) => {
   try {
+    const userId = req.user.id; // Guaranteed to exist after authentication
     const id = Number(req.params.id);
 
     // Validate ID
@@ -76,19 +64,27 @@ router.get("/:id", async (req, res) => {
       return res.status(400).json({ error: "Invalid ID format" });
     }
 
-    const result = await prisma.zhongcaoResult.findUnique({ where: { id } });
-    if (!result) return res.status(404).json({ error: "Not found" });
+    const result = await getZhongcaoResultById(userId, id);
+    if (!result) {
+      return res
+        .status(404)
+        .json({ error: "Zhongcao result not found or access denied" });
+    }
+
     res.json(result);
-  } catch (err) {
-    res
-      .status(500)
-      .json({ error: "Failed to fetch result", details: err.message });
+  } catch (error) {
+    console.error("Error fetching zhongcao result:", error);
+    res.status(500).json({
+      error: "Failed to fetch result",
+      details: error.message,
+    });
   }
 });
 
-// PUT /zhongcao/:id - update
+// PUT /zhongcao/:id - update for authenticated user
 router.put("/:id", async (req, res) => {
   try {
+    const userId = req.user.id; // Guaranteed to exist after authentication
     const id = Number(req.params.id);
 
     // Validate ID
@@ -104,38 +100,43 @@ router.put("/:id", async (req, res) => {
       socialMediaHandle,
     } = req.body;
 
-    // Validate required fields
-    if (!restaurantName || !description) {
-      return res.status(400).json({
-        error: "Missing required fields",
-        required: ["restaurantName", "description"],
-      });
+    const updated = await updateZhongcaoResult(userId, id, {
+      restaurantName,
+      dishName,
+      address,
+      description,
+      socialMediaHandle,
+    });
+
+    res.json(updated);
+  } catch (error) {
+    console.error("Error updating zhongcao result:", error);
+
+    if (
+      error.message.includes("not found") ||
+      error.message.includes("access denied")
+    ) {
+      return res.status(404).json({ error: error.message });
     }
 
-    const updated = await prisma.zhongcaoResult.update({
-      where: { id },
-      data: {
-        restaurantName,
-        dishName,
-        address,
-        description,
-        socialMediaHandle,
-      },
-    });
-    res.json(updated);
-  } catch (err) {
-    if (err.code === "P2025") {
-      return res.status(404).json({ error: "Record not found" });
+    if (
+      error.message.includes("cannot be empty") ||
+      error.message.includes("required")
+    ) {
+      return res.status(400).json({ error: error.message });
     }
-    res
-      .status(500)
-      .json({ error: "Failed to update result", details: err.message });
+
+    res.status(500).json({
+      error: "Failed to update result",
+      details: error.message,
+    });
   }
 });
 
-// DELETE /zhongcao/:id - delete
+// DELETE /zhongcao/:id - delete for authenticated user
 router.delete("/:id", async (req, res) => {
   try {
+    const userId = req.user.id; // Guaranteed to exist after authentication
     const id = Number(req.params.id);
 
     // Validate ID
@@ -143,15 +144,22 @@ router.delete("/:id", async (req, res) => {
       return res.status(400).json({ error: "Invalid ID format" });
     }
 
-    await prisma.zhongcaoResult.delete({ where: { id } });
+    await deleteZhongcaoResult(userId, id);
     res.status(204).send();
-  } catch (err) {
-    if (err.code === "P2025") {
-      return res.status(404).json({ error: "Record not found" });
+  } catch (error) {
+    console.error("Error deleting zhongcao result:", error);
+
+    if (
+      error.message.includes("not found") ||
+      error.message.includes("access denied")
+    ) {
+      return res.status(404).json({ error: error.message });
     }
-    res
-      .status(500)
-      .json({ error: "Failed to delete result", details: err.message });
+
+    res.status(500).json({
+      error: "Failed to delete result",
+      details: error.message,
+    });
   }
 });
 

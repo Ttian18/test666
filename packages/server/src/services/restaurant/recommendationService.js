@@ -93,7 +93,68 @@ const RecommendationsEnvelopeSchema = z.object({
   recommendations: RecommendationsSchema,
 });
 
-const user_profile = `
+/**
+ * Generate user profile string from user data
+ * @param {Object} userData - User data object
+ * @returns {string} Formatted user profile string
+ */
+function generateUserProfile(userData = {}) {
+  const {
+    name = "User",
+    email,
+    monthlyBudget,
+    monthlyIncome,
+    expensePreferences = {},
+    savingsGoals = {},
+    lifestylePreferences = {},
+  } = userData;
+
+  let profile = `My name is ${name}.\n`;
+
+  if (monthlyBudget) {
+    profile += `My monthly budget is $${monthlyBudget}.\n`;
+  }
+
+  if (monthlyIncome) {
+    profile += `My monthly income is $${monthlyIncome}.\n`;
+  }
+
+  // Add expense preferences
+  if (expensePreferences.diningOut) {
+    profile += `I prefer ${expensePreferences.diningOut} dining experiences.\n`;
+  }
+
+  if (
+    expensePreferences.cuisineTypes &&
+    Array.isArray(expensePreferences.cuisineTypes)
+  ) {
+    profile += `I enjoy ${expensePreferences.cuisineTypes.join(
+      ", "
+    )} cuisine.\n`;
+  }
+
+  // Add lifestyle preferences
+  if (lifestylePreferences.diningStyle) {
+    profile += `I prefer ${lifestylePreferences.diningStyle} dining environments.\n`;
+  }
+
+  if (lifestylePreferences.priceRange) {
+    profile += `My preferred price range is ${lifestylePreferences.priceRange}.\n`;
+  }
+
+  // Fallback to default profile if no meaningful data provided
+  if (profile === `My name is ${name}.\n`) {
+    profile = `My name is ${name}.
+I am looking for restaurant recommendations.
+I live in Los Angeles, CA.
+I enjoy discovering new places to eat.`;
+  }
+
+  return profile;
+}
+
+// Default user profile for fallback
+const default_user_profile = `
 My name is John Doe.
 I am a 30-year-old male.
 I live in Los Angeles, CA.
@@ -140,11 +201,17 @@ Thought: {agent_scratchpad}
 /**
  * Get personalized restaurant recommendations using AI agent with Google Places integration.
  * @param {string} query - The search query for restaurant recommendations
+ * @param {Object} userData - Optional user data for personalization
  * @returns {Promise<Object>} Object containing query, answer, and steps
  */
-export async function getRestaurantRecommendations(query) {
+export async function getRestaurantRecommendations(query, userData = null) {
   try {
     let result;
+
+    // Generate user profile from provided data or use default
+    const user_profile = userData
+      ? generateUserProfile(userData)
+      : default_user_profile;
 
     // If no tools are available, use direct LLM approach
     if (tools.length === 0) {

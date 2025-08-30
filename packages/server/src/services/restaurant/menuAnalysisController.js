@@ -12,7 +12,13 @@ export default class MenuAnalysisController {
    * Step 1: send menu image to MenuAnalysisService to extract structured info
    * Step 2: send extracted info + budget to BudgetRecommendationService for recommendation
    */
-  async handleRecommend({ imageBuffer, imageMimeType, budget, userNote = "" }) {
+  async handleRecommend({
+    imageBuffer,
+    imageMimeType,
+    budget,
+    userNote = "",
+    userId = null,
+  }) {
     if (!imageBuffer || !imageMimeType) {
       throw createError.missingImageBuffer();
     }
@@ -23,6 +29,9 @@ export default class MenuAnalysisController {
     const menuInfo = await this.imageService.extractMenuFromImage({
       imageBuffer,
       imageMimeType,
+      userId,
+      budget,
+      userNote,
     });
 
     const recommendation = await this.budgetService.recommendDishes({

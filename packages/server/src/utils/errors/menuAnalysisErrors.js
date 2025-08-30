@@ -10,6 +10,8 @@ export const ERROR_CODES = {
   VISION_API_ERROR: "VISION_API_ERROR",
   BUDGET_API_ERROR: "BUDGET_API_ERROR",
   INTERNAL_ERROR: "INTERNAL_ERROR",
+  INVALID_ID: "INVALID_ID",
+  NOT_FOUND: "NOT_FOUND",
 };
 
 // Error mapping to HTTP status codes
@@ -24,6 +26,8 @@ export const ERROR_STATUS_MAP = {
   [ERROR_CODES.VISION_API_ERROR]: 500,
   [ERROR_CODES.BUDGET_API_ERROR]: 500,
   [ERROR_CODES.INTERNAL_ERROR]: 500,
+  [ERROR_CODES.INVALID_ID]: 400,
+  [ERROR_CODES.NOT_FOUND]: 404,
 };
 
 // Custom error class for application errors
@@ -69,6 +73,12 @@ export const createError = {
 
   internalError: (message = "Internal server error", originalError = null) =>
     new AppError(ERROR_CODES.INTERNAL_ERROR, message, originalError),
+
+  invalidId: (message = "Invalid ID format") =>
+    new AppError(ERROR_CODES.INVALID_ID, message),
+
+  notFound: (message = "Resource not found") =>
+    new AppError(ERROR_CODES.NOT_FOUND, message),
 };
 
 // Helper function to handle errors and return appropriate HTTP response
@@ -76,6 +86,14 @@ export const handleError = (error, res) => {
   console.error("Error:", error);
 
   if (error instanceof AppError) {
+    return res.status(error.statusCode).json({
+      error: error.message,
+      code: error.code,
+    });
+  }
+
+  // Handle plain error objects (for backwards compatibility)
+  if (error && typeof error === "object" && error.statusCode && error.code) {
     return res.status(error.statusCode).json({
       error: error.message,
       code: error.code,

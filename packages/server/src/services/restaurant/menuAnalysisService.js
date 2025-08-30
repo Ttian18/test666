@@ -1,5 +1,9 @@
 import OpenAI from "openai";
+import { PrismaClient } from "@prisma/client";
 import { createError } from "../../utils/errors/menuAnalysisErrors.js";
+
+// Use global prisma instance in tests, otherwise create new instance
+const prisma = global.prisma || new PrismaClient();
 
 export default class MenuAnalysisService {
   constructor({ openai } = {}) {
@@ -13,8 +17,15 @@ export default class MenuAnalysisService {
   /**
    * Sends the image to OpenAI Vision to extract menu items with names, descriptions, prices.
    * Returns a normalized structure: { items: [{ name, description, price, category? }], currency }
+   * Optionally saves the analysis to user history if userId is provided.
    */
-  async extractMenuFromImage({ imageBuffer, imageMimeType }) {
+  async extractMenuFromImage({
+    imageBuffer,
+    imageMimeType,
+    userId = null,
+    budget = null,
+    userNote = "",
+  }) {
     if (this.isMock) {
       return this.getMockMenuData();
     }
@@ -97,14 +108,56 @@ export default class MenuAnalysisService {
         return this.getFallbackMenuData();
       }
 
-      return {
+      const result = {
         currency: String(parsed.currency || "$").trim(),
         items: normalizedItems,
       };
+
+      // Save to user history if userId is provided
+      if (userId && typeof userId === "number") {
+        try {
+          await this.saveMenuAnalysisHistory(userId, {
+            menuData: result,
+            budget,
+            userNote,
+            imageSize: imageBuffer.length,
+            imageMimeType,
+          });
+        } catch (historyError) {
+          console.warn(
+            "Failed to save menu analysis history:",
+            historyError.message
+          );
+          // Don't fail the main operation if history saving fails
+        }
+      }
+
+      return result;
     } catch (error) {
       console.error("Vision API error:", error.message);
       console.warn("Using fallback menu data due to API error");
-      return this.getFallbackMenuData();
+      const fallbackResult = this.getFallbackMenuData();
+
+      // Save fallback result to user history if userId is provided
+      if (userId && typeof userId === "number") {
+        try {
+          await this.saveMenuAnalysisHistory(userId, {
+            menuData: fallbackResult,
+            budget,
+            userNote,
+            imageSize: imageBuffer.length,
+            imageMimeType,
+            isFallback: true,
+          });
+        } catch (historyError) {
+          console.warn(
+            "Failed to save fallback menu analysis history:",
+            historyError.message
+          );
+        }
+      }
+
+      return fallbackResult;
     }
   }
 
@@ -175,6 +228,222 @@ export default class MenuAnalysisService {
           category: "Desserts",
         },
       ],
+    };
+  }
+
+  // ==================== USER-AWARE CRUD OPERATIONS ====================
+
+  /**
+   * Save menu analysis to user history
+   * @param {number} userId - The user ID (integer)
+   * @param {object} data - The menu analysis data
+   * @returns {Promise<object>} The created menu analysis record
+   */
+  async saveMenuAnalysisHistory(userId, data) {
+    if (!userId || typeof userId !== "number") {
+      throw new Error("Valid user ID (integer) is required");
+    }
+
+    const {
+      menuData,
+      budget,
+      userNote,
+      imageSize,
+      imageMimeType,
+      isFallback = false,
+    } = data;
+
+    if (!menuData || typeof menuData !== "object") {
+      throw new Error("Valid menu data is required");
+    }
+
+    return await prisma.menuAnalysis.create({
+      data: {
+        user_id: userId,
+        menuData,
+        budget: budget ? Number(budget) : null,
+        userNote: userNote || null,
+        imageSize: imageSize ? Number(imageSize) : null,
+        imageMimeType: imageMimeType || null,
+        isFallback,
+      },
+      include: {
+        user: {
+          select: { id: true, email: true, name: true },
+        },
+      },
+    });
+  }
+
+  /**
+   * Get all menu analyses for a specific user
+   * @param {number} userId - The user ID (integer)
+   * @param {object} options - Query options
+   * @returns {Promise<Array>} Array of menu analyses
+   */
+  async getAllMenuAnalyses(userId, options = {}) {
+    if (!userId || typeof userId !== "number") {
+      throw new Error("Valid user ID (integer) is required");
+    }
+
+    const { limit = 50, offset = 0, includeUser = false } = options;
+
+    return await prisma.menuAnalysis.findMany({
+      where: { user_id: userId },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      skip: offset,
+      include: includeUser
+        ? {
+            user: {
+              select: { id: true, email: true, name: true },
+            },
+          }
+        : undefined,
+    });
+  }
+
+  /**
+   * Get a specific menu analysis by ID for a specific user
+   * @param {number} userId - The user ID (integer)
+   * @param {number} analysisId - The menu analysis ID
+   * @returns {Promise<object|null>} The menu analysis or null if not found
+   */
+  async getMenuAnalysisById(userId, analysisId) {
+    if (!userId || typeof userId !== "number") {
+      throw new Error("Valid user ID (integer) is required");
+    }
+
+    if (!analysisId || typeof analysisId !== "number") {
+      throw new Error("Valid analysis ID (integer) is required");
+    }
+
+    return await prisma.menuAnalysis.findFirst({
+      where: {
+        id: analysisId,
+        user_id: userId, // Ensure user can only access their own analyses
+      },
+      include: {
+        user: {
+          select: { id: true, email: true, name: true },
+        },
+      },
+    });
+  }
+
+  /**
+   * Update a specific menu analysis for a specific user
+   * @param {number} userId - The user ID (integer)
+   * @param {number} analysisId - The menu analysis ID
+   * @param {object} updateData - The data to update
+   * @returns {Promise<object>} The updated menu analysis
+   */
+  async updateMenuAnalysis(userId, analysisId, updateData) {
+    if (!userId || typeof userId !== "number") {
+      throw new Error("Valid user ID (integer) is required");
+    }
+
+    if (!analysisId || typeof analysisId !== "number") {
+      throw new Error("Valid analysis ID (integer) is required");
+    }
+
+    // First check if the analysis exists and belongs to the user
+    const existingAnalysis = await this.getMenuAnalysisById(userId, analysisId);
+    if (!existingAnalysis) {
+      throw new Error("Menu analysis not found or access denied");
+    }
+
+    const { userNote, budget } = updateData;
+
+    // Build update object with only provided fields
+    const updateFields = {};
+    if (userNote !== undefined) updateFields.userNote = userNote || null;
+    if (budget !== undefined)
+      updateFields.budget = budget ? Number(budget) : null;
+
+    return await prisma.menuAnalysis.update({
+      where: { id: analysisId },
+      data: updateFields,
+      include: {
+        user: {
+          select: { id: true, email: true, name: true },
+        },
+      },
+    });
+  }
+
+  /**
+   * Delete a specific menu analysis for a specific user
+   * @param {number} userId - The user ID (integer)
+   * @param {number} analysisId - The menu analysis ID
+   * @returns {Promise<object>} The deleted menu analysis
+   */
+  async deleteMenuAnalysis(userId, analysisId) {
+    if (!userId || typeof userId !== "number") {
+      throw new Error("Valid user ID (integer) is required");
+    }
+
+    if (!analysisId || typeof analysisId !== "number") {
+      throw new Error("Valid analysis ID (integer) is required");
+    }
+
+    // First check if the analysis exists and belongs to the user
+    const existingAnalysis = await this.getMenuAnalysisById(userId, analysisId);
+    if (!existingAnalysis) {
+      throw new Error("Menu analysis not found or access denied");
+    }
+
+    return await prisma.menuAnalysis.delete({
+      where: { id: analysisId },
+    });
+  }
+
+  /**
+   * Get menu analysis statistics for a user
+   * @param {number} userId - The user ID (integer)
+   * @returns {Promise<object>} Statistics about user's menu analyses
+   */
+  async getMenuAnalysisStats(userId) {
+    if (!userId || typeof userId !== "number") {
+      throw new Error("Valid user ID (integer) is required");
+    }
+
+    const [totalCount, fallbackCount, avgBudget, recentCount] =
+      await Promise.all([
+        // Total analyses
+        prisma.menuAnalysis.count({
+          where: { user_id: userId },
+        }),
+        // Fallback analyses
+        prisma.menuAnalysis.count({
+          where: { user_id: userId, isFallback: true },
+        }),
+        // Average budget
+        prisma.menuAnalysis.aggregate({
+          where: { user_id: userId, budget: { not: null } },
+          _avg: { budget: true },
+        }),
+        // Recent analyses (last 30 days)
+        prisma.menuAnalysis.count({
+          where: {
+            user_id: userId,
+            createdAt: {
+              gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+            },
+          },
+        }),
+      ]);
+
+    return {
+      totalAnalyses: totalCount,
+      fallbackAnalyses: fallbackCount,
+      successfulAnalyses: totalCount - fallbackCount,
+      averageBudget: avgBudget._avg.budget || 0,
+      recentAnalyses: recentCount,
+      successRate:
+        totalCount > 0
+          ? (((totalCount - fallbackCount) / totalCount) * 100).toFixed(1)
+          : 0,
     };
   }
 }
