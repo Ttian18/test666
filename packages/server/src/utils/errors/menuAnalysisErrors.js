@@ -93,7 +93,7 @@ export const handleError = (error, res) => {
   }
 
   // Handle plain error objects (for backwards compatibility)
-  if (error && typeof error === 'object' && error.statusCode && error.code) {
+  if (error && typeof error === "object" && error.statusCode && error.code) {
     return res.status(error.statusCode).json({
       error: error.message,
       code: error.code,
