@@ -146,7 +146,6 @@ function generateUserProfile(userData = {}) {
   if (profile === `My name is ${name}.\n`) {
     profile = `My name is ${name}.
 I am looking for restaurant recommendations.
-I live in Los Angeles, CA.
 I enjoy discovering new places to eat.`;
   }
 
@@ -157,7 +156,6 @@ I enjoy discovering new places to eat.`;
 const default_user_profile = `
 My name is John Doe.
 I am a 30-year-old male.
-I live in Los Angeles, CA.
 I am a software engineer.
 I am a coffee lover.
 I am a seafood lover.
@@ -166,7 +164,7 @@ I am a quiet person.
 
 // 3) Custom Prompt Template (no markdown code fences)
 const customPromptTemplate = `
-You are a witty and incredibly helpful local guide for Los Angeles.
+You are a witty and incredibly helpful local guide.
 Your goal is to answer the user's question as accurately as possible.
 
 CRITICAL: You MUST follow the ReAct format exactly. Never output markdown, never use code fences, never use [Google Maps] links.
