@@ -227,8 +227,8 @@ const Recommendations = () => {
 
     try {
       const payload = {
-                  budget: Number(budget),
-          tags: dietaryTags.length > 0 ? dietaryTags : undefined,
+        budget: Number(budget),
+        tags: dietaryTags.length > 0 ? dietaryTags : undefined,
       };
 
       console.log("Sending recommendation request with payload:", payload);
@@ -475,8 +475,6 @@ const Recommendations = () => {
                 </div>
               </div>
 
-
-
               <div>
                 <Label>Dietary Preferences</Label>
                 <div className="space-y-3">
@@ -644,7 +642,6 @@ const Recommendations = () => {
                         >
                           <div>
                             <p className="font-medium">{pick.name}</p>
-
                           </div>
                           <div className="text-right">
                             <p className="font-semibold">
@@ -758,9 +755,7 @@ const Recommendations = () => {
                         </p>
                       )}
                     </div>
-                    <div className="text-right ml-4">
-
-                    </div>
+                    <div className="text-right ml-4"></div>
                   </div>
                 ))}
 
@@ -785,7 +780,6 @@ const Recommendations = () => {
                         ${item.unit_price}
                       </p>
                       <p className="text-sm font-medium">${item.subtotal}</p>
-
                     </div>
                   </div>
                 ))}
