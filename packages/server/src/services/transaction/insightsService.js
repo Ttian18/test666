@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { findMerchantCategory } from "common";
 
-const prisma = new PrismaClient();
+// Use global prisma instance in tests, otherwise create new instance
+const prisma = global.prisma || new PrismaClient();
 
 /**
  * Insights Service - User-scoped transaction analytics and insights
@@ -20,7 +21,12 @@ const prisma = new PrismaClient();
  * @returns {Promise<Object>} Spending summary with period breakdown
  */
 export const getSpendingSummary = async (userId, options = {}) => {
-  if (!userId || typeof userId !== "number") {
+  if (
+    !userId ||
+    typeof userId !== "number" ||
+    userId <= 0 ||
+    !Number.isInteger(userId)
+  ) {
     throw new Error("Valid user ID (integer) is required");
   }
 
@@ -95,7 +101,12 @@ export const getSpendingSummary = async (userId, options = {}) => {
  * @returns {Promise<Object>} Category analysis with spending breakdown
  */
 export const getCategoryAnalysis = async (userId, options = {}) => {
-  if (!userId || typeof userId !== "number") {
+  if (
+    !userId ||
+    typeof userId !== "number" ||
+    userId <= 0 ||
+    !Number.isInteger(userId)
+  ) {
     throw new Error("Valid user ID (integer) is required");
   }
 
@@ -129,7 +140,7 @@ export const getCategoryAnalysis = async (userId, options = {}) => {
 
   return {
     userId,
-    totalSpending: total,
+    totalAmount: total,
     categories: categoryData.map((item) => ({
       category: item.category,
       totalAmount: item._sum.amount,
@@ -150,7 +161,12 @@ export const getCategoryAnalysis = async (userId, options = {}) => {
  * @returns {Promise<Object>} Merchant analysis with spending breakdown
  */
 export const getMerchantAnalysis = async (userId, options = {}) => {
-  if (!userId || typeof userId !== "number") {
+  if (
+    !userId ||
+    typeof userId !== "number" ||
+    userId <= 0 ||
+    !Number.isInteger(userId)
+  ) {
     throw new Error("Valid user ID (integer) is required");
   }
 
@@ -183,8 +199,15 @@ export const getMerchantAnalysis = async (userId, options = {}) => {
     merchantCategory: findMerchantCategory(item.merchant),
   }));
 
+  // Calculate total amount across all merchants
+  const totalAmount = enhancedData.reduce(
+    (sum, merchant) => sum + merchant.totalAmount,
+    0
+  );
+
   return {
     userId,
+    totalAmount,
     merchants: enhancedData,
   };
 };
@@ -198,7 +221,12 @@ export const getMerchantAnalysis = async (userId, options = {}) => {
  * @returns {Promise<Object>} Spending trends with period comparisons
  */
 export const getSpendingTrends = async (userId, options = {}) => {
-  if (!userId || typeof userId !== "number") {
+  if (
+    !userId ||
+    typeof userId !== "number" ||
+    userId <= 0 ||
+    !Number.isInteger(userId)
+  ) {
     throw new Error("Valid user ID (integer) is required");
   }
 
@@ -266,11 +294,20 @@ export const getBudgetAnalysis = async (
   monthlyBudget,
   options = {}
 ) => {
-  if (!userId || typeof userId !== "number") {
+  if (
+    !userId ||
+    typeof userId !== "number" ||
+    userId <= 0 ||
+    !Number.isInteger(userId)
+  ) {
     throw new Error("Valid user ID (integer) is required");
   }
 
-  if (!monthlyBudget || typeof monthlyBudget !== "number") {
+  if (
+    !monthlyBudget ||
+    typeof monthlyBudget !== "number" ||
+    monthlyBudget <= 0
+  ) {
     throw new Error("Valid monthly budget (number) is required");
   }
 

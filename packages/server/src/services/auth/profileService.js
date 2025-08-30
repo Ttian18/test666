@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import Profile from "../../models/entities/Profile.js";
 
-const prisma = new PrismaClient();
+// Use global prisma instance in tests, otherwise create new instance
+const prisma = global.prisma || new PrismaClient();
 
 /**
  * Create or update a user profile
@@ -10,7 +11,12 @@ const prisma = new PrismaClient();
  * @returns {Promise<Object>} Profile creation/update result
  */
 export const createOrUpdateProfile = async (userId, profileData) => {
-  if (!userId || typeof userId !== "number") {
+  if (
+    !userId ||
+    typeof userId !== "number" ||
+    userId <= 0 ||
+    !Number.isInteger(userId)
+  ) {
     throw new Error("Valid user ID (integer) is required");
   }
 
@@ -34,6 +40,16 @@ export const createOrUpdateProfile = async (userId, profileData) => {
   }
 
   try {
+    // First, verify user exists in Prisma database
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
     // Create/update profile using the existing Profile entity
     let profile = await Profile.findOne({ userId });
 
@@ -74,7 +90,12 @@ export const createOrUpdateProfile = async (userId, profileData) => {
  * @returns {Promise<Object|null>} Profile data or null if not found
  */
 export const getUserProfile = async (userId) => {
-  if (!userId || typeof userId !== "number") {
+  if (
+    !userId ||
+    typeof userId !== "number" ||
+    userId <= 0 ||
+    !Number.isInteger(userId)
+  ) {
     throw new Error("Valid user ID (integer) is required");
   }
 
@@ -107,7 +128,12 @@ export const getUserProfile = async (userId) => {
  * @returns {Promise<Object|null>} User data with profile for personalization
  */
 export const getUserDataForPersonalization = async (userId) => {
-  if (!userId || typeof userId !== "number") {
+  if (
+    !userId ||
+    typeof userId !== "number" ||
+    userId <= 0 ||
+    !Number.isInteger(userId)
+  ) {
     throw new Error("Valid user ID (integer) is required");
   }
 
@@ -155,7 +181,12 @@ export const getUserDataForPersonalization = async (userId) => {
  * @returns {Promise<Object|null>} User data if valid, null if not found
  */
 export const validateUser = async (userId) => {
-  if (!userId || typeof userId !== "number") {
+  if (
+    !userId ||
+    typeof userId !== "number" ||
+    userId <= 0 ||
+    !Number.isInteger(userId)
+  ) {
     return null;
   }
 

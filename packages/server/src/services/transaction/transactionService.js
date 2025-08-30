@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+// Use global prisma instance in tests, otherwise create new instance
+const prisma = global.prisma || new PrismaClient();
 
 /**
  * Transaction Service - User-scoped transaction operations
@@ -19,7 +20,12 @@ const prisma = new PrismaClient();
  * @returns {Promise<Array>} Array of user's transactions
  */
 export const getAllTransactions = async (userId, options = {}) => {
-  if (!userId || typeof userId !== "number") {
+  if (
+    !userId ||
+    typeof userId !== "number" ||
+    userId <= 0 ||
+    !Number.isInteger(userId)
+  ) {
     throw new Error("Valid user ID (integer) is required");
   }
 
@@ -58,11 +64,21 @@ export const getAllTransactions = async (userId, options = {}) => {
  * @returns {Promise<Object|null>} Transaction object or null
  */
 export const getTransactionById = async (userId, transactionId) => {
-  if (!userId || typeof userId !== "number") {
+  if (
+    !userId ||
+    typeof userId !== "number" ||
+    userId <= 0 ||
+    !Number.isInteger(userId)
+  ) {
     throw new Error("Valid user ID (integer) is required");
   }
 
-  if (!transactionId || typeof transactionId !== "number") {
+  if (
+    !transactionId ||
+    typeof transactionId !== "number" ||
+    transactionId <= 0 ||
+    !Number.isInteger(transactionId)
+  ) {
     throw new Error("Valid transaction ID (integer) is required");
   }
 
@@ -86,7 +102,12 @@ export const getTransactionById = async (userId, transactionId) => {
  * @returns {Promise<Object>} Created transaction
  */
 export const createTransaction = async (userId, transactionData) => {
-  if (!userId || typeof userId !== "number") {
+  if (
+    !userId ||
+    typeof userId !== "number" ||
+    userId <= 0 ||
+    !Number.isInteger(userId)
+  ) {
     throw new Error("Valid user ID (integer) is required");
   }
 
@@ -120,11 +141,21 @@ export const createTransaction = async (userId, transactionData) => {
  * @returns {Promise<Object|null>} Updated transaction or null if not found
  */
 export const updateTransaction = async (userId, transactionId, updateData) => {
-  if (!userId || typeof userId !== "number") {
+  if (
+    !userId ||
+    typeof userId !== "number" ||
+    userId <= 0 ||
+    !Number.isInteger(userId)
+  ) {
     throw new Error("Valid user ID (integer) is required");
   }
 
-  if (!transactionId || typeof transactionId !== "number") {
+  if (
+    !transactionId ||
+    typeof transactionId !== "number" ||
+    transactionId <= 0 ||
+    !Number.isInteger(transactionId)
+  ) {
     throw new Error("Valid transaction ID (integer) is required");
   }
 
@@ -158,11 +189,21 @@ export const updateTransaction = async (userId, transactionId, updateData) => {
  * @returns {Promise<boolean>} True if deleted, false if not found
  */
 export const deleteTransaction = async (userId, transactionId) => {
-  if (!userId || typeof userId !== "number") {
+  if (
+    !userId ||
+    typeof userId !== "number" ||
+    userId <= 0 ||
+    !Number.isInteger(userId)
+  ) {
     throw new Error("Valid user ID (integer) is required");
   }
 
-  if (!transactionId || typeof transactionId !== "number") {
+  if (
+    !transactionId ||
+    typeof transactionId !== "number" ||
+    transactionId <= 0 ||
+    !Number.isInteger(transactionId)
+  ) {
     throw new Error("Valid transaction ID (integer) is required");
   }
 
@@ -188,7 +229,12 @@ export const deleteTransaction = async (userId, transactionId) => {
  * @returns {Promise<Object>} Transaction statistics
  */
 export const getTransactionStats = async (userId, options = {}) => {
-  if (!userId || typeof userId !== "number") {
+  if (
+    !userId ||
+    typeof userId !== "number" ||
+    userId <= 0 ||
+    !Number.isInteger(userId)
+  ) {
     throw new Error("Valid user ID (integer) is required");
   }
 
@@ -251,7 +297,12 @@ export const getTransactionsByCategory = async (
   category,
   options = {}
 ) => {
-  if (!userId || typeof userId !== "number") {
+  if (
+    !userId ||
+    typeof userId !== "number" ||
+    userId <= 0 ||
+    !Number.isInteger(userId)
+  ) {
     throw new Error("Valid user ID (integer) is required");
   }
 
