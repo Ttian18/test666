@@ -6,18 +6,21 @@ A comprehensive AI-powered finance and restaurant recommendation application bui
 
 ### Restaurant Recommendations
 
-- **Location-based Recommendations**: Get personalized restaurant suggestions based on your location
-- **AI-Powered Analysis**: Uses OpenAI and LangChain for intelligent restaurant analysis
-- **Social Media Integration**: Analyze restaurant social media content for insights
-- **Menu Analysis**: Upload menu images to get budget-friendly recommendations
+- **Location-based Recommendations**: Get personalized restaurant suggestions based on your location using Google Places API
+- **AI-Powered Analysis**: Uses OpenAI GPT-4 and LangChain for intelligent restaurant discovery
+- **Menu Analysis with History**: Upload menu images to get budget-friendly recommendations with user history tracking
+- **Social Media Integration**: Analyze restaurant social media content for insights (Zhongcao)
+- **Legacy Menu Analysis**: Public menu analysis with caching (no authentication required)
 
 ### Financial Management
 
+- **User-Aware Transaction System**: All transactions scoped to authenticated users
 - **Receipt Processing**: Upload receipt images for automatic transaction categorization
 - **Bulk Upload**: Process multiple receipts at once
 - **Transaction Tracking**: Comprehensive transaction management with categories and notes
 - **Voucher System**: Digital voucher management with status tracking
-- **Financial Analytics**: Generate insights and statistics from your spending data
+- **Financial Analytics**: Generate personalized insights and statistics from your spending data
+- **Cross-User Security**: Complete data isolation between users
 
 ### AI Capabilities
 
@@ -50,9 +53,10 @@ nextai-finance-app-monorepo/
 
 - **Framework**: Express.js with ES modules
 - **Database**: PostgreSQL with Prisma ORM
-- **AI Services**: OpenAI API, LangChain, Google Places API
-- **Authentication**: JWT-based authentication
+- **AI Services**: OpenAI API (GPT-4, GPT-4o-mini), LangChain, Google Places API
+- **Authentication**: JWT-based authentication with user-aware security
 - **File Processing**: Multer for file uploads, Sharp for image processing
+- **User Isolation**: Complete data separation and access control
 
 ## 🛠️ Prerequisites
 
@@ -538,11 +542,42 @@ Uploads multiple receipt images (up to 10) for processing.
 
 ### Restaurant & Menu Analysis (`/restaurants`)
 
+#### **`GET /`**
+
+Get personalized restaurant recommendations based on location.
+
+- **Authentication**: **Optional** (personalized if authenticated)
+- **Query Parameters**:
+  - `location` (string, required): Location to search for restaurants
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "message": "Personalized restaurant recommendations",
+    "location": "downtown Los Angeles",
+    "personalized": true,
+    "recommendations": [
+      {
+        "name": "Bestia",
+        "address": "2121 E 7th Pl, Los Angeles, CA 90021",
+        "phone": "(213) 514-5724",
+        "website": "bestiala.com",
+        "googleMapsLink": "https://www.google.com/maps/...",
+        "reason": "Great for seafood lovers like you",
+        "cuisine": "Italian",
+        "priceRange": "$$$",
+        "rating": "4.5"
+      }
+    ]
+  }
+  ```
+
+---
+
 #### **`POST /menu-analysis`**
 
-Analyzes a menu image and provides budget-based recommendations.
+Analyzes a menu image and provides budget-based recommendations with user history tracking.
 
-- **Authentication**: Optional (`x-auth-token` header for user-specific context)
+- **Authentication**: **Required** (`x-auth-token` header)
 - **Request Body**: `multipart/form-data` with fields:
   - `image` (file): The menu image.
   - `budget` (number): The budget for the meal.
@@ -552,8 +587,111 @@ Analyzes a menu image and provides budget-based recommendations.
   {
     "message": "Menu analysis completed successfully",
     "cached": false,
-    "menuInfo": { ... },
+    "menuInfo": {
+      "currency": "$",
+      "items": [
+        {
+          "name": "THE GREEK ANGEL",
+          "price": 24.95,
+          "description": "spaghettini, tomato sauce, fresh herbs",
+          "category": "Pasta"
+        }
+      ]
+    },
     "recommendation": { ... }
+  }
+  ```
+
+---
+
+#### **`GET /menu-analysis/history`**
+
+Get user's menu analysis history.
+
+- **Authentication**: **Required**
+- **Query Parameters**:
+  - `limit` (number, optional): Number of records to return (default: 50)
+  - `offset` (number, optional): Number of records to skip (default: 0)
+  - `includeUser` (boolean, optional): Include user data in response
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "message": "Menu analysis history retrieved successfully",
+    "analyses": [ ... ],
+    "count": 10
+  }
+  ```
+
+---
+
+#### **`GET /menu-analysis/history/:id`**
+
+Get specific menu analysis by ID.
+
+- **Authentication**: **Required**
+- **URL Parameters**: `id` (number)
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "message": "Menu analysis retrieved successfully",
+    "analysis": { ... }
+  }
+  ```
+- **Error Responses**:
+  - `404 Not Found`: Menu analysis not found or access denied
+
+---
+
+#### **`PUT /menu-analysis/history/:id`**
+
+Update menu analysis notes or budget.
+
+- **Authentication**: **Required**
+- **URL Parameters**: `id` (number)
+- **Request Body**:
+  ```json
+  {
+    "userNote": "Updated note about this menu analysis",
+    "budget": 30
+  }
+  ```
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "message": "Menu analysis updated successfully",
+    "analysis": { ... }
+  }
+  ```
+
+---
+
+#### **`DELETE /menu-analysis/history/:id`**
+
+Delete menu analysis from history.
+
+- **Authentication**: **Required**
+- **URL Parameters**: `id` (number)
+- **Success Response (`204 No Content`)**
+
+---
+
+#### **`GET /menu-analysis/stats`**
+
+Get user's menu analysis statistics.
+
+- **Authentication**: **Required**
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "message": "Menu analysis statistics retrieved successfully",
+    "stats": {
+      "totalAnalyses": 15,
+      "fallbackAnalyses": 2,
+      "successfulAnalyses": 13,
+      "averageBudget": 27.5,
+      "recentAnalyses": 8,
+      "successRate": "86.7"
+    }
   }
   ```
 
@@ -563,7 +701,7 @@ Analyzes a menu image and provides budget-based recommendations.
 
 Analyzes a restaurant image from social media to extract details.
 
-- **Authentication**: None
+- **Authentication**: **Required** (`x-auth-token` header)
 - **Request Body**: `multipart/form-data` with a single file field named `image`.
 - **Success Response (`201 Created`)**:
   ```json
@@ -571,6 +709,286 @@ Analyzes a restaurant image from social media to extract details.
     "message": "Image processed successfully",
     "result": { ... }, // The created database record
     "extractedInfo": { ... } // The raw data from AI
+  }
+  ```
+
+---
+
+#### **`GET /zhongcao`**
+
+Get all zhongcao results for authenticated user.
+
+- **Authentication**: **Required**
+- **Success Response (`200 OK`)**:
+  ```json
+  [
+    {
+      "id": 1,
+      "user_id": 4,
+      "restaurantName": "Sample Restaurant",
+      "dishName": "Special Dish",
+      "address": "123 Main St",
+      "description": "Great restaurant experience",
+      "socialMediaHandle": "@restaurant_handle",
+      "createdAt": "2025-08-30T06:38:26.081Z"
+    }
+  ]
+  ```
+
+---
+
+#### **`GET /zhongcao/:id`**
+
+Get specific zhongcao result by ID.
+
+- **Authentication**: **Required**
+- **URL Parameters**: `id` (number)
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "id": 1,
+    "user_id": 4,
+    "restaurantName": "Sample Restaurant",
+    // ... other fields
+  }
+  ```
+- **Error Responses**:
+  - `404 Not Found`: Zhongcao result not found or access denied
+
+---
+
+#### **`PUT /zhongcao/:id`**
+
+Update zhongcao result.
+
+- **Authentication**: **Required**
+- **URL Parameters**: `id` (number)
+- **Request Body**:
+  ```json
+  {
+    "restaurantName": "Updated Restaurant Name",
+    "dishName": "Updated Dish Name",
+    "address": "Updated Address",
+    "description": "Updated description",
+    "socialMediaHandle": "@updated_handle"
+  }
+  ```
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "id": 1,
+    "user_id": 4,
+    "restaurantName": "Updated Restaurant Name",
+    // ... updated fields
+  }
+  ```
+
+---
+
+#### **`DELETE /zhongcao/:id`**
+
+Delete zhongcao result.
+
+- **Authentication**: **Required**
+- **URL Parameters**: `id` (number)
+- **Success Response (`204 No Content`)**
+
+---
+
+#### **Legacy Menu Analysis Endpoints (`/restaurants/recommendations`)**
+
+*These endpoints provide menu analysis without authentication and user history tracking.*
+
+#### **`POST /recommendations/recommend`**
+
+Analyze menu image with caching (no authentication required).
+
+- **Authentication**: **None**
+- **Request Body**: `multipart/form-data` with fields:
+  - `image` (file): The menu image
+  - `budget` (number): The budget for the meal
+  - `note` (string, optional): Additional notes
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "menuInfo": { ... },
+    "recommendation": { ... },
+    "cached": false
+  }
+  ```
+
+---
+
+#### **`GET /recommendations/last`**
+
+Get last cached recommendation.
+
+- **Authentication**: **None**
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "menuInfo": { ... },
+    "recommendation": { ... },
+    "budget": 25,
+    "timestamp": "2025-08-30T06:38:26.081Z"
+  }
+  ```
+
+---
+
+#### **`POST /recommendations/rebudget`**
+
+Re-recommend with new budget using cached menu.
+
+- **Authentication**: **None**
+- **Request Body**:
+  ```json
+  {
+    "budget": 30,
+    "note": "Updated budget preferences"
+  }
+  ```
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "menuInfo": { ... },
+    "recommendation": { ... }
+  }
+  ```
+
+---
+
+### Financial Insights (`/transactions/insights`)
+
+#### **`GET /insights/summary`**
+
+Get spending summary for authenticated user.
+
+- **Authentication**: **Required**
+- **Query Parameters**:
+  - `period` (string, optional): Time period (monthly, yearly, etc.)
+  - `category` (string, optional): Filter by category
+  - `startDate` (string, optional): Start date (ISO 8601)
+  - `endDate` (string, optional): End date (ISO 8601)
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "userId": 4,
+      "period": "monthly",
+      "summary": {
+        "totalTransactions": 9,
+        "totalAmount": 721.76,
+        "averageAmount": 80.20
+      },
+      "periodBreakdown": [ ... ]
+    }
+  }
+  ```
+
+---
+
+#### **`GET /insights/categories`**
+
+Get category analysis for authenticated user.
+
+- **Authentication**: **Required**
+- **Query Parameters**:
+  - `startDate` (string, optional): Start date
+  - `endDate` (string, optional): End date
+  - `limit` (number, optional): Number of categories to return
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "categories": [ ... ],
+      "totalAmount": 1234.56
+    }
+  }
+  ```
+
+---
+
+#### **`GET /insights/merchants`**
+
+Get merchant analysis for authenticated user.
+
+- **Authentication**: **Required**
+- **Query Parameters**: Same as categories
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "merchants": [ ... ],
+      "totalAmount": 1234.56
+    }
+  }
+  ```
+
+---
+
+#### **`GET /insights/trends`**
+
+Get spending trends for authenticated user.
+
+- **Authentication**: **Required**
+- **Query Parameters**:
+  - `period` (string, optional): Time period for trends
+  - `periods` (number, optional): Number of periods to analyze
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "trends": [ ... ],
+      "period": "monthly"
+    }
+  }
+  ```
+
+---
+
+#### **`GET /insights/budget`**
+
+Get budget analysis for authenticated user.
+
+- **Authentication**: **Required**
+- **Query Parameters**:
+  - `monthlyBudget` (number, required): Monthly budget amount
+  - `month` (string, optional): Specific month to analyze
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "budgetAnalysis": { ... },
+      "monthlyBudget": 2000
+    }
+  }
+  ```
+
+---
+
+#### **`GET /insights/dashboard`**
+
+Get comprehensive dashboard data for authenticated user.
+
+- **Authentication**: **Required**
+- **Query Parameters**:
+  - `monthlyBudget` (number, optional): Monthly budget for budget analysis
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "summary": { ... },
+      "topCategories": [ ... ],
+      "trends": [ ... ],
+      "budget": { ... }
+    }
   }
   ```
 
@@ -589,11 +1007,35 @@ Analyzes a restaurant image from social media to extract details.
 
 ## 🧪 Testing
 
+### API Testing with Postman
+
+A comprehensive Postman collection is available at `/postman/NextAI_Finance_App.postman_collection.json` with all endpoints pre-configured:
+
+1. **Import the collection** into Postman
+2. **Set environment variables**:
+   - `baseUrl`: `http://localhost:5001`
+   - `authToken`: Your JWT token from login/register
+3. **Test all endpoints** including:
+   - Authentication (register, login, profile)
+   - Transactions with full CRUD operations
+   - Financial insights and analytics
+   - Restaurant recommendations (with/without auth)
+   - Menu analysis with history tracking
+   - Zhongcao social media analysis
+   - Legacy menu analysis endpoints
+
 ### Run Recommendation Tests
 
 ```bash
 cd packages/server
 npm run test:reco
+```
+
+### Run Unit Tests
+
+```bash
+cd packages/server
+npm test
 ```
 
 ## 📦 Building for Production
@@ -641,6 +1083,17 @@ If you encounter any issues or have questions:
 3. Include error messages, steps to reproduce, and environment details
 
 ## 🔄 Version History
+
+- **v2.0.0** - **Major User-Aware Refactor**
+  - ✅ Complete user-aware authentication system implemented
+  - ✅ All transactions, menu analyses, and zhongcao results scoped to authenticated users
+  - ✅ Menu analysis history tracking with full CRUD operations
+  - ✅ Financial insights with user isolation and personalization
+  - ✅ Enhanced error handling with proper HTTP status codes
+  - ✅ Comprehensive API documentation and Postman collection
+  - ✅ Cross-user security and data isolation
+  - ✅ Database migrations for user relationships
+  - ✅ Legacy endpoints maintained for backward compatibility
 
 - **v1.0.0** - Initial release with restaurant recommendations and transaction management
 
