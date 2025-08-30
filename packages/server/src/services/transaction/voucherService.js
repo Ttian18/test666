@@ -70,9 +70,14 @@ async function parseReceiptWithOpenAI(imageBuffer, mimeType) {
       temperature: 0.1,
     });
 
-    const content = response.choices[0]?.message?.content;
+    let content = response.choices[0]?.message?.content?.trim();
     if (!content) {
       throw new Error("No response from OpenAI");
+    }
+
+    // Handle markdown code block
+    if (content.startsWith("```json")) {
+      content = content.substring(7, content.length - 3).trim();
     }
 
     const parsedData = JSON.parse(content);

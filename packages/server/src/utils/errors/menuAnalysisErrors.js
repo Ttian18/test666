@@ -69,6 +69,18 @@ export const createError = {
 
   internalError: (message = "Internal server error", originalError = null) =>
     new AppError(ERROR_CODES.INTERNAL_ERROR, message, originalError),
+
+  invalidId: (message = "Invalid ID format") => ({
+    message,
+    statusCode: 400,
+    code: "INVALID_ID",
+  }),
+
+  notFound: (message = "Resource not found") => ({
+    message,
+    statusCode: 404,
+    code: "NOT_FOUND",
+  }),
 };
 
 // Helper function to handle errors and return appropriate HTTP response

@@ -23,12 +23,15 @@ model User {
   updatedAt       DateTime @updatedAt
   
   // Relations
-  vouchers     Voucher[]
-  transactions Transaction[]
+  vouchers        Voucher[]
+  transactions    Transaction[]
+  zhongcaoResults ZhongcaoResult[]
+  menuAnalyses    MenuAnalysis[]
 }
 
 model ZhongcaoResult {
   id                  Int      @id @default(autoincrement())
+  user_id             Int      // User relationship
   originalFilename    String
   restaurantName      String
   dishName            String?
@@ -38,6 +41,9 @@ model ZhongcaoResult {
   processedAt         DateTime
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+  
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
 model Voucher {
@@ -70,4 +76,20 @@ model Transaction {
   user User @relation(fields: [user_id], references: [id])
   
   @@map("transactions")
+}
+
+model MenuAnalysis {
+  id            Int      @id @default(autoincrement())
+  user_id       Int      // User relationship
+  menuData      Json     // Extracted menu items and currency
+  budget        Float?   // Budget used for analysis
+  userNote      String?  // User's note for the analysis
+  imageSize     Int?     // Size of the analyzed image in bytes
+  imageMimeType String?  // MIME type of the analyzed image
+  isFallback    Boolean  @default(false) // Whether fallback data was used
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
