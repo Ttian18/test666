@@ -748,7 +748,7 @@ Get specific zhongcao result by ID.
   {
     "id": 1,
     "user_id": 4,
-    "restaurantName": "Sample Restaurant",
+    "restaurantName": "Sample Restaurant"
     // ... other fields
   }
   ```
@@ -778,7 +778,7 @@ Update zhongcao result.
   {
     "id": 1,
     "user_id": 4,
-    "restaurantName": "Updated Restaurant Name",
+    "restaurantName": "Updated Restaurant Name"
     // ... updated fields
   }
   ```
@@ -797,7 +797,7 @@ Delete zhongcao result.
 
 #### **Legacy Menu Analysis Endpoints (`/restaurants/recommendations`)**
 
-*These endpoints provide menu analysis without authentication and user history tracking.*
+_These endpoints provide menu analysis without authentication and user history tracking._
 
 #### **`POST /recommendations/recommend`**
 
@@ -1085,6 +1085,7 @@ If you encounter any issues or have questions:
 ## 🔄 Version History
 
 - **v2.0.0** - **Major User-Aware Refactor**
+
   - ✅ Complete user-aware authentication system implemented
   - ✅ All transactions, menu analyses, and zhongcao results scoped to authenticated users
   - ✅ Menu analysis history tracking with full CRUD operations
