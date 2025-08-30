@@ -1,5 +1,6 @@
 import express from "express";
 import MenuAnalysisController from "../../services/restaurant/menuAnalysisController.js";
+import MenuAnalysisService from "../../services/restaurant/menuAnalysisService.js";
 import {
   handleError,
   createError,
@@ -20,8 +21,9 @@ import { normalizeCalories, caloriesHash } from "../../utils/caloriesUtils.js";
 
 const router = express.Router();
 
-// Initialize controller
+// Initialize controller and service
 const menuAnalysisController = new MenuAnalysisController();
+const menuAnalysisService = new MenuAnalysisService();
 
 // Health check
 router.get("/health", (_req, res) => {
@@ -31,6 +33,10 @@ router.get("/health", (_req, res) => {
 // POST /menu-analysis - Analyze menu image and provide budget recommendations (legacy endpoint)
 router.post("/", uploadImageMemory.single("image"), async (req, res) => {
   try {
+    if (!req.file) {
+      return handleError(createError.missingImage(), res);
+    }
+
     if (!req.file) {
       return handleError(createError.missingImage(), res);
     }
@@ -65,6 +71,7 @@ router.post("/", uploadImageMemory.single("image"), async (req, res) => {
       imageMimeType,
       budget: Number(budget),
       userNote,
+      userId, // Pass userId for history tracking (required)
     });
 
     // Cache the result

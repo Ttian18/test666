@@ -1,15 +1,22 @@
 import express from "express";
 import { getRestaurantRecommendations } from "../../services/restaurant/recommendationService.js";
 import { validateLocation } from "../../utils/validation/validationUtils.js";
+import { getUserForPersonalization } from "../../services/auth/authUtils.js";
+import recommendationRoutes from "./recommendationRoutes.js";
+import zhongcaoRoutes from "./zhongcaoRoutes.js";
 import menuAnalysisRoutes from "./menuAnalysisRoutes.js";
 import zhongcaoRoutes from "./zhongcaoRoutes.js";
 
 const router = express.Router();
 
-// GET / - Personalized restaurant recommendations based on location
+// GET / - Personalized restaurant recommendations based on location (optional auth)
 router.get("/", async (req, res) => {
   try {
     const { location } = req.query;
+
+    // Check if user is authenticated (optional)
+    const token = req.header("x-auth-token");
+    const userData = await getUserForPersonalization(token);
 
     try {
       validateLocation(location);
@@ -22,11 +29,15 @@ router.get("/", async (req, res) => {
     // Create a query for restaurant recommendations in the specified location
     const query = `I'm looking for restaurant recommendations in ${location}. Please suggest good places to eat.`;
 
-    const result = await getRestaurantRecommendations(query);
+    // Pass user data for personalization if available
+    const result = await getRestaurantRecommendations(query, userData);
 
     res.status(200).json({
-      message: "Personalized restaurant recommendations",
+      message: userData
+        ? "Personalized restaurant recommendations"
+        : "Restaurant recommendations",
       location: location,
+      personalized: !!userData,
       recommendations: result.answer,
       query: result.query,
       steps: result.steps,

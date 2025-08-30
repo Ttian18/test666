@@ -1,12 +1,14 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import User from "../../models/entities/User.js";
+import { PrismaClient } from "@prisma/client";
 import { JWT_SECRET } from "../../utils/auth/authUtils.js";
 import {
   validateEmail,
   validatePassword,
 } from "../../utils/validation/validationUtils.js";
+
+const prisma = new PrismaClient();
 
 const router = express.Router();
 
@@ -23,8 +25,8 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ message: error.message });
     }
 
-    // Check existing user
-    const existingUser = await User.findOne({ email });
+    // Check existing user using Prisma
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return res.status(409).json({ message: "Email already registered" });
     }
@@ -33,23 +35,24 @@ router.post("/register", async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create user
-    const newUser = new User({
-      email,
-      password: hashedPassword,
-      profileComplete: false,
+    // Create user using Prisma
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        name: null, // Can be updated later in profile
+        password: hashedPassword,
+        profileComplete: false,
+      },
     });
 
-    await newUser.save();
-
-    // Generate JWT
-    const token = jwt.sign({ id: newUser._id }, JWT_SECRET, {
+    // Generate JWT with integer ID (Prisma User model)
+    const token = jwt.sign({ id: newUser.id }, JWT_SECRET, {
       expiresIn: "7d",
     });
 
     res.status(201).json({
       message: "User registered successfully",
-      userId: newUser._id,
+      userId: newUser.id,
       token,
     });
   } catch (error) {
@@ -71,8 +74,8 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: error.message });
     }
 
-    // Find user
-    const user = await User.findOne({ email });
+    // Find user using Prisma
+    const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -83,14 +86,14 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Generate JWT
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, {
+    // Generate JWT with integer ID (Prisma User model)
+    const token = jwt.sign({ id: user.id }, JWT_SECRET, {
       expiresIn: "7d",
     });
 
     res.status(200).json({
       message: "Login successful",
-      userId: user._id,
+      userId: user.id,
       token,
       profileComplete: user.profileComplete,
     });

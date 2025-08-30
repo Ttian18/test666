@@ -32,4 +32,9 @@ export default class Profile {
   populate() {
     return this; // no-op for in-memory stub
   }
+
+  static async deleteMany() {
+    profiles.length = 0; // Clear the array
+    return { deletedCount: profiles.length };
+  }
 }
