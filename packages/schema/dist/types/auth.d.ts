@@ -76,12 +76,15 @@ export declare const LoginResponseSchema: z.ZodObject<{
     userId: z.ZodNumber;
     token: z.ZodString;
     profileComplete: z.ZodBoolean;
+    name: z.ZodNullable<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
+    name: string | null;
     message: string;
     token: string;
     userId: number;
     profileComplete: boolean;
 }, {
+    name: string | null;
     message: string;
     token: string;
     userId: number;

@@ -50,6 +50,7 @@ exports.LoginResponseSchema = zod_1.z.object({
     userId: zod_1.z.number(),
     token: zod_1.z.string(),
     profileComplete: zod_1.z.boolean(),
+    name: zod_1.z.string().nullable(),
 });
 // User data schema (for profile and other user-related responses)
 exports.UserDataSchema = zod_1.z.object({

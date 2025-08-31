@@ -300,7 +300,6 @@ export declare const GetRestaurantRecommendationsResponseSchema: z.ZodObject<{
         specialFeatures?: string | undefined;
     }>, "many">;
     rawAnswer: z.ZodString;
-    steps: z.ZodArray<z.ZodAny, "many">;
 }, "strip", z.ZodTypeAny, {
     query: string;
     answer: {
@@ -319,7 +318,6 @@ export declare const GetRestaurantRecommendationsResponseSchema: z.ZodObject<{
         specialFeatures: string;
     }[];
     rawAnswer: string;
-    steps: any[];
 }, {
     query: string;
     answer: {
@@ -338,7 +336,6 @@ export declare const GetRestaurantRecommendationsResponseSchema: z.ZodObject<{
         specialFeatures?: string | undefined;
     }[];
     rawAnswer: string;
-    steps: any[];
 }>;
 export type Recommendation = z.infer<typeof RecommendationSchema>;
 export type Recommendations = z.infer<typeof RecommendationsSchema>;

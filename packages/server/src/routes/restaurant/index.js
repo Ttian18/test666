@@ -3,7 +3,6 @@ import { z } from "zod";
 import { getRestaurantRecommendations } from "../../services/restaurant/recommendationService.js";
 import { validateLocation } from "../../utils/validation/validationUtils.js";
 import { getUserForPersonalization } from "../../services/auth/authUtils.js";
-import recommendationRoutes from "./recommendationRoutes.js";
 import zhongcaoRoutes from "./zhongcaoRoutes.js";
 import menuAnalysisRoutes from "./menuAnalysisRoutes.js";
 import {
@@ -14,14 +13,45 @@ import {
 
 const router = express.Router();
 
-// GET / - Personalized restaurant recommendations based on location (optional auth)
+// GET / - Personalized restaurant recommendations based on location (REQUIRES AUTH)
 router.get("/", async (req, res) => {
   try {
     const { location } = req.query;
 
-    // Check if user is authenticated (optional)
+    // Check if user is authenticated (REQUIRED)
     const token = req.header("x-auth-token");
+    if (!token) {
+      const errorResponse = {
+        error: "Authentication required",
+        code: "AUTHENTICATION_REQUIRED",
+        details: [
+          {
+            field: "x-auth-token",
+            message: "Authentication token is required",
+          },
+        ],
+      };
+      const validatedErrorResponse =
+        RecommendationErrorResponseSchema.parse(errorResponse);
+      return res.status(401).json(validatedErrorResponse);
+    }
+
     const userData = await getUserForPersonalization(token);
+    if (!userData) {
+      const errorResponse = {
+        error: "Invalid authentication token",
+        code: "INVALID_TOKEN",
+        details: [
+          {
+            field: "x-auth-token",
+            message: "Invalid or expired authentication token",
+          },
+        ],
+      };
+      const validatedErrorResponse =
+        RecommendationErrorResponseSchema.parse(errorResponse);
+      return res.status(401).json(validatedErrorResponse);
+    }
 
     try {
       validateLocation(location);
@@ -29,6 +59,12 @@ router.get("/", async (req, res) => {
       const errorResponse = {
         error: error.message,
         code: "INVALID_LOCATION",
+        details: [
+          {
+            field: "location",
+            message: error.message,
+          },
+        ],
       };
       const validatedErrorResponse =
         RecommendationErrorResponseSchema.parse(errorResponse);
@@ -41,7 +77,7 @@ router.get("/", async (req, res) => {
     // Prepare request data for validation
     const requestData = {
       query: query,
-      userData: userData,
+      userData: userData, // User data is now guaranteed to exist
     };
 
     // Validate request data using Zod schema
@@ -71,14 +107,11 @@ router.get("/", async (req, res) => {
       GetRestaurantRecommendationsResponseSchema.parse(result);
 
     const response = {
-      message: userData
-        ? "Personalized restaurant recommendations"
-        : "Restaurant recommendations",
+      message: "Personalized restaurant recommendations",
       location: location,
-      personalized: !!userData,
+      personalized: true,
       recommendations: validatedResult.answer,
       query: validatedResult.query,
-      steps: validatedResult.steps,
     };
 
     res.status(200).json(response);
@@ -100,7 +133,12 @@ router.get("/", async (req, res) => {
 
     const errorResponse = {
       error: "Failed to get recommendations",
-      details: error.message,
+      details: [
+        {
+          field: "general",
+          message: error.message,
+        },
+      ],
     };
     const validatedErrorResponse =
       RecommendationErrorResponseSchema.parse(errorResponse);
@@ -108,8 +146,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Mount sub-routes
-router.use("/recommendations", recommendationRoutes);
+// Mount sub-routes (only authorized endpoints)
 router.use("/zhongcao", zhongcaoRoutes);
 router.use("/menu-analysis", menuAnalysisRoutes);
 

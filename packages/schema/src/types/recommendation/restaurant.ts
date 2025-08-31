@@ -91,7 +91,6 @@ export const GetRestaurantRecommendationsResponseSchema = z.object({
   query: z.string(),
   answer: RecommendationsSchema,
   rawAnswer: z.string(),
-  steps: z.array(z.any()),
 });
 
 // TypeScript types derived from the schemas

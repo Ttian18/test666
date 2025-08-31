@@ -925,7 +925,7 @@ Uploads multiple receipt images (up to 10) for processing.
 
 Get personalized restaurant recommendations based on location.
 
-- **Authentication**: **Optional** (personalized if authenticated)
+- **Authentication**:  **Required**
 - **Query Parameters**:
   - `location` (string, required): Location to search for restaurants
 - **Success Response (`200 OK`)**:

@@ -110,6 +110,7 @@ router.post("/login", async (req, res) => {
       userId: user.id,
       token,
       profileComplete: user.profileComplete,
+      name: user.name,
     });
 
     res.status(200).json(response);

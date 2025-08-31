@@ -79,7 +79,6 @@ export const RecommendationRequestInterface = {
 export const RecommendationResponseInterface = {
   recommendations: "array",
   query: "string",
-  steps: "array",
   totalResults: "number",
 };
 

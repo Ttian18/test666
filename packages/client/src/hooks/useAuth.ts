@@ -184,49 +184,60 @@ class AuthService {
     email: string,
     password: string
   ): Promise<{ token: string; refreshToken: string; user: User }> {
-    // Mock implementation with test users
-    // Add slight delay for demo user to show loading effect
-    const isDemoUser = email.toLowerCase() === "demo@mealmint.ai";
-    const delay = isDemoUser ? 1500 : 800; // 1.5 seconds for demo user, 0.8 seconds for others
-    await new Promise((resolve) => setTimeout(resolve, delay));
+    try {
+      const response = await fetch(`${this.API_BASE}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
-    // Find test user
-    const testUser = TEST_USERS.find(
-      (user) =>
-        user.email.toLowerCase() === email.toLowerCase() &&
-        user.password === password
-    );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Login failed");
+      }
 
-    if (!testUser) {
-      throw new Error(
-        "Invalid email or password. Try: demo@mealmint.ai / demo123"
-      );
+      const data = await response.json();
+
+      // Create user object from login response
+      const user: User = {
+        id: data.userId.toString(),
+        email: email,
+        name: data.name || email.split("@")[0], // Use name from backend, fallback to email prefix
+        isNewUser: !data.profileComplete,
+        profile: {
+          monthlyBudget: null,
+          income: null,
+          savingsGoal: null,
+          hasCompletedQuestionnaire: data.profileComplete || false,
+          hasSeenIntro: data.profileComplete || false,
+          preferences: { currency: "USD", theme: "light" },
+        },
+      };
+
+      // For now, create mock refresh token (in production, this comes from backend)
+      const mockRefreshToken = `refresh_${btoa(Math.random().toString())}`;
+
+      return {
+        token: data.token,
+        refreshToken: mockRefreshToken,
+        user: user,
+      };
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
     }
-
-    // Mock JWT token (in production, this comes from your backend)
-    const mockPayload = {
-      userId: testUser.id,
-      email: testUser.email,
-      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // 24 hours for demo
-      iat: Math.floor(Date.now() / 1000),
-    };
-
-    const mockToken = `header.${btoa(JSON.stringify(mockPayload))}.signature`;
-    const mockRefreshToken = `refresh_${btoa(Math.random().toString())}`;
-    const mockUser: User = {
-      id: testUser.id,
-      email: testUser.email,
-      name: testUser.name,
-      isNewUser: testUser.isNewUser || false,
-      profile: testUser.profile,
-    };
-
-    return { token: mockToken, refreshToken: mockRefreshToken, user: mockUser };
   }
 
   static async register(
     formData: RegisterFormData
   ): Promise<{ token: string; refreshToken: string; user: User }> {
+  
+
     // In production, this will make a real API call to the backend
     try {
       const response = await fetch(`${this.API_BASE}/auth/register`, {
@@ -435,6 +446,13 @@ export const useAuth = () => {
   const register = useCallback(async (formData: RegisterFormData) => {
     try {
       setAuthState((prev) => ({ ...prev, isLoading: true }));
+
+      // 1. Validate request using Zod schema
+      // 2. Check for existing user
+      // 3. Hash password with bcrypt
+      // 4. Create user in database
+      // 5. Generate JWT token
+      // 6. Return success response
 
       const { token, refreshToken, user } = await AuthService.register(
         formData

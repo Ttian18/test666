@@ -60,6 +60,7 @@ export const LoginResponseSchema = z.object({
   userId: z.number(),
   token: z.string(),
   profileComplete: z.boolean(),
+  name: z.string().nullable(),
 });
 
 // User data schema (for profile and other user-related responses)

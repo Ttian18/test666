@@ -87,5 +87,4 @@ exports.GetRestaurantRecommendationsResponseSchema = zod_1.z.object({
     query: zod_1.z.string(),
     answer: exports.RecommendationsSchema,
     rawAnswer: zod_1.z.string(),
-    steps: zod_1.z.array(zod_1.z.any()),
 });

@@ -181,8 +181,7 @@ class OpenAIService {
             "specialFeatures": ["feature1", "feature2"]
           }
         ],
-        "query": "original query",
-        "steps": ["step1", "step2"]
+        "query": "original query"
       }`;
 
       const response = await this.openai.chat.completions.create({

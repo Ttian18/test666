@@ -1,295 +1,350 @@
 import { useState } from "react";
-import { Utensils, MapPin, Camera, DollarSign, Zap, Heart, Leaf } from "lucide-react";
+import {
+  MapPin,
+  Star,
+  Clock,
+  DollarSign,
+  Phone,
+  Globe,
+  Navigation,
+  Loader2,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuthContext } from "@/contexts/AuthContext";
 import TopNavigation from "@/components/TopNavigation";
+import RestaurantService from "@/services/restaurantService";
+import { Recommendation } from "@your-project/schema";
+import { toast } from "@/components/ui/use-toast";
 
 const Recommendations = () => {
-  const [selectedRestaurant, setSelectedRestaurant] = useState("");
-  const [budget, setBudget] = useState("");
-  const [calorieLimit, setCalorieLimit] = useState("");
-  const [preferences, setPreferences] = useState<string[]>([]);
-  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const { token } = useAuthContext();
+  const [location, setLocation] = useState("");
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
-  const preferenceOptions = [
-    { id: "vegan", label: "Vegan", icon: Leaf },
-    { id: "spicy", label: "Spicy", icon: Zap },
-    { id: "healthy", label: "Healthy", icon: Heart },
-    { id: "quick", label: "Quick Serve", icon: Zap },
-  ];
+  const handleSearch = async () => {
+    if (!location.trim()) {
+      toast({
+        title: "Location Required",
+        description:
+          "Please enter a location to get restaurant recommendations",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  const sampleRecommendations = [
-    {
-      name: "Mediterranean Bowl",
-      restaurant: "Healthy Bites",
-      price: "$12.50",
-      calories: "420 cal",
-      description: "Fresh quinoa, grilled chicken, olives, and feta",
-      tags: ["Healthy", "Protein-rich"],
-      matchScore: 95,
-    },
-    {
-      name: "Veggie Burger",
-      restaurant: "Green Garden",
-      price: "$11.00",
-      calories: "380 cal",
-      description: "Plant-based patty with avocado and sweet potato fries",
-      tags: ["Vegan", "Healthy"],
-      matchScore: 88,
-    },
-    {
-      name: "Chicken Caesar Salad",
-      restaurant: "Fresh Market",
-      price: "$10.75",
-      calories: "350 cal",
-      description: "Grilled chicken, romaine, parmesan, croutons",
-      tags: ["Healthy", "Low-carb"],
-      matchScore: 82,
-    },
-  ];
+    setIsLoading(true);
+    setHasSearched(true);
 
-  const togglePreference = (prefId: string) => {
-    setPreferences(prev => 
-      prev.includes(prefId) 
-        ? prev.filter(p => p !== prefId)
-        : [...prev, prefId]
-    );
+    try {
+      const response = await RestaurantService.getRestaurantRecommendations(
+        location,
+        token || undefined
+      );
+      setRecommendations(response.answer);
+
+      toast({
+        title: "Recommendations Found",
+        description: `Found ${response.answer.length} restaurants in ${location}`,
+      });
+    } catch (error) {
+      console.error("Error fetching recommendations:", error);
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to get recommendations",
+        variant: "destructive",
+      });
+      setRecommendations([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleGetRecommendations = () => {
-    // Simulate AI analysis
-    setRecommendations(sampleRecommendations);
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  const openGoogleMaps = (googleMapsLink: string) => {
+    if (googleMapsLink) {
+      window.open(googleMapsLink, "_blank");
+    }
+  };
+
+  const callRestaurant = (phone: string) => {
+    if (phone) {
+      window.open(`tel:${phone}`, "_self");
+    }
+  };
+
+  const visitWebsite = (website: string) => {
+    if (website) {
+      window.open(website, "_blank");
+    }
   };
 
   return (
     <div className="page-background-recommendations">
       <TopNavigation />
-      
-      <div className="max-w-4xl mx-auto px-6 py-8">
+
+      <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Food Recommendations</h1>
-          <p className="text-muted-foreground">Find budget-friendly meals that match your preferences</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Restaurant Recommendations
+          </h1>
+          <p className="text-muted-foreground">
+            Discover great restaurants near you with AI-powered recommendations
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Restaurant Selection */}
-          <Card className="themed-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin size={20} />
-                Select Restaurant
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Select value={selectedRestaurant} onValueChange={setSelectedRestaurant}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a restaurant" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="healthy-bites">Healthy Bowl Co.</SelectItem>
-                  <SelectItem value="green-garden">Pasta Palace</SelectItem>
-                  <SelectItem value="fresh-market">Spice Garden</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <div className="space-y-3">
-                {[
-                  { id: "healthy-bites", name: "Healthy Bowl Co.", cuisine: "Healthy", rating: 4.5, distance: "0.3 mi", price: "$$" },
-                  { id: "pasta-palace", name: "Pasta Palace", cuisine: "Italian", rating: 4.3, distance: "0.5 mi", price: "$$$" },
-                  { id: "spice-garden", name: "Spice Garden", cuisine: "Indian", rating: 4.7, distance: "0.8 mi", price: "$$" }
-                ].map((restaurant) => (
-                  <div
-                    key={restaurant.id}
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
-                      selectedRestaurant === restaurant.id 
-                        ? "border-primary bg-primary/5" 
-                        : "border-border hover:border-primary/50"
-                    }`}
-                    onClick={() => setSelectedRestaurant(restaurant.id)}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-bold text-lg">{restaurant.name}</h3>
-                      <span className="text-muted-foreground font-medium">{restaurant.price}</span>
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>{restaurant.cuisine}</span>
-                      <span>⭐ {restaurant.rating}</span>
-                      <span>{restaurant.distance}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Upload Menu Photo */}
-          <Card className="themed-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Camera size={20} />
-                Upload Menu Photo
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto">
-                  <Camera size={24} className="text-primary" />
-                </div>
-                <h3 className="font-semibold text-lg mb-2">Take Photo of Menu</h3>
-                <p className="text-muted-foreground mb-6">AI will analyze options for you</p>
-                <Button className="bg-primary hover:bg-primary/90 text-white">
-                  Take Photo
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Preferences Input */}
-        <Card className="themed-card mt-8">
+        {/* Location Search */}
+        <Card className="themed-card mb-8">
           <CardHeader>
-            <CardTitle>Your Preferences</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin size={20} />
+              Find Restaurants Near You
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="budget">Budget</Label>
-                <div className="relative">
-                  <DollarSign size={18} className="absolute left-3 top-3 text-muted-foreground" />
-                  <Input
-                    id="budget"
-                    placeholder="15.00"
-                    value={budget}
-                    onChange={(e) => setBudget(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="calories">Max Calories</Label>
-                <Input
-                  id="calories"
-                  placeholder="500"
-                  value={calorieLimit}
-                  onChange={(e) => setCalorieLimit(e.target.value)}
-                />
-              </div>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Enter city, neighborhood, or address..."
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="flex-1"
+              />
+              <Button
+                onClick={handleSearch}
+                disabled={isLoading || !location.trim()}
+                className="min-w-[120px]"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 size={16} className="mr-2 animate-spin" />
+                    Searching...
+                  </>
+                ) : (
+                  "Search"
+                )}
+              </Button>
             </div>
-
-            <div>
-              <Label>Dietary Preferences</Label>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {preferenceOptions.map((option) => {
-                  const Icon = option.icon;
-                  const isSelected = preferences.includes(option.id);
-                  
-                  return (
-                    <Button
-                      key={option.id}
-                      variant={isSelected ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => togglePreference(option.id)}
-                      className={isSelected ? "bg-primary" : ""}
-                    >
-                      <Icon size={14} className="mr-1" />
-                      {option.label}
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <Button 
-              onClick={handleGetRecommendations}
-              className="w-full bg-primary hover:bg-primary/90"
-              disabled={!selectedRestaurant}
-            >
-              Get AI Recommendations
-            </Button>
+            <p className="text-sm text-muted-foreground">
+              Enter a location to get personalized restaurant recommendations
+              based on your preferences
+            </p>
           </CardContent>
         </Card>
 
-        {/* Sample recommendation when restaurant is selected */}
-        {selectedRestaurant === "healthy-bites" && (
-          <div className="mt-8">
-            <Card className="themed-card">
-              <CardHeader>
-                <CardTitle>Recommended for You</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-bold text-lg">Mediterranean Bowl + Green Smoothie</h3>
-                    <p className="text-muted-foreground">Healthy Bowl Co.</p>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Perfect match for your health preferences and budget
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-xl text-primary">$18.5</p>
-                    <p className="text-sm text-muted-foreground">520 cal</p>
-                  </div>
-                </div>
-                <Button className="w-full mt-4">
-                  Set as Today's Recommendation
-                </Button>
-              </CardContent>
-            </Card>
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <Loader2
+                size={48}
+                className="mx-auto mb-4 animate-spin text-primary"
+              />
+              <p className="text-lg font-medium">Finding restaurants...</p>
+              <p className="text-muted-foreground">
+                This may take a few moments
+              </p>
+            </div>
           </div>
         )}
 
+        {/* No Results */}
+        {hasSearched && !isLoading && recommendations.length === 0 && (
+          <Card className="themed-card">
+            <CardContent className="py-12 text-center">
+              <MapPin
+                size={48}
+                className="mx-auto mb-4 text-muted-foreground"
+              />
+              <h3 className="text-lg font-medium mb-2">No restaurants found</h3>
+              <p className="text-muted-foreground mb-4">
+                We couldn't find any restaurants in "{location}". Try a
+                different location or check your spelling.
+              </p>
+              <Button onClick={() => setLocation("")}>
+                Try Another Location
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Recommendations Results */}
-        {recommendations.length > 0 && (
-          <div className="space-y-4 mt-8">
-            <h3 className="text-lg font-semibold text-foreground">
-              Perfect Matches for You
-            </h3>
-            
-            {recommendations.map((item, index) => (
-              <Card key={index} className="themed-card">
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-semibold text-foreground">{item.name}</h4>
-                        <Badge variant="secondary" className="text-xs">
-                          {item.matchScore}% match
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {item.restaurant}
-                      </p>
-                      <p className="text-sm text-foreground">{item.description}</p>
-                    </div>
-                    <div className="text-right ml-4">
-                      <p className="font-semibold text-primary text-lg">{item.price}</p>
-                      <p className="text-xs text-muted-foreground">{item.calories}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {item.tags.map((tag: string, tagIndex: number) => (
-                      <Badge key={tagIndex} variant="outline" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                  
-                  <Button size="sm" className="w-full">
-                    Select This Dish
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+        {!isLoading && recommendations.length > 0 && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-foreground">
+                Recommended Restaurants
+              </h2>
+              <Badge variant="secondary">
+                {recommendations.length} restaurants found
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {recommendations.map((restaurant, index) => (
+                <RestaurantCard
+                  key={index}
+                  restaurant={restaurant}
+                  onOpenMaps={openGoogleMaps}
+                  onCall={callRestaurant}
+                  onVisitWebsite={visitWebsite}
+                />
+              ))}
+            </div>
           </div>
         )}
       </div>
     </div>
+  );
+};
+
+interface RestaurantCardProps {
+  restaurant: Recommendation;
+  onOpenMaps: (link: string) => void;
+  onCall: (phone: string) => void;
+  onVisitWebsite: (website: string) => void;
+}
+
+const RestaurantCard: React.FC<RestaurantCardProps> = ({
+  restaurant,
+  onOpenMaps,
+  onCall,
+  onVisitWebsite,
+}) => {
+  return (
+    <Card className="themed-card hover:shadow-lg transition-shadow duration-200">
+      <CardHeader>
+        <div className="space-y-2">
+          <CardTitle className="text-lg line-clamp-2">
+            {restaurant.name}
+          </CardTitle>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            {restaurant.cuisine && (
+              <Badge variant="outline" className="text-xs">
+                {restaurant.cuisine}
+              </Badge>
+            )}
+            {restaurant.priceRange && (
+              <div className="flex items-center gap-1">
+                <DollarSign size={12} />
+                <span className="text-xs">{restaurant.priceRange}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        {/* Address */}
+        <div className="flex items-start gap-2">
+          <MapPin
+            size={16}
+            className="text-muted-foreground mt-0.5 flex-shrink-0"
+          />
+          <p className="text-sm text-muted-foreground">{restaurant.address}</p>
+        </div>
+
+        {/* Rating and Hours */}
+        <div className="flex items-center gap-4 text-sm">
+          {restaurant.rating && (
+            <div className="flex items-center gap-1">
+              <Star size={14} className="fill-yellow-400 text-yellow-400" />
+              <span>{restaurant.rating}</span>
+            </div>
+          )}
+          {restaurant.hours && (
+            <div className="flex items-center gap-1">
+              <Clock size={14} />
+              <span className="text-muted-foreground">{restaurant.hours}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Special Features */}
+        {restaurant.specialFeatures && (
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-muted-foreground">
+              Features:
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {restaurant.specialFeatures}
+            </p>
+          </div>
+        )}
+
+        {/* Recommendation Reason */}
+        <div className="space-y-1">
+          <p className="text-xs font-medium text-muted-foreground">
+            Why we recommend:
+          </p>
+          <p className="text-sm text-muted-foreground">{restaurant.reason}</p>
+        </div>
+
+        {/* Specific Recommendation */}
+        {restaurant.recommendation && (
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-muted-foreground">Tip:</p>
+            <p className="text-sm text-muted-foreground">
+              {restaurant.recommendation}
+            </p>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex flex-col gap-2 pt-2">
+          {restaurant.googleMapsLink && (
+            <Button
+              onClick={() => onOpenMaps(restaurant.googleMapsLink)}
+              variant="outline"
+              size="sm"
+              className="w-full"
+            >
+              <Navigation size={14} className="mr-2" />
+              View on Google Maps
+            </Button>
+          )}
+
+          <div className="flex gap-2">
+            {restaurant.phone && (
+              <Button
+                onClick={() => onCall(restaurant.phone)}
+                variant="outline"
+                size="sm"
+                className="flex-1"
+              >
+                <Phone size={14} className="mr-2" />
+                Call
+              </Button>
+            )}
+
+            {restaurant.website && (
+              <Button
+                onClick={() => onVisitWebsite(restaurant.website)}
+                variant="outline"
+                size="sm"
+                className="flex-1"
+              >
+                <Globe size={14} className="mr-2" />
+                Website
+              </Button>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
