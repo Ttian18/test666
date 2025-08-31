@@ -22,6 +22,23 @@ export declare const LoginRequestSchema: z.ZodObject<{
     email: string;
     password: string;
 }>;
+export declare const LogoutRequestSchema: z.ZodObject<{
+    token: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    token: string;
+}, {
+    token: string;
+}>;
+export declare const LogoutResponseSchema: z.ZodObject<{
+    message: z.ZodString;
+    success: z.ZodBoolean;
+}, "strip", z.ZodTypeAny, {
+    message: string;
+    success: boolean;
+}, {
+    message: string;
+    success: boolean;
+}>;
 export declare const AuthResponseSchema: z.ZodObject<{
     message: z.ZodString;
     userId: z.ZodNumber;
@@ -29,13 +46,13 @@ export declare const AuthResponseSchema: z.ZodObject<{
     profileComplete: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
     message: string;
-    userId: number;
     token: string;
+    userId: number;
     profileComplete?: boolean | undefined;
 }, {
     message: string;
-    userId: number;
     token: string;
+    userId: number;
     profileComplete?: boolean | undefined;
 }>;
 export declare const RegisterResponseSchema: z.ZodObject<{
@@ -44,12 +61,12 @@ export declare const RegisterResponseSchema: z.ZodObject<{
     token: z.ZodString;
 }, "strip", z.ZodTypeAny, {
     message: string;
-    userId: number;
     token: string;
+    userId: number;
 }, {
     message: string;
-    userId: number;
     token: string;
+    userId: number;
 }>;
 export declare const LoginResponseSchema: z.ZodObject<{
     message: z.ZodString;
@@ -58,13 +75,13 @@ export declare const LoginResponseSchema: z.ZodObject<{
     profileComplete: z.ZodBoolean;
 }, "strip", z.ZodTypeAny, {
     message: string;
-    userId: number;
     token: string;
+    userId: number;
     profileComplete: boolean;
 }, {
     message: string;
-    userId: number;
     token: string;
+    userId: number;
     profileComplete: boolean;
 }>;
 export declare const UserDataSchema: z.ZodObject<{
@@ -85,6 +102,8 @@ export declare const UserDataSchema: z.ZodObject<{
 }>;
 export type RegisterRequest = z.infer<typeof RegisterRequestSchema>;
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;
+export type LogoutRequest = z.infer<typeof LogoutRequestSchema>;
+export type LogoutResponse = z.infer<typeof LogoutResponseSchema>;
 export type AuthResponse = z.infer<typeof AuthResponseSchema>;
 export type RegisterResponse = z.infer<typeof RegisterResponseSchema>;
 export type LoginResponse = z.infer<typeof LoginResponseSchema>;
