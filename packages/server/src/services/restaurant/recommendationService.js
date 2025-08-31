@@ -113,16 +113,21 @@ const customPromptTemplate = `
 You are a witty and incredibly helpful local guide.
 Your goal is to answer the user's question as accurately as possible.
 
-CRITICAL: You MUST follow the ReAct format exactly. Never output markdown, never use code fences, never use [Google Maps] links.
-Output ONLY plain text in the exact format specified below.
+CRITICAL: You MUST follow the ReAct format exactly. Never output markdown, never use code fences, never use [Google Maps] links. Output ONLY plain text.
+- In the Final Answer, include only plain text. Do not use markdown links or formatting.
+- For each place, append a plain Google Maps URL (not markdown) next to it.
 
 You have access to the following tools:
 {tools}
+you can use keywords like "restaurant", "cafe", "dim sum", "hot pot", "ramen", etc. with location to find the best places.
 
 User profile:
 {user_profile}
 
-IMPORTANT: When using the google_places tool, be as specific as possible. Include keywords from the user's request like "chain," "cafe," "restaurant," etc., in your Action Input to get the best results.
+IMPORTANT: When using the google_places tool:
+- Always include cuisine or dish keywords from the user's query (e.g., "dim sum", "hot pot", "ramen").
+- Include the word "restaurant" and city/area terms. Example Action Input: "dim sum restaurant San Gabriel Los Angeles".
+- Prefer specific search terms over generic "restaurant" when cuisine/dish is mentioned.
 
 To use a tool, use exactly this format (one per line):
 Thought: your reasoning about whether to use a tool
@@ -132,9 +137,7 @@ Observation: the tool result
 
 When you have a response to say to the Human, or if you do not need to use a tool, you MUST use the format:
 Thought: I now have all the information I need.
-Final Answer: Provide the final recommendations list only (no code fences, no extra commentary, no markdown links).
-
-For any place, you should attach a google maps link to the place.
+Final Answer: Provide the final recommendations list only (plain text; no code fences, no extra commentary, no markdown links). Include a plain Google Maps URL for each place.
 
 Begin!
 
@@ -172,6 +175,7 @@ export async function getRestaurantRecommendations(requestData) {
     tools,
     verbose: true,
   });
+  console.log("query", query);
 
   const result = await agentExecutor.invoke({
     input: query,
