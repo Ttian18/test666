@@ -151,71 +151,7 @@ class JWTUtils {
   }
 }
 
-// Test users for development
-const TEST_USERS = [
-  {
-    email: "demo@mealmint.ai",
-    password: "demo123",
-    id: "demo-001",
-    name: "Demo User",
-    isNewUser: true, // First-time user - needs onboarding
-    profile: {
-      monthlyBudget: null, // Not set yet - needs questionnaire
-      income: null,
-      savingsGoal: null,
-      hasCompletedQuestionnaire: false,
-      hasSeenIntro: false,
-      preferences: { currency: "USD", theme: "light" },
-    },
-  },
-  {
-    email: "john@example.com",
-    password: "password",
-    id: "user-001",
-    name: "John Doe",
-    isNewUser: false, // Existing user
-    profile: {
-      monthlyBudget: 3000,
-      income: 5000,
-      savingsGoal: 10000,
-      hasCompletedQuestionnaire: true,
-      hasSeenIntro: true,
-      preferences: { currency: "USD", theme: "dark" },
-    },
-  },
-  {
-    email: "sarah@test.com",
-    password: "test123",
-    id: "user-002",
-    name: "Sarah Johnson",
-    isNewUser: false, // Existing user
-    profile: {
-      monthlyBudget: 2000,
-      income: 3500,
-      savingsGoal: 5000,
-      hasCompletedQuestionnaire: true,
-      hasSeenIntro: true,
-      preferences: { currency: "USD", theme: "light" },
-    },
-  },
-  {
-    email: "admin@mealmint.ai",
-    password: "admin",
-    id: "admin-001",
-    name: "Admin User",
-    isNewUser: false, // Existing user
-    profile: {
-      monthlyBudget: 5000,
-      income: 8000,
-      savingsGoal: 15000,
-      hasCompletedQuestionnaire: true,
-      hasSeenIntro: true,
-      preferences: { currency: "USD", theme: "light", role: "admin" },
-    },
-  },
-];
-
-// Mock API service - replace with real backend calls
+// Authentication API service
 class AuthService {
   private static readonly API_BASE =
     import.meta.env.VITE_API_URL || "http://localhost:5001";
@@ -353,31 +289,49 @@ class AuthService {
   }
 
   static async validateToken(token: string): Promise<User | null> {
-    // Mock implementation
-    if (JWTUtils.isTokenExpired(token)) return null;
+    try {
+      console.log("🔍 Validating token with backend API...");
 
-    // Add slight delay for demo user to show loading effect on app initialization
-    const payload = JWTUtils.decodeToken(token);
-    if (!payload) return null;
+      const response = await fetch(`${this.API_BASE}/auth/validate`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "x-auth-token": token,
+        },
+      });
 
-    const isDemoUser = payload?.email === "demo@mealmint.ai";
-    const delay = isDemoUser ? 1000 : 200; // 1 second for demo user, 200ms for others
-    await new Promise((resolve) => setTimeout(resolve, delay));
+      if (!response.ok) {
+        console.log(
+          "❌ Token validation failed: API returned",
+          response.status
+        );
+        return null;
+      }
 
-    // Find the test user that matches the token
-    const testUser = TEST_USERS.find(
-      (user) => user.id === payload.userId && user.email === payload.email
-    );
+      const data = await response.json();
+      console.log("✅ Token validation successful:", data);
 
-    if (!testUser) return null;
+      // Create user object from validation response
+      const user: User = {
+        id: data.userId.toString(),
+        email: data.email,
+        name: data.name || data.email.split("@")[0],
+        isNewUser: !data.profileComplete,
+        profile: {
+          monthlyBudget: null,
+          income: null,
+          savingsGoal: null,
+          hasCompletedQuestionnaire: data.profileComplete || false,
+          hasSeenIntro: data.profileComplete || false,
+          preferences: { currency: "USD", theme: "light" },
+        },
+      };
 
-    return {
-      id: testUser.id,
-      email: testUser.email,
-      name: testUser.name,
-      isNewUser: testUser.isNewUser || false,
-      profile: testUser.profile,
-    };
+      return user;
+    } catch (error) {
+      console.error("❌ Token validation error:", error);
+      return null;
+    }
   }
 }
 
@@ -411,16 +365,18 @@ export const useAuth = () => {
   const initializeAuth = useCallback(async () => {
     try {
       console.log("🚀 Initializing authentication...");
-      
+
       // Debug: Check localStorage directly
       console.log("🔍 Direct localStorage check:", {
         allLocalStorageKeys: Object.keys(localStorage),
         tokenKey: SecureTokenStorage.TOKEN_KEY,
         refreshTokenKey: SecureTokenStorage.REFRESH_TOKEN_KEY,
         directTokenCheck: localStorage.getItem(SecureTokenStorage.TOKEN_KEY),
-        directRefreshCheck: localStorage.getItem(SecureTokenStorage.REFRESH_TOKEN_KEY)
+        directRefreshCheck: localStorage.getItem(
+          SecureTokenStorage.REFRESH_TOKEN_KEY
+        ),
       });
-      
+
       const token = SecureTokenStorage.getToken();
       if (!token) {
         console.log("❌ No token found during initialization");
@@ -487,16 +443,22 @@ export const useAuth = () => {
             SecureTokenStorage.REFRESH_TOKEN_KEY,
             SecureTokenStorage.encrypt(refreshToken)
           );
-          
+
           // Verify storage immediately
-          const storedToken = localStorage.getItem(SecureTokenStorage.TOKEN_KEY);
-          const storedRefreshToken = localStorage.getItem(SecureTokenStorage.REFRESH_TOKEN_KEY);
+          const storedToken = localStorage.getItem(
+            SecureTokenStorage.TOKEN_KEY
+          );
+          const storedRefreshToken = localStorage.getItem(
+            SecureTokenStorage.REFRESH_TOKEN_KEY
+          );
           console.log("✅ Tokens stored in localStorage - Verification:", {
             tokenStored: !!storedToken,
             refreshTokenStored: !!storedRefreshToken,
             tokenKey: SecureTokenStorage.TOKEN_KEY,
             refreshTokenKey: SecureTokenStorage.REFRESH_TOKEN_KEY,
-            actualTokenStart: storedToken ? storedToken.substring(0, 20) + "..." : null
+            actualTokenStart: storedToken
+              ? storedToken.substring(0, 20) + "..."
+              : null,
           });
         } else {
           // Use sessionStorage for temporary storage when remember me is unchecked
@@ -508,14 +470,20 @@ export const useAuth = () => {
             SecureTokenStorage.REFRESH_TOKEN_KEY,
             SecureTokenStorage.encrypt(refreshToken)
           );
-          
+
           // Verify storage immediately
-          const storedToken = sessionStorage.getItem(SecureTokenStorage.TOKEN_KEY);
-          const storedRefreshToken = sessionStorage.getItem(SecureTokenStorage.REFRESH_TOKEN_KEY);
+          const storedToken = sessionStorage.getItem(
+            SecureTokenStorage.TOKEN_KEY
+          );
+          const storedRefreshToken = sessionStorage.getItem(
+            SecureTokenStorage.REFRESH_TOKEN_KEY
+          );
           console.log("✅ Tokens stored in sessionStorage - Verification:", {
             tokenStored: !!storedToken,
             refreshTokenStored: !!storedRefreshToken,
-            actualTokenStart: storedToken ? storedToken.substring(0, 20) + "..." : null
+            actualTokenStart: storedToken
+              ? storedToken.substring(0, 20) + "..."
+              : null,
           });
         }
         setAuthState({
