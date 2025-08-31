@@ -15,6 +15,7 @@
     "schema": "src/models/database/schema.prisma"
   },
   "dependencies": {
+    "@your-project/schema": "file:../schema",
     "@googlemaps/google-maps-services-js": "^3.4.2",
     "@langchain/community": "^0.3.50",
     "@langchain/core": "^0.3.68",
@@ -35,6 +36,7 @@
     "@babel/preset-env": "^7.28.3",
     "@jest/globals": "^30.1.1",
     "jest": "^30.1.1",
-    "supertest": "^7.1.4"
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.1.2"
   }
 }
