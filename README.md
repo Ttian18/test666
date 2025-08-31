@@ -64,16 +64,15 @@ nextai-finance-app-monorepo/
 ### Frontend (Client)
 
 - **Framework**: React 18 with TypeScript
-- **Runtime**: Bun (recommended) with npm fallback support
-- **Build Tool**: Vite with SWC for fast development + Bun runtime
+- **Runtime**: Node.js with npm
+- **Build Tool**: Vite with SWC for fast development
 - **Styling**: Tailwind CSS with shadcn/ui components
 - **State Management**: Zustand for global state
 - **Routing**: React Router DOM
 - **Charts**: Recharts for data visualization
 - **UI Components**: Comprehensive shadcn/ui component library
-- **Development**: Hot module replacement with Vite + Bun runtime
+- **Development**: Hot module replacement with Vite
 - **Port**: Runs on http://localhost:8080
-- **Performance**: 2-4x faster builds and dev server with Bun
 
 ### Schema Package
 
@@ -84,51 +83,24 @@ nextai-finance-app-monorepo/
 
 ### Backend (Server)
 
-- **Framework**: Express.js with ES modules
+- **Framework**: Express.js with TypeScript and ES modules
+- **Language**: TypeScript with strict type checking
 - **Database**: PostgreSQL with Prisma ORM
 - **AI Services**: OpenAI API (GPT-4, GPT-4o-mini), LangChain, Google Places API
 - **Authentication**: JWT-based authentication with user-aware security
 - **File Processing**: Multer for file uploads, Sharp for image processing
 - **User Isolation**: Complete data separation and access control
-- **Schema Validation**: Zod schemas from shared schema package
+- **Schema Validation**: Direct TypeScript imports from shared schema package
+- **Development**: Hot reload with nodemon and ts-node
 
 ## 🛠️ Prerequisites
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** (v18 or higher) - Required for server package
-- **npm** (v8 or higher) - For server and root package management
-- **Bun** (v1.2.21 or higher) - **Strongly recommended** for client package development
+- **Node.js** (v18 or higher) - Required for all packages
+- **npm** (v8 or higher) - Package manager for all dependencies
 - **PostgreSQL** database - For data storage
 - **Git** - For version control
-
-### 🚀 **Bun Installation (Recommended)**
-
-The client package is optimized for Bun, providing significant performance improvements:
-
-```bash
-# Install Bun (macOS/Linux)
-curl -fsSL https://bun.sh/install | bash
-
-# Add to PATH permanently (CRITICAL STEP)
-echo 'export BUN_INSTALL="$HOME/.bun"' >> ~/.zshrc
-echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-
-# Verify installation works in new terminals
-bun --version
-```
-
-**Performance Benefits with Bun:**
-
-- ⚡ **3-4x faster** dependency installation
-- ⚡ **2-3x faster** development server startup
-- ⚡ **2x faster** production builds
-- ⚡ **Native TypeScript** support without transpilation
-
-**Note**: If you encounter issues with Bun, npm fallback scripts are available (`dev:npm`, `build:npm`, etc.).
-
-📖 **For detailed Bun setup instructions, troubleshooting, and optimization tips, see: [`packages/client/BUN_GUIDE.md`](packages/client/BUN_GUIDE.md)**
 
 ## 📦 Installation
 
@@ -142,16 +114,8 @@ bun --version
 2. **Install dependencies**
 
    ```bash
-   # Install root and server dependencies
+   # Install all dependencies (root, server, client, schema)
    npm install
-
-   # Install client dependencies with Bun (recommended)
-   cd packages/client
-   bun install
-   cd ../..
-
-   # Alternative: Install client with npm (fallback)
-   # npm install --workspace=client
    ```
 
 3. **Set up environment variables**
@@ -187,16 +151,13 @@ bun --version
 From the root directory, you can start both the client and server simultaneously:
 
 ```bash
-# Start both client (with Bun) and server in parallel (recommended)
-npm run dev:all
-
-# Start both with npm (fallback if Bun issues)
-npm run dev:all:npm
+# Start both client and server in parallel
+npm run dev
 ```
 
 This will start:
 
-- **Frontend (Client)**: http://localhost:8080 (with Bun for faster performance)
+- **Frontend (Client)**: http://localhost:8080
 - **Backend (Server)**: http://localhost:5001
 
 **✅ Success Indicators:**
@@ -217,14 +178,11 @@ You can also run packages individually using convenient root-level scripts:
 **Client only:**
 
 ```bash
-# With Bun (recommended - fastest)
+# From root directory
 npm run dev:client
 
-# With npm (fallback if Bun issues)
-npm run dev:client:npm
-
 # Or navigate to client directory
-cd packages/client && bun run dev
+cd packages/client && npm run dev
 ```
 
 **Server only:**
@@ -247,15 +205,13 @@ npm run dev --workspace=schema
 
 All commands run from the project root directory:
 
-| Command                  | Description                                 |
-| ------------------------ | ------------------------------------------- |
-| `npm run dev:all`        | **Start both client (Bun) + server** ⭐     |
-| `npm run dev:all:npm`    | Start both client (npm) + server (fallback) |
-| `npm run dev:client`     | Start client only (with Bun)                |
-| `npm run dev:client:npm` | Start client only (with npm)                |
-| `npm run dev:server`     | Start server only                           |
+| Command              | Description                       |
+| -------------------- | --------------------------------- |
+| `npm run dev`        | **Start both client + server** ⭐ |
+| `npm run dev:client` | Start client only                 |
+| `npm run dev:server` | Start server only                 |
 
-**💡 Tip**: Use `npm run dev:all` for the fastest full-stack development experience!
+**💡 Tip**: Use `npm run dev` for the full-stack development experience!
 
 ### Database Management
 
@@ -287,18 +243,13 @@ cd packages/server
 npx prisma studio
 ```
 
-### Client Package Development (Bun Optimized)
+### Client Package Development
 
 **Start client development server:**
 
 ```bash
 cd packages/client
-
-# With Bun (recommended - fastest)
-bun run dev
-
-# With npm (fallback if Bun issues)
-bun run dev:npm
+npm run dev
 ```
 
 **Build client for production:**
@@ -306,14 +257,11 @@ bun run dev:npm
 ```bash
 cd packages/client
 
-# Production build with Bun
-bun run build
+# Production build
+npm run build
 
-# Development build with Bun
-bun run build:dev
-
-# Fallback with npm
-bun run build:npm
+# Development build
+npm run build:dev
 ```
 
 **Run client tests:**
@@ -321,11 +269,11 @@ bun run build:npm
 ```bash
 cd packages/client
 
-# Run tests with Bun's built-in test runner
-bun test
+# Run tests
+npm test
 
 # Run tests in watch mode
-bun run test:watch
+npm run test:watch
 ```
 
 **Code quality and linting:**
@@ -333,27 +281,27 @@ bun run test:watch
 ```bash
 cd packages/client
 
-# Lint with Bun
-bun run lint
+# Lint code
+npm run lint
 
 # Type checking
-bun run type-check
+npm run type-check
 
 # Format code
-bun run format
+npm run format
 
 # Run all checks (lint + build)
-bun run check
+npm run check
 
 # Clean install (removes node_modules and reinstalls)
-bun run install:clean
+npm run install:clean
 ```
 
 **Preview production build:**
 
 ```bash
 cd packages/client
-bun run preview
+npm run preview
 ```
 
 ### Schema Package Development
@@ -462,33 +410,44 @@ schema/
 server/
 ├── src/
 │   ├── config/              # Application configuration
-│   │   ├── app.js           # App configuration
-│   │   ├── database.js      # Database configuration
-│   │   └── openai.js        # OpenAI configuration
+│   │   ├── app.ts           # App configuration (TypeScript)
+│   │   ├── database.ts      # Database configuration (TypeScript)
+│   │   └── openai.ts        # OpenAI configuration (TypeScript)
 │   ├── models/              # Database models and Prisma schema
 │   │   ├── database/        # Prisma schema and migrations
-│   │   └── entities/        # Database entity models
-│   ├── routes/              # API route handlers
+│   │   │   ├── client.ts    # Database client (TypeScript)
+│   │   │   ├── schema.prisma # Prisma schema
+│   │   │   └── migrations/  # Database migrations
+│   │   ├── entities/        # Database entity models (TypeScript)
+│   │   │   ├── Profile.ts
+│   │   │   ├── Transaction.ts
+│   │   │   ├── Voucher.ts
+│   │   │   └── Restaurant.ts
+│   │   └── index.ts         # Models export (TypeScript)
+│   ├── routes/              # API route handlers (TypeScript)
 │   │   ├── auth/            # Authentication routes
 │   │   ├── restaurant/      # Restaurant-related routes
 │   │   ├── transaction/     # Transaction management routes
+│   │   ├── insights/        # Financial insights routes
 │   │   └── middleware/      # Express middleware
-│   ├── services/            # Business logic services
+│   ├── services/            # Business logic services (TypeScript)
 │   │   ├── ai/              # AI service integrations
 │   │   ├── auth/            # Authentication services
 │   │   ├── restaurant/      # Restaurant services
-│   │   └── transaction/     # Transaction services
-│   ├── utils/               # Utility functions
-│   │   ├── auth/            # Authentication utilities
+│   │   ├── transaction/     # Transaction services
+│   │   └── insights/        # Financial insights services
+│   ├── utils/               # Utility functions (TypeScript)
 │   │   ├── validation/      # Validation utilities
 │   │   ├── upload/          # File upload utilities
 │   │   ├── cache/           # Caching utilities
-│   │   └── errors/          # Error handling utilities
-│   └── types/               # Type definitions
+│   │   ├── errors/          # Error handling utilities
+│   │   └── logging/         # Logging utilities
+│   ├── server.ts            # Express server entry point (TypeScript)
+│   └── index.ts             # Main application entry (TypeScript)
 ├── uploads/                 # File upload directory
-├── server.js                # Express server entry point
-├── seed.js                  # Database seeding script
 ├── jest.config.js           # Jest configuration
+├── nodemon.json             # Nodemon configuration for TypeScript
+├── tsconfig.json            # TypeScript configuration
 └── package.json             # Server dependencies
 ```
 
@@ -925,7 +884,7 @@ Uploads multiple receipt images (up to 10) for processing.
 
 Get personalized restaurant recommendations based on location.
 
-- **Authentication**:  **Required**
+- **Authentication**: **Required**
 - **Query Parameters**:
   - `location` (string, required): Location to search for restaurants
 - **Success Response (`200 OK`)**:
@@ -1438,6 +1397,16 @@ If you encounter any issues or have questions:
 3. Include error messages, steps to reproduce, and environment details
 
 ## 🔄 Version History
+
+- **v3.0.0** - **TypeScript Conversion & Optimization**
+
+  - ✅ Complete backend conversion from JavaScript to TypeScript
+  - ✅ Direct schema imports without build process
+  - ✅ Enhanced type safety across entire codebase
+  - ✅ Improved developer experience with IntelliSense and compile-time error detection
+  - ✅ Streamlined development workflow with npm-only setup
+  - ✅ Updated project structure and documentation
+  - ✅ Hot reload support with TypeScript development server
 
 - **v2.0.0** - **Major User-Aware Refactor**
 
