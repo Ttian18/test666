@@ -129,6 +129,39 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// Token Validation
+router.get("/validate", authenticate, async (req, res) => {
+  try {
+    // If we reach here, the token is valid (authenticate middleware passed)
+    const userId = req.user.id;
+    
+    // Get user details from database
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        profileComplete: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      profileComplete: user.profileComplete || false,
+    });
+  } catch (error) {
+    console.error("Token validation error:", error);
+    res.status(500).json({ message: "Server error during token validation" });
+  }
+});
+
 // User Logout
 router.post("/logout", authenticate, async (req, res) => {
   try {
