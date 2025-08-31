@@ -57,9 +57,52 @@ export const RecommendationsEnvelopeSchema = z.object({
   recommendations: RecommendationsSchema,
 });
 
+// Request schemas for restaurant recommendations
+export const GetRestaurantRecommendationsRequestSchema = z.object({
+  query: z
+    .string()
+    .min(1, "Query is required")
+    .describe("The search query for restaurant recommendations"),
+  userData: z
+    .object({
+      name: z.string().optional(),
+      email: z.string().email().optional(),
+      monthlyBudget: z.number().positive().optional(),
+      monthlyIncome: z.number().positive().optional(),
+      expensePreferences: z
+        .object({
+          diningOut: z.string().optional(),
+          cuisineTypes: z.array(z.string()).optional(),
+        })
+        .optional(),
+      savingsGoals: z.record(z.any()).optional(),
+      lifestylePreferences: z
+        .object({
+          diningStyle: z.string().optional(),
+          priceRange: z.string().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
+});
+
+// Response schema for restaurant recommendations
+export const GetRestaurantRecommendationsResponseSchema = z.object({
+  query: z.string(),
+  answer: RecommendationsSchema,
+  rawAnswer: z.string(),
+  steps: z.array(z.any()),
+});
+
 // TypeScript types derived from the schemas
 export type Recommendation = z.infer<typeof RecommendationSchema>;
 export type Recommendations = z.infer<typeof RecommendationsSchema>;
 export type RecommendationsEnvelope = z.infer<
   typeof RecommendationsEnvelopeSchema
+>;
+export type GetRestaurantRecommendationsRequest = z.infer<
+  typeof GetRestaurantRecommendationsRequestSchema
+>;
+export type GetRestaurantRecommendationsResponse = z.infer<
+  typeof GetRestaurantRecommendationsResponseSchema
 >;

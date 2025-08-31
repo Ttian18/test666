@@ -1,4 +1,5 @@
 import express from "express";
+import { z } from "zod";
 import MenuAnalysisController from "../../services/restaurant/menuAnalysisController.js";
 import {
   createError,
@@ -7,6 +8,12 @@ import {
 import menuAnalysisCache from "../../utils/cache/menuAnalysisCache.js";
 import { uploadImageMemory } from "../../utils/upload/uploadUtils.js";
 import { validateBudget } from "../../utils/validation/validationUtils.js";
+import {
+  MenuAnalysisRequestSchema,
+  MenuAnalysisResponseSchema,
+  RebudgetRequestSchema,
+  RecommendationErrorResponseSchema,
+} from "@your-project/schema";
 
 const router = express.Router();
 
@@ -45,8 +52,25 @@ router.post(
         throw createError.imageTooLarge();
       }
 
-      if (!Number.isFinite(budget) || budget <= 0) {
-        throw createError.invalidBudget();
+      // Validate request body using Zod schema
+      const requestData = {
+        budget: budget,
+        note: req.body?.note,
+      };
+
+      try {
+        MenuAnalysisRequestSchema.parse(requestData);
+      } catch (validationError) {
+        if (validationError instanceof z.ZodError) {
+          return res.status(400).json({
+            error: "Validation failed",
+            details: validationError.errors.map((err) => ({
+              field: err.path.join("."),
+              message: err.message,
+            })),
+          });
+        }
+        throw validationError;
       }
 
       const recommender = new MenuAnalysisController();
@@ -58,11 +82,15 @@ router.post(
         if (menuAnalysisCache.hasSameBudget(budget)) {
           // Both menu and budget are the same, return cached result
           const cached = menuAnalysisCache.getLastRecommendation();
-          return res.json({
+          const response = {
             menuInfo: cached.menuInfo,
             recommendation: cached.recommendation,
             cached: true,
-          });
+          };
+
+          // Validate response before sending
+          const validatedResponse = MenuAnalysisResponseSchema.parse(response);
+          return res.json(validatedResponse);
         } else {
           // Same menu, different budget - reuse menuInfo, only run recommendation
           const cachedMenuInfo = menuAnalysisCache.getCachedMenuInfo();
@@ -96,8 +124,22 @@ router.post(
         budget,
       });
 
-      res.json(result);
+      // Validate response before sending
+      const validatedResponse = MenuAnalysisResponseSchema.parse(result);
+      res.json(validatedResponse);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errorResponse = {
+          error: "Validation failed",
+          details: error.errors.map((err) => ({
+            field: err.path.join("."),
+            message: err.message,
+          })),
+        };
+        const validatedErrorResponse =
+          RecommendationErrorResponseSchema.parse(errorResponse);
+        return res.status(400).json(validatedErrorResponse);
+      }
       handleError(error, res);
     }
   }
@@ -108,23 +150,61 @@ router.get("/last", (req, res) => {
   const lastRecommendation = menuAnalysisCache.getLastRecommendation();
 
   if (menuAnalysisCache.isEmpty()) {
-    return res.status(404).json({
+    const errorResponse = {
       error: "No previous recommendation found",
       code: "NO_CACHED_RECOMMENDATION",
-    });
+    };
+    const validatedErrorResponse =
+      RecommendationErrorResponseSchema.parse(errorResponse);
+    return res.status(404).json(validatedErrorResponse);
   }
 
-  res.json(lastRecommendation);
+  // Validate response before sending
+  try {
+    const validatedResponse =
+      MenuAnalysisResponseSchema.parse(lastRecommendation);
+    res.json(validatedResponse);
+  } catch (validationError) {
+    if (validationError instanceof z.ZodError) {
+      const errorResponse = {
+        error: "Invalid cached data format",
+        code: "INVALID_CACHE_FORMAT",
+        details: validationError.errors.map((err) => ({
+          field: err.path.join("."),
+          message: err.message,
+        })),
+      };
+      const validatedErrorResponse =
+        RecommendationErrorResponseSchema.parse(errorResponse);
+      return res.status(500).json(validatedErrorResponse);
+    }
+    throw validationError;
+  }
 });
 
 // Route: rebudget using cached menu info
 router.post("/rebudget", async (req, res) => {
   try {
-    const { budget } = req.body;
-
-    if (!Number.isFinite(budget) || budget <= 0) {
-      throw createError.invalidBudget();
+    // Validate request body using Zod schema
+    try {
+      RebudgetRequestSchema.parse(req.body);
+    } catch (validationError) {
+      if (validationError instanceof z.ZodError) {
+        const errorResponse = {
+          error: "Validation failed",
+          details: validationError.errors.map((err) => ({
+            field: err.path.join("."),
+            message: err.message,
+          })),
+        };
+        const validatedErrorResponse =
+          RecommendationErrorResponseSchema.parse(errorResponse);
+        return res.status(400).json(validatedErrorResponse);
+      }
+      throw validationError;
     }
+
+    const { budget } = req.body;
 
     if (menuAnalysisCache.isEmpty()) {
       throw createError.noCache();
@@ -151,11 +231,27 @@ router.post("/rebudget", async (req, res) => {
       budget,
     });
 
-    res.json({
+    const response = {
       menuInfo: cachedMenuInfo,
       recommendation,
-    });
+    };
+
+    // Validate response before sending
+    const validatedResponse = MenuAnalysisResponseSchema.parse(response);
+    res.json(validatedResponse);
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      const errorResponse = {
+        error: "Validation failed",
+        details: error.errors.map((err) => ({
+          field: err.path.join("."),
+          message: err.message,
+        })),
+      };
+      const validatedErrorResponse =
+        RecommendationErrorResponseSchema.parse(errorResponse);
+      return res.status(400).json(validatedErrorResponse);
+    }
     handleError(error, res);
   }
 });

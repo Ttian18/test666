@@ -3,10 +3,13 @@ import { ChatOpenAI } from "@langchain/openai";
 import { GooglePlacesAPI } from "@langchain/community/tools/google_places";
 import { AgentExecutor, createReactAgent } from "langchain/agents";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { z } from "zod";
 import {
   RecommendationSchema,
   RecommendationsSchema,
   RecommendationsEnvelopeSchema,
+  GetRestaurantRecommendationsRequestSchema,
+  GetRestaurantRecommendationsResponseSchema,
 } from "@your-project/schema";
 
 /**
@@ -41,8 +44,6 @@ try {
   console.warn("Failed to initialize Google Places API tool:", error.message);
   tools = [];
 }
-
-// Schema definitions imported from @your-project/schema
 
 /**
  * Generate user profile string from user data
@@ -149,12 +150,16 @@ Thought: {agent_scratchpad}
 
 /**
  * Get personalized restaurant recommendations using AI agent with Google Places integration.
- * @param {string} query - The search query for restaurant recommendations
- * @param {Object} userData - Optional user data for personalization
+ * @param {Object} requestData - The request data containing query and optional userData
  * @returns {Promise<Object>} Object containing query, answer, and steps
  */
-export async function getRestaurantRecommendations(query, userData = null) {
+export async function getRestaurantRecommendations(requestData) {
   try {
+    // Validate request data using Zod schema
+    const validatedRequest =
+      GetRestaurantRecommendationsRequestSchema.parse(requestData);
+    const { query, userData } = validatedRequest;
+
     let result;
 
     // Generate user profile from provided data or use default
@@ -293,20 +298,31 @@ export async function getRestaurantRecommendations(query, userData = null) {
       }
     );
 
-    return {
+    // Validate response using Zod schema
+    const response = {
       query: query,
       answer: normalizedRecommendations,
       rawAnswer: result.output,
       steps: result.intermediateSteps,
     };
+
+    const validatedResponse =
+      GetRestaurantRecommendationsResponseSchema.parse(response);
+    return validatedResponse;
   } catch (err) {
     console.error(
       "Restaurant recommendation flow failed:",
       err?.message || err
     );
+
+    // If it's a Zod validation error, re-throw it
+    if (err instanceof z.ZodError) {
+      throw err;
+    }
+
     // Return a basic fallback response
-    return {
-      query: query,
+    const fallbackResponse = {
+      query: requestData?.query || "restaurant recommendations",
       answer: [
         {
           name: "Fallback Restaurant",
@@ -328,5 +344,8 @@ export async function getRestaurantRecommendations(query, userData = null) {
       rawAnswer: "Unable to generate recommendations at this time.",
       steps: [],
     };
+
+    // Validate fallback response
+    return GetRestaurantRecommendationsResponseSchema.parse(fallbackResponse);
   }
 }
