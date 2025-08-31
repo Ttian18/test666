@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   MapPin,
   Star,
@@ -8,11 +8,18 @@ import {
   Globe,
   Navigation,
   Loader2,
+  Search,
+  ExternalLink,
+  ChefHat,
+  MessageSquare,
+  Sparkles,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { useAuthContext } from "@/contexts/AuthContext";
 import TopNavigation from "@/components/TopNavigation";
 import RestaurantService from "@/services/restaurantService";
@@ -20,18 +27,57 @@ import { Recommendation } from "@your-project/schema";
 import { toast } from "@/components/ui/use-toast";
 
 const Recommendations = () => {
-  const { token } = useAuthContext();
+  const { token, user } = useAuthContext();
+  const [query, setQuery] = useState("");
   const [location, setLocation] = useState("");
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
+  // Auto-populate location from user profile if available
+  useEffect(() => {
+    if (user?.profile?.preferences?.defaultLocation) {
+      setLocation(user.profile.preferences.defaultLocation);
+    }
+  }, [user]);
+
+  const buildUserData = () => {
+    if (!user) return undefined;
+
+    return {
+      name: user.name,
+      email: user.email,
+      monthlyBudget: user.profile?.monthlyBudget || undefined,
+      monthlyIncome: user.profile?.income || undefined,
+      expensePreferences: {
+        diningOut: user.profile?.preferences?.diningStyle || undefined,
+        cuisineTypes:
+          user.profile?.preferences?.cuisinePreferences || undefined,
+      },
+      lifestylePreferences: {
+        diningStyle: user.profile?.preferences?.diningStyle || undefined,
+        priceRange: user.profile?.preferences?.priceRange || undefined,
+      },
+    };
+  };
+
   const handleSearch = async () => {
-    if (!location.trim()) {
+    if (!token) {
       toast({
-        title: "Location Required",
+        title: "Authentication Required",
         description:
-          "Please enter a location to get restaurant recommendations",
+          "Please log in to get personalized restaurant recommendations",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const searchQuery = query.trim() || `restaurants in ${location.trim()}`;
+
+    if (!searchQuery || (!query.trim() && !location.trim())) {
+      toast({
+        title: "Search Required",
+        description: "Please enter a location or specific search query",
         variant: "destructive",
       });
       return;
@@ -41,15 +87,18 @@ const Recommendations = () => {
     setHasSearched(true);
 
     try {
+      const userData = buildUserData();
       const response = await RestaurantService.getRestaurantRecommendations(
-        location,
-        token || undefined
+        searchQuery,
+        token,
+        userData
       );
+
       setRecommendations(response.answer);
 
       toast({
         title: "Recommendations Found",
-        description: `Found ${response.answer.length} restaurants in ${location}`,
+        description: `Found ${response.answer.length} personalized restaurant recommendations`,
       });
     } catch (error) {
       console.error("Error fetching recommendations:", error);
@@ -65,6 +114,11 @@ const Recommendations = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleQuickLocationSearch = (quickLocation: string) => {
+    setLocation(quickLocation);
+    setQuery("");
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -106,41 +160,106 @@ const Recommendations = () => {
           </p>
         </div>
 
-        {/* Location Search */}
+        {/* Search Section */}
         <Card className="themed-card mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <MapPin size={20} />
-              Find Restaurants Near You
+              <Search size={20} />
+              Find Restaurants
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex gap-2">
-              <Input
-                placeholder="Enter city, neighborhood, or address..."
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="flex-1"
-              />
-              <Button
-                onClick={handleSearch}
-                disabled={isLoading || !location.trim()}
-                className="min-w-[120px]"
+            {/* Custom Query Input */}
+            <div>
+              <Label
+                htmlFor="query"
+                className="text-base font-medium mb-2 block"
               >
-                {isLoading ? (
-                  <>
-                    <Loader2 size={16} className="mr-2 animate-spin" />
-                    Searching...
-                  </>
-                ) : (
-                  "Search"
-                )}
-              </Button>
+                What are you looking for?
+              </Label>
+              <Textarea
+                id="query"
+                placeholder="e.g., 'Best Italian restaurants in downtown San Francisco with outdoor seating' or 'Affordable sushi near Times Square'"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="min-h-[80px] resize-none"
+              />
             </div>
+
+            {/* OR Separator */}
+            <div className="flex items-center gap-4">
+              <hr className="flex-1" />
+              <span className="text-muted-foreground text-sm">OR</span>
+              <hr className="flex-1" />
+            </div>
+
+            {/* Simple Location Search */}
+            <div>
+              <Label
+                htmlFor="location"
+                className="text-base font-medium mb-2 block"
+              >
+                Search by location
+              </Label>
+              <div className="flex gap-2">
+                <Input
+                  id="location"
+                  placeholder="Enter city, neighborhood, or address..."
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  className="flex-1"
+                />
+                <Button
+                  onClick={handleSearch}
+                  disabled={isLoading}
+                  className="min-w-[120px]"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 size={16} className="mr-2 animate-spin" />
+                      Searching...
+                    </>
+                  ) : (
+                    <>
+                      <Search size={16} className="mr-2" />
+                      Search
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick Location Buttons */}
+            <div>
+              <Label className="text-sm text-muted-foreground mb-2 block">
+                Quick locations:
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "San Francisco, CA",
+                  "New York, NY",
+                  "Los Angeles, CA",
+                  "Chicago, IL",
+                  "Austin, TX",
+                ].map((quickLoc) => (
+                  <Button
+                    key={quickLoc}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleQuickLocationSearch(quickLoc)}
+                    disabled={isLoading}
+                  >
+                    {quickLoc}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
             <p className="text-sm text-muted-foreground">
-              Enter a location to get personalized restaurant recommendations
-              based on your preferences
+              Get personalized restaurant recommendations powered by AI based on
+              your profile and preferences
             </p>
           </CardContent>
         </Card>
