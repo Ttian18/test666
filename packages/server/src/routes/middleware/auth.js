@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
+import tokenBlacklistService from "../../services/auth/tokenBlacklistService.js";
 
 // Use global prisma instance in tests, otherwise create new instance
 const prisma = global.prisma || new PrismaClient();
@@ -14,6 +15,12 @@ export const authenticate = async (req, res, next) => {
   }
 
   try {
+    // Check if token is blacklisted
+    const isBlacklisted = await tokenBlacklistService.isTokenBlacklisted(token);
+    if (isBlacklisted) {
+      return res.status(401).json({ message: "Token has been invalidated" });
+    }
+
     const decoded = jwt.verify(token, JWT_SECRET);
 
     // Validate token payload structure
