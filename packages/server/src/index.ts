@@ -1,24 +1,24 @@
 // Main application entry point
 // This file exports all the main components of the application
 
-// Models (will be enabled as we convert files)
-// export * from "./models/index.js";
+// Models (converted)
+export * from "./models/index.ts";
 
-// Services (will be enabled as we convert files)
-// export { default as OpenAIService } from "./services/ai/openaiService.js";
-// export { default as RecommendationService } from "./services/restaurant/recommendationService.js";
-// export * as ZhongcaoService from "./services/restaurant/zhongcao/index.js";
-// export { default as MenuAnalysisService } from "./services/restaurant/menuAnalysisService.js";
-// export { default as BudgetRecommendationService } from "./services/restaurant/budgetRecommendationService.js";
-// export { default as MenuAnalysisController } from "./services/restaurant/menuAnalysisController.js";
-// export * as InsightsService from "./services/insights/insightsService.js";
+// Services (converted)
+export { default as OpenAIService } from "./services/ai/openaiService.ts";
+export { default as RecommendationService } from "./services/restaurant/recommendationService.ts";
+export * as ZhongcaoService from "./services/restaurant/zhongcao/index.ts";
+export { default as MenuAnalysisService } from "./services/restaurant/menuAnalysisService.ts";
+export { default as BudgetRecommendationService } from "./services/restaurant/budgetRecommendationService.ts";
+export { default as MenuAnalysisController } from "./services/restaurant/menuAnalysisController.ts";
+export * as InsightsService from "./services/insights/insightsService.ts";
 
 // Utils (converted)
 export * from "./routes/middleware/auth.ts";
-// export * from "./utils/upload/uploadUtils.js";
-// export * from "./utils/validation/validationUtils.js";
-// export * from "./utils/cache/menuAnalysisCache.js";
-// export * from "./utils/errors/menuAnalysisErrors.js";
+export * from "./utils/upload/uploadUtils.ts";
+export * from "./utils/validation/validationUtils.ts";
+export * from "./utils/cache/menuAnalysisCache.ts";
+export * from "./utils/errors/menuAnalysisErrors.ts";
 
 // Config
 export { default as appConfig } from "./config/app.ts";

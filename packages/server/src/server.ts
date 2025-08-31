@@ -1,18 +1,18 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
-import dotenv from "dotenv";
+import * as dotenv from "dotenv";
 
 // Import configurations
 import appConfig from "./config/app.ts";
 
 // Import routes
-import authRoutes from "./routes/auth/index.js";
-import restaurantRoutes from "./routes/restaurant/index.js";
-import transactionRoutes from "./routes/transaction/index.js";
-import insightsRoutes from "./routes/insights/index.js";
+import authRoutes from "./routes/auth/index.ts";
+import restaurantRoutes from "./routes/restaurant/index.ts";
+import transactionRoutes from "./routes/transaction/index.ts";
+import insightsRoutes from "./routes/insights/index.ts";
 
 // Import services
-import tokenCleanupService from "./services/auth/tokenCleanupService.js";
+import tokenCleanupService from "./services/auth/tokenCleanupService.ts";
 
 dotenv.config({ debug: false });
 

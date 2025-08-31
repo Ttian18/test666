@@ -38,14 +38,17 @@ class Voucher {
   }
 
   // Create a new voucher
-  static async create(voucherData: Prisma.VoucherCreateInput): Promise<Voucher> {
+  static async create(
+    voucherData: Prisma.VoucherCreateInput
+  ): Promise<Voucher> {
     try {
       const voucher = await prisma.voucher.create({
         data: voucherData,
       });
       return new Voucher(voucher);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       throw new Error(`Failed to create voucher: ${errorMessage}`);
     }
   }
@@ -58,13 +61,17 @@ class Voucher {
       });
       return voucher ? new Voucher(voucher) : null;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       throw new Error(`Failed to find voucher: ${errorMessage}`);
     }
   }
 
   // Find vouchers by user ID
-  static async findByUserId(userId: string | number, options: VoucherFindOptions = {}): Promise<Voucher[]> {
+  static async findByUserId(
+    userId: string | number,
+    options: VoucherFindOptions = {}
+  ): Promise<Voucher[]> {
     try {
       const { orderBy = { timestamp: "desc" }, take, skip } = options;
       const vouchers = await prisma.voucher.findMany({
@@ -75,7 +82,8 @@ class Voucher {
       });
       return vouchers.map((v) => new Voucher(v));
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       throw new Error(`Failed to find vouchers: ${errorMessage}`);
     }
   }
@@ -90,7 +98,8 @@ class Voucher {
       Object.assign(this, updated);
       return this;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       throw new Error(`Failed to update voucher: ${errorMessage}`);
     }
   }
@@ -103,7 +112,8 @@ class Voucher {
       });
       return true;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       throw new Error(`Failed to delete voucher: ${errorMessage}`);
     }
   }
@@ -120,7 +130,8 @@ class Voucher {
       });
       return stats;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       throw new Error(`Failed to get voucher stats: ${errorMessage}`);
     }
   }

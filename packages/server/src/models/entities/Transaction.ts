@@ -50,14 +50,17 @@ class Transaction {
   }
 
   // Create a new transaction
-  static async create(transactionData: Prisma.TransactionCreateInput): Promise<Transaction> {
+  static async create(
+    transactionData: Prisma.TransactionCreateInput
+  ): Promise<Transaction> {
     try {
       const transaction = await prisma.transaction.create({
         data: transactionData,
       });
       return new Transaction(transaction);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       throw new Error(`Failed to create transaction: ${errorMessage}`);
     }
   }
@@ -70,13 +73,17 @@ class Transaction {
       });
       return transaction ? new Transaction(transaction) : null;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       throw new Error(`Failed to find transaction: ${errorMessage}`);
     }
   }
 
   // Find transactions by user ID
-  static async findByUserId(userId: string | number, options: TransactionFindOptions = {}): Promise<Transaction[]> {
+  static async findByUserId(
+    userId: string | number,
+    options: TransactionFindOptions = {}
+  ): Promise<Transaction[]> {
     try {
       const { orderBy = { date: "desc" }, take, skip } = options;
       const transactions = await prisma.transaction.findMany({
@@ -87,7 +94,8 @@ class Transaction {
       });
       return transactions.map((t) => new Transaction(t));
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       throw new Error(`Failed to find transactions: ${errorMessage}`);
     }
   }
@@ -102,7 +110,8 @@ class Transaction {
       Object.assign(this, updated);
       return this;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       throw new Error(`Failed to update transaction: ${errorMessage}`);
     }
   }
@@ -115,7 +124,8 @@ class Transaction {
       });
       return true;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       throw new Error(`Failed to delete transaction: ${errorMessage}`);
     }
   }
@@ -135,7 +145,8 @@ class Transaction {
       });
       return stats;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       throw new Error(`Failed to get transaction stats: ${errorMessage}`);
     }
   }

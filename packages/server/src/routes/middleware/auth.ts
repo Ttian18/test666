@@ -1,7 +1,7 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import { Request, Response, NextFunction } from "express";
-import tokenBlacklistService from "../../services/auth/tokenBlacklistService.js";
+import tokenBlacklistService from "../../services/auth/tokenBlacklistService.ts";
 
 declare global {
   var prisma: PrismaClient | undefined;
