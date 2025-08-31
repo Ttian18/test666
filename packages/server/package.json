@@ -15,7 +15,7 @@
     "schema": "src/models/database/schema.prisma"
   },
   "dependencies": {
-    "@your-project/schema": "file:../schema",
+    "schema": "file:../schema",
     "@googlemaps/google-maps-services-js": "^3.4.2",
     "@langchain/community": "^0.3.50",
     "@langchain/core": "^0.3.68",
