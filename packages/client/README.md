@@ -61,16 +61,14 @@ A modern, AI-powered budgeting and meal recommendation app that helps users trac
 ## Getting Started
 
 ```bash
-# install bun
-curl -fsSL https://bun.sh/install | bash
 # Install dependencies
-bun install
+npm install
 
 # Start development server
-bun run dev
+npm run dev
 
 # Build for production
-bun run build
+npm run build
 ```
 
 ## Project Structure

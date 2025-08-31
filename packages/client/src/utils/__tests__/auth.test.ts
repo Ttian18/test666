@@ -1,50 +1,50 @@
-import { expect, test, describe } from "bun:test";
+import { expect, test, describe } from "vitest";
 
 // Mock JWT utilities for testing
 const mockJWTUtils = {
   decodeToken: (token: string) => {
     try {
-      const payload = token.split('.')[1];
+      const payload = token.split(".")[1];
       return JSON.parse(atob(payload));
     } catch {
       return null;
     }
   },
-  
+
   isTokenExpired: (token: string) => {
     const payload = mockJWTUtils.decodeToken(token);
     if (!payload) return true;
-    
+
     const now = Date.now() / 1000;
     return payload.exp < now;
   },
-  
+
   createMockToken: (expiresIn = 3600) => {
     const payload = {
-      userId: 'test-123',
-      email: 'test@mealmint.ai',
+      userId: "test-123",
+      email: "test@mealmint.ai",
       exp: Math.floor(Date.now() / 1000) + expiresIn,
-      iat: Math.floor(Date.now() / 1000)
+      iat: Math.floor(Date.now() / 1000),
     };
-    
+
     return `header.${btoa(JSON.stringify(payload))}.signature`;
-  }
+  },
 };
 
 describe("🔐 Authentication Utils", () => {
   describe("JWT Token Validation", () => {
     test("should validate JWT format", () => {
       const token = mockJWTUtils.createMockToken();
-      expect(token.split('.').length).toBe(3);
+      expect(token.split(".").length).toBe(3);
     });
 
     test("should decode valid JWT payload", () => {
       const token = mockJWTUtils.createMockToken();
       const payload = mockJWTUtils.decodeToken(token);
-      
+
       expect(payload).toBeDefined();
-      expect(payload.userId).toBe('test-123');
-      expect(payload.email).toBe('test@mealmint.ai');
+      expect(payload.userId).toBe("test-123");
+      expect(payload.email).toBe("test@mealmint.ai");
     });
 
     test("should return null for invalid token", () => {
@@ -78,14 +78,14 @@ describe("💰 Budget Calculations", () => {
       if (budget === 0) return 0;
       return Math.round((spent / budget) * 100);
     },
-    
+
     calculateRemaining: (spent: number, budget: number) => {
       return Math.max(0, budget - spent);
     },
-    
+
     isOverBudget: (spent: number, budget: number) => {
       return spent > budget;
-    }
+    },
   };
 
   test("should calculate budget percentage correctly", () => {
@@ -113,84 +113,88 @@ describe("🤖 AI Recommendations", () => {
   const mockRecommendationUtils = {
     calculateMatchScore: (userPrefs: any, restaurant: any) => {
       let score = 0;
-      
+
       // Price match (40% weight)
       if (restaurant.averagePrice <= userPrefs.maxPrice) {
         score += 40;
       }
-      
+
       // Cuisine match (30% weight)
-      const cuisineMatch = userPrefs.cuisines.some((c: string) => 
+      const cuisineMatch = userPrefs.cuisines.some((c: string) =>
         restaurant.cuisines.includes(c)
       );
       if (cuisineMatch) score += 30;
-      
+
       // Distance match (20% weight)
       if (restaurant.distance <= userPrefs.maxDistance) {
         score += 20;
       }
-      
+
       // Rating bonus (10% weight)
       if (restaurant.rating >= 4.5) score += 10;
-      
+
       return Math.min(100, score);
-    }
+    },
   };
 
   test("should calculate perfect match score", () => {
     const userPrefs = {
       maxPrice: 25,
-      cuisines: ['Italian', 'Asian'],
-      maxDistance: 5
+      cuisines: ["Italian", "Asian"],
+      maxDistance: 5,
     };
-    
+
     const restaurant = {
       averagePrice: 20,
-      cuisines: ['Italian'],
+      cuisines: ["Italian"],
       distance: 2,
-      rating: 4.8
+      rating: 4.8,
     };
-    
-    expect(mockRecommendationUtils.calculateMatchScore(userPrefs, restaurant)).toBe(100);
+
+    expect(
+      mockRecommendationUtils.calculateMatchScore(userPrefs, restaurant)
+    ).toBe(100);
   });
 
   test("should handle partial matches", () => {
     const userPrefs = {
       maxPrice: 25,
-      cuisines: ['Mexican'],
-      maxDistance: 5
+      cuisines: ["Mexican"],
+      maxDistance: 5,
     };
-    
+
     const restaurant = {
       averagePrice: 30, // Over budget
-      cuisines: ['Italian'], // Different cuisine
+      cuisines: ["Italian"], // Different cuisine
       distance: 2, // Good distance
-      rating: 4.8 // Good rating
+      rating: 4.8, // Good rating
     };
-    
+
     // Only distance (20) + rating bonus (10) = 30
-    expect(mockRecommendationUtils.calculateMatchScore(userPrefs, restaurant)).toBe(30);
+    expect(
+      mockRecommendationUtils.calculateMatchScore(userPrefs, restaurant)
+    ).toBe(30);
   });
 });
 
 describe("📊 Performance Tests", () => {
   test("should handle large datasets efficiently", () => {
     const startTime = performance.now();
-    
+
     // Simulate processing 1000 expense records
     const expenses = Array.from({ length: 1000 }, (_, i) => ({
       id: i,
       amount: Math.random() * 100,
-      category: ['Food', 'Transport', 'Shopping'][i % 3],
-      date: new Date()
+      category: ["Food", "Transport", "Shopping"][i % 3],
+      date: new Date(),
     }));
-    
+
     // Calculate total spending
     const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-    
+
     const endTime = performance.now();
     const processingTime = endTime - startTime;
-    
+
     expect(expenses.length).toBe(1000);
     expect(total).toBeGreaterThan(0);
     expect(processingTime).toBeLessThan(10); // Should complete in under 10ms
