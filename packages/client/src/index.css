@@ -1,0 +1,637 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Modern budgeting app design system with fintech aesthetics */
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 220 15% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 15%;
+
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 220 15% 15%;
+
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+
+    --accent: 262 83% 58%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 69% 58%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 43 96% 56%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 262 83% 58%;
+
+    --radius: 0.75rem;
+
+    /* App-specific design tokens */
+    --app-gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(280 85% 65%));
+    --app-gradient-secondary: linear-gradient(135deg, hsl(220 14% 96%), hsl(220 14% 91%));
+    --app-gradient-hero: linear-gradient(135deg, hsl(262 83% 58%) 0%, hsl(280 85% 65%) 50%, hsl(300 90% 70%) 100%);
+    
+    --shadow-soft: 0 2px 8px -2px hsl(220 15% 15% / 0.08);
+    --shadow-medium: 0 8px 24px -4px hsl(220 15% 15% / 0.12);
+    --shadow-strong: 0 16px 40px -8px hsl(220 15% 15% / 0.16);
+    
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    /* Income & expense colors */
+    --income: 142 69% 58%;
+    --income-foreground: 0 0% 100%;
+    --expense: 0 84% 60%;
+    --expense-foreground: 0 0% 100%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 220 15% 6%;
+    --foreground: 220 14% 96%;
+
+    --card: 220 15% 8%;
+    --card-foreground: 220 14% 96%;
+
+    --popover: 220 15% 8%;
+    --popover-foreground: 220 14% 96%;
+
+    --primary: 262 83% 58%;
+    --primary-foreground: 220 15% 6%;
+
+    --secondary: 220 15% 12%;
+    --secondary-foreground: 220 14% 96%;
+
+    --muted: 220 15% 12%;
+    --muted-foreground: 220 8.9% 46.1%;
+
+    --accent: 262 83% 58%;
+    --accent-foreground: 220 15% 6%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 69% 58%;
+    --success-foreground: 220 15% 6%;
+
+    --warning: 43 96% 56%;
+    --warning-foreground: 220 15% 6%;
+
+    --border: 220 15% 18%;
+    --input: 220 15% 18%;
+    --ring: 262 83% 58%;
+
+    --app-gradient-primary: linear-gradient(135deg, hsl(262 83% 48%), hsl(280 85% 55%));
+    --app-gradient-secondary: linear-gradient(135deg, hsl(220 15% 12%), hsl(220 15% 8%));
+    --app-gradient-hero: linear-gradient(135deg, hsl(262 83% 48%) 0%, hsl(280 85% 55%) 50%, hsl(300 90% 60%) 100%);
+
+    --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.2);
+    --shadow-medium: 0 8px 24px -4px hsl(0 0% 0% / 0.3);
+    --shadow-strong: 0 16px 40px -8px hsl(0 0% 0% / 0.4);
+
+    --income: 142 69% 58%;
+    --income-foreground: 220 15% 6%;
+    --expense: 0 84% 60%;
+    --expense-foreground: 220 15% 6%;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    min-height: 100vh;
+    /* Add subtle paper texture using SVG noise */
+    background-image: url('/nnnoise.svg');
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    background-blend-mode: multiply;
+    background-opacity: 0.03;
+  }
+
+  /* Mobile-first responsive container */
+  .mobile-container {
+    width: 100%;
+    max-width: 428px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: hsl(var(--background));
+    box-shadow: 0 0 0 1px hsl(var(--border));
+  }
+
+  /* Smooth transitions */
+  * {
+    transition: var(--transition-smooth);
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground));
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary));
+  }
+}
+
+/* Paper Texture Effects */
+.paper-texture {
+  background-image: url('/nnnoise.svg');
+  background-repeat: repeat;
+  background-size: 150px 150px;
+  background-blend-mode: multiply;
+}
+
+.paper-texture-subtle {
+  background-image: url('/nnnoise.svg');
+  background-repeat: repeat;
+  background-size: 300px 300px;
+  background-blend-mode: soft-light;
+  opacity: 0.6;
+}
+
+.paper-texture-light {
+  background-image: url('/nnnoise.svg');
+  background-repeat: repeat;
+  background-size: 250px 250px;
+  background-blend-mode: overlay;
+  opacity: 0.4;
+}
+
+.paper-card {
+  background-image: url('/nnnoise.svg');
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  background-blend-mode: multiply;
+  background-color: hsl(var(--card));
+  position: relative;
+}
+
+.paper-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 49%, rgba(255,255,255,0.1) 50%, transparent 51%);
+  pointer-events: none;
+}
+
+/* Enhanced paper surface for important elements */
+.paper-surface {
+  background: hsl(var(--background));
+  background-image: 
+    url('/nnnoise.svg'),
+    linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.05) 50%, transparent 50%, transparent 75%, rgba(255,255,255,0.05) 75%);
+  background-size: 180px 180px, 20px 20px;
+  background-blend-mode: multiply, normal;
+  box-shadow: 
+    0 1px 3px rgba(0,0,0,0.05),
+    0 1px 0 rgba(255,255,255,0.1) inset;
+}
+
+/* Remove all dropdown/popover slide-in animations */
+[data-state="open"][data-side="bottom"],
+[data-state="open"][data-side="top"],
+[data-state="open"][data-side="left"], 
+[data-state="open"][data-side="right"] {
+  animation: none !important;
+}
+
+/* Remove specific sliding animations */
+.data-\[state\=open\]\:slide-in-from-top-2,
+.data-\[side\=bottom\]\:slide-in-from-top-2,
+.data-\[side\=left\]\:slide-in-from-right-2,
+.data-\[side\=right\]\:slide-in-from-left-2,
+.data-\[side\=top\]\:slide-in-from-bottom-2 {
+  animation: none !important;
+}
+
+/* Keep only fade and zoom, remove sliding */
+[data-radix-popper-content-wrapper],
+[data-radix-select-content],
+[data-radix-dropdown-menu-content],
+[data-radix-popover-content],
+[data-radix-tooltip-content],
+[data-radix-context-menu-content],
+[data-radix-menubar-content] {
+  animation-name: fade-in, zoom-in !important;
+}
+
+/* Enhanced Page Backgrounds with Blue Grid */
+.page-background {
+  min-height: 100vh;
+  background: 
+    /* Organized blue line grid */
+    linear-gradient(90deg, rgba(59, 130, 246, 0.08) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(59, 130, 246, 0.08) 1px, transparent 1px),
+    /* Noise texture */
+    url('/nnnoise.svg'),
+    /* Base color - ivory/grey instead of pure white */
+    linear-gradient(135deg, #fafaf8 0%, #f8f8f6 50%, #f5f5f3 100%);
+  background-size: 60px 60px, 60px 60px, 200px 200px, 100% 100%;
+  background-blend-mode: normal, normal, multiply, normal;
+}
+
+.page-background-alt {
+  min-height: 100vh;
+  background: 
+    /* Elegant blue grid pattern */
+    linear-gradient(90deg, rgba(59, 130, 246, 0.06) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(59, 130, 246, 0.06) 1px, transparent 1px),
+    /* Subtle accent lines */
+    linear-gradient(90deg, transparent 119px, rgba(59, 130, 246, 0.12) 120px, rgba(59, 130, 246, 0.12) 121px, transparent 122px),
+    /* Noise texture */
+    url('/nnnoise.svg'),
+    /* Warm ivory base */
+    linear-gradient(135deg, #fcfcfa 0%, #f9f9f7 50%, #f6f6f4 100%);
+  background-size: 40px 40px, 40px 40px, 240px 240px, 180px 180px, 100% 100%;
+  background-blend-mode: normal, normal, normal, multiply, normal;
+}
+
+.page-background-reports {
+  min-height: 100vh;
+  background: 
+    /* Data grid with blue lines */
+    linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+    /* Major grid lines */
+    linear-gradient(90deg, transparent 99px, rgba(59, 130, 246, 0.15) 100px, rgba(59, 130, 246, 0.15) 101px, transparent 102px),
+    linear-gradient(0deg, transparent 99px, rgba(59, 130, 246, 0.15) 100px, rgba(59, 130, 246, 0.15) 101px, transparent 102px),
+    /* Noise texture */
+    url('/nnnoise.svg'),
+    /* Light grey-ivory base */
+    linear-gradient(135deg, #fafafa 0%, #f7f7f5 50%, #f4f4f2 100%);
+  background-size: 50px 50px, 50px 50px, 200px 200px, 200px 200px, 220px 220px, 100% 100%;
+}
+
+.page-background-recommendations {
+  min-height: 100vh;
+  background: 
+    /* Organic blue grid */
+    linear-gradient(90deg, rgba(59, 130, 246, 0.07) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(59, 130, 246, 0.07) 1px, transparent 1px),
+    /* Accent lines with offset */
+    linear-gradient(90deg, transparent 79px, rgba(59, 130, 246, 0.12) 80px, transparent 81px),
+    linear-gradient(0deg, transparent 79px, rgba(59, 130, 246, 0.12) 80px, transparent 81px),
+    /* Noise texture */
+    url('/nnnoise.svg'),
+    /* Warm ivory base */
+    linear-gradient(135deg, #fefefe 0%, #fbfbf9 50%, #f8f8f6 100%);
+  background-size: 40px 40px, 40px 40px, 160px 160px, 160px 160px, 190px 190px, 100% 100%;
+}
+
+.page-background-add-expense {
+  min-height: 100vh;
+  background: 
+    /* Document grid with blue lines */
+    linear-gradient(90deg, rgba(59, 130, 246, 0.06) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(59, 130, 246, 0.08) 1px, transparent 1px),
+    /* Major vertical guide (like margin) */
+    linear-gradient(90deg, transparent 79px, rgba(59, 130, 246, 0.15) 80px, rgba(59, 130, 246, 0.15) 81px, transparent 82px),
+    /* Noise texture */
+    url('/nnnoise.svg'),
+    /* Clean ivory base */
+    linear-gradient(135deg, #ffffff 0%, #fcfcfa 50%, #f9f9f7 100%);
+  background-size: 30px 30px, 30px 30px, 100% 100%, 160px 160px, 100% 100%;
+}
+
+.page-background-landing {
+  min-height: 100vh;
+  background: 
+    /* Elegant landing page grid */
+    linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+    /* Major accent lines */
+    linear-gradient(90deg, transparent 199px, rgba(59, 130, 246, 0.08) 200px, rgba(59, 130, 246, 0.08) 201px, transparent 202px),
+    linear-gradient(0deg, transparent 199px, rgba(59, 130, 246, 0.08) 200px, rgba(59, 130, 246, 0.08) 201px, transparent 202px),
+    /* Noise texture */
+    url('/nnnoise.svg'),
+    /* Premium white to light blue gradient */
+    linear-gradient(135deg, #ffffff 0%, #f8faff 30%, #f0f7ff 70%, #e6f2ff 100%);
+  background-size: 80px 80px, 80px 80px, 400px 400px, 400px 400px, 200px 200px, 100% 100%;
+  background-blend-mode: normal, normal, normal, normal, multiply, normal;
+}
+
+/* Enhanced Navigation Effects */
+.nav-shrink-container {
+  transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.nav-shrink-bar {
+  transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+  will-change: transform, opacity, border-radius;
+}
+
+.nav-shrink-bar.scrolled {
+  transform: scale(0.98);
+  border-radius: 1.5rem;
+  box-shadow: 
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+/* Luxury Card Backgrounds */
+.themed-card {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.8) 0%, 
+    rgba(252, 252, 250, 0.9) 50%, 
+    rgba(249, 249, 247, 0.8) 100%);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(59, 130, 246, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.themed-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(59, 130, 246, 0.3) 50%, 
+    transparent 100%);
+}
+
+.themed-card:hover {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.9) 0%, 
+    rgba(252, 252, 250, 0.95) 50%, 
+    rgba(249, 249, 247, 0.9) 100%);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 12px 40px rgba(59, 130, 246, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+}
+
+/* Luxury Form Styles */
+.luxury-form {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.7) 0%, 
+    rgba(252, 250, 248, 0.8) 50%, 
+    rgba(249, 247, 245, 0.7) 100%);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(59, 130, 246, 0.08);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 
+    0 10px 40px rgba(59, 130, 246, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.03),
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  position: relative;
+}
+
+.luxury-form::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(59, 130, 246, 0.2) 20%, 
+    rgba(59, 130, 246, 0.4) 50%, 
+    rgba(59, 130, 246, 0.2) 80%, 
+    transparent 100%);
+  border-radius: 16px 16px 0 0;
+}
+
+/* Luxury Input Fields */
+.luxury-input {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 2px 8px rgba(59, 130, 246, 0.04),
+    0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+}
+
+.luxury-input:focus {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(59, 130, 246, 0.3);
+  outline: none;
+  box-shadow: 
+    0 4px 16px rgba(59, 130, 246, 0.08),
+    0 0 0 3px rgba(59, 130, 246, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+  transform: translateY(-1px);
+}
+
+.luxury-input::placeholder {
+  color: rgba(107, 114, 128, 0.7);
+}
+
+/* Luxury Buttons */
+.luxury-button {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.9) 0%, 
+    rgba(249, 249, 247, 0.95) 100%);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: rgb(59, 130, 246);
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 
+    0 2px 8px rgba(59, 130, 246, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+}
+
+.luxury-button:hover {
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.05) 0%, 
+    rgba(255, 255, 255, 0.95) 100%);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 16px rgba(59, 130, 246, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.7) inset;
+}
+
+.luxury-button-primary {
+  background: linear-gradient(135deg, 
+    rgb(59, 130, 246) 0%, 
+    rgb(37, 99, 235) 100%);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 4px 16px rgba(59, 130, 246, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+}
+
+.luxury-button-primary:hover {
+  background: linear-gradient(135deg, 
+    rgb(37, 99, 235) 0%, 
+    rgb(29, 78, 216) 100%);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 24px rgba(59, 130, 246, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+}
+
+/* Enhanced button interactions on textured backgrounds */
+.enhanced-button {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.9) 0%, 
+    rgba(252, 252, 250, 0.95) 100%);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  transition: all 0.2s ease;
+  border-radius: 10px;
+  box-shadow: 
+    0 2px 8px rgba(59, 130, 246, 0.06),
+    0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+}
+
+.enhanced-button:hover {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.95) 0%, 
+    rgba(252, 252, 250, 1) 100%);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 12px rgba(59, 130, 246, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+}
+
+/* Landing Page Animations */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes spin-very-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0.7;
+  }
+  25% {
+    transform: translateY(-10px) translateX(5px);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-5px) translateX(10px);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateY(-15px) translateX(-5px);
+    opacity: 0.9;
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+.animate-spin-reverse {
+  animation: spin-reverse 6s linear infinite;
+}
+
+.animate-spin-very-slow {
+  animation: spin-very-slow 15s linear infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animation-delay-1000 {
+  animation-delay: 1s;
+}
+
+.animation-delay-1500 {
+  animation-delay: 1.5s;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-3000 {
+  animation-delay: 3s;
+}
+
+.blur-3xl {
+  filter: blur(64px);
+}

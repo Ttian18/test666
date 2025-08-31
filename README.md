@@ -4,6 +4,16 @@ A comprehensive AI-powered finance and restaurant recommendation application bui
 
 ## 🚀 Features
 
+### Frontend Application
+
+- **Modern React Interface**: Beautiful, responsive UI built with React 18 and TypeScript
+- **Real-time Dashboard**: Live spending overview with charts and analytics
+- **Receipt Upload**: Drag-and-drop receipt processing with AI-powered data extraction
+- **Interactive Reports**: Visual spending analytics with charts and export options
+- **User Authentication**: Secure login/signup with JWT token management
+- **Mobile-First Design**: Optimized for mobile and desktop experiences
+- **Progressive Web App**: Fast loading with offline capabilities
+
 ### Restaurant Recommendations
 
 - **Location-based Recommendations**: Get personalized restaurant suggestions based on your location using Google Places API
@@ -39,16 +49,31 @@ A comprehensive AI-powered finance and restaurant recommendation application bui
 
 ## 🏗️ Architecture
 
-This is a monorepo containing two main packages:
+This is a monorepo containing three main packages:
 
 ```
 nextai-finance-app-monorepo/
 ├── packages/
+│   ├── client/          # React/Vite frontend application
 │   ├── schema/          # Shared Zod schemas and TypeScript types
 │   └── server/          # Node.js/Express backend API
 ├── package.json         # Root package configuration
 └── README.md           # This file
 ```
+
+### Frontend (Client)
+
+- **Framework**: React 18 with TypeScript
+- **Runtime**: Bun (recommended) with npm fallback support
+- **Build Tool**: Vite with SWC for fast development + Bun runtime
+- **Styling**: Tailwind CSS with shadcn/ui components
+- **State Management**: Zustand for global state
+- **Routing**: React Router DOM
+- **Charts**: Recharts for data visualization
+- **UI Components**: Comprehensive shadcn/ui component library
+- **Development**: Hot module replacement with Vite + Bun runtime
+- **Port**: Runs on http://localhost:8080
+- **Performance**: 2-4x faster builds and dev server with Bun
 
 ### Schema Package
 
@@ -71,10 +96,39 @@ nextai-finance-app-monorepo/
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** (v18 or higher)
-- **npm** (v8 or higher)
-- **PostgreSQL** database
-- **Git**
+- **Node.js** (v18 or higher) - Required for server package
+- **npm** (v8 or higher) - For server and root package management
+- **Bun** (v1.2.21 or higher) - **Strongly recommended** for client package development
+- **PostgreSQL** database - For data storage
+- **Git** - For version control
+
+### 🚀 **Bun Installation (Recommended)**
+
+The client package is optimized for Bun, providing significant performance improvements:
+
+```bash
+# Install Bun (macOS/Linux)
+curl -fsSL https://bun.sh/install | bash
+
+# Add to PATH permanently (CRITICAL STEP)
+echo 'export BUN_INSTALL="$HOME/.bun"' >> ~/.zshrc
+echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+
+# Verify installation works in new terminals
+bun --version
+```
+
+**Performance Benefits with Bun:**
+
+- ⚡ **3-4x faster** dependency installation
+- ⚡ **2-3x faster** development server startup
+- ⚡ **2x faster** production builds
+- ⚡ **Native TypeScript** support without transpilation
+
+**Note**: If you encounter issues with Bun, npm fallback scripts are available (`dev:npm`, `build:npm`, etc.).
+
+📖 **For detailed Bun setup instructions, troubleshooting, and optimization tips, see: [`packages/client/BUN_GUIDE.md`](packages/client/BUN_GUIDE.md)**
 
 ## 📦 Installation
 
@@ -88,7 +142,16 @@ Before you begin, ensure you have the following installed:
 2. **Install dependencies**
 
    ```bash
+   # Install root and server dependencies
    npm install
+
+   # Install client dependencies with Bun (recommended)
+   cd packages/client
+   bun install
+   cd ../..
+
+   # Alternative: Install client with npm (fallback)
+   # npm install --workspace=client
    ```
 
 3. **Set up environment variables**
@@ -119,26 +182,59 @@ Before you begin, ensure you have the following installed:
 
 ## 🚀 Development
 
-### Starting the Development Server
+### Starting Both Client and Server
 
-From the root directory, run:
+From the root directory, you can start both the client and server simultaneously:
 
 ```bash
-npm run dev
+# Start both client (with Bun) and server in parallel (recommended)
+npm run dev:all
+
+# Start both with npm (fallback if Bun issues)
+npm run dev:all:npm
 ```
 
-This will start the backend server:
+This will start:
 
-- **Backend**: http://localhost:5001
+- **Frontend (Client)**: http://localhost:8080 (with Bun for faster performance)
+- **Backend (Server)**: http://localhost:5001
 
-### Individual Package Development
+**✅ Success Indicators:**
 
-You can also run packages individually:
+```
+[0] VITE v5.4.19 ready in 529 ms
+[0] ➜ Local: http://localhost:8080/
+[1] 🚀 Server running on http://localhost:5001
+[1] 📊 Health check: http://localhost:5001/health
+```
+
+Both services will have hot reload enabled for seamless development!
+
+### Starting Individual Services
+
+You can also run packages individually using convenient root-level scripts:
+
+**Client only:**
+
+```bash
+# With Bun (recommended - fastest)
+npm run dev:client
+
+# With npm (fallback if Bun issues)
+npm run dev:client:npm
+
+# Or navigate to client directory
+cd packages/client && bun run dev
+```
 
 **Server only:**
 
 ```bash
-npm run dev --workspace=server
+# From root directory
+npm run dev:server
+
+# Or navigate to server directory
+cd packages/server && npm run dev
 ```
 
 **Schema package (for development):**
@@ -146,6 +242,20 @@ npm run dev --workspace=server
 ```bash
 npm run dev --workspace=schema
 ```
+
+### 🎯 **Quick Reference - Root Level Commands**
+
+All commands run from the project root directory:
+
+| Command                  | Description                                 |
+| ------------------------ | ------------------------------------------- |
+| `npm run dev:all`        | **Start both client (Bun) + server** ⭐     |
+| `npm run dev:all:npm`    | Start both client (npm) + server (fallback) |
+| `npm run dev:client`     | Start client only (with Bun)                |
+| `npm run dev:client:npm` | Start client only (with npm)                |
+| `npm run dev:server`     | Start server only                           |
+
+**💡 Tip**: Use `npm run dev:all` for the fastest full-stack development experience!
 
 ### Database Management
 
@@ -175,6 +285,75 @@ npm run seed
 ```bash
 cd packages/server
 npx prisma studio
+```
+
+### Client Package Development (Bun Optimized)
+
+**Start client development server:**
+
+```bash
+cd packages/client
+
+# With Bun (recommended - fastest)
+bun run dev
+
+# With npm (fallback if Bun issues)
+bun run dev:npm
+```
+
+**Build client for production:**
+
+```bash
+cd packages/client
+
+# Production build with Bun
+bun run build
+
+# Development build with Bun
+bun run build:dev
+
+# Fallback with npm
+bun run build:npm
+```
+
+**Run client tests:**
+
+```bash
+cd packages/client
+
+# Run tests with Bun's built-in test runner
+bun test
+
+# Run tests in watch mode
+bun run test:watch
+```
+
+**Code quality and linting:**
+
+```bash
+cd packages/client
+
+# Lint with Bun
+bun run lint
+
+# Type checking
+bun run type-check
+
+# Format code
+bun run format
+
+# Run all checks (lint + build)
+bun run check
+
+# Clean install (removes node_modules and reinstalls)
+bun run install:clean
+```
+
+**Preview production build:**
+
+```bash
+cd packages/client
+bun run preview
 ```
 
 ### Schema Package Development
@@ -224,6 +403,41 @@ npm run test:reco
 ```
 
 ## 📁 Project Structure
+
+### Client Package (`packages/client/`)
+
+```
+client/
+├── src/
+│   ├── components/          # React components
+│   │   ├── ui/             # shadcn/ui components
+│   │   ├── TopNavigation.tsx
+│   │   ├── BottomNavigation.tsx
+│   │   └── ProtectedRoute.tsx
+│   ├── pages/              # Application pages
+│   │   ├── Home.tsx        # Dashboard
+│   │   ├── Login.tsx       # Authentication
+│   │   ├── AddExpense.tsx  # Expense management
+│   │   ├── Reports.tsx     # Analytics
+│   │   ├── Recommendations.tsx # Restaurant recommendations
+│   │   └── Profile.tsx     # User settings
+│   ├── contexts/           # React contexts
+│   │   └── AuthContext.tsx
+│   ├── hooks/              # Custom React hooks
+│   ├── store/              # Zustand state management
+│   │   └── slices/         # State slices
+│   ├── utils/              # Utility functions
+│   ├── assets/             # Static assets
+│   ├── lib/                # Library configurations
+│   ├── main.tsx            # Application entry point
+│   └── App.tsx             # Root component
+├── public/                 # Public assets
+├── index.html              # HTML template
+├── vite.config.ts          # Vite configuration
+├── tailwind.config.ts      # Tailwind CSS configuration
+├── tsconfig.json           # TypeScript configuration
+└── package.json            # Client dependencies
+```
 
 ### Schema Package (`packages/schema/`)
 

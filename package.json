@@ -2,11 +2,17 @@
   "name": "nextai-finance-app-monorepo",
   "private": true,
   "workspaces": [
+    "packages/client",
     "packages/server",
     "packages/schema"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=server"
+    "dev": "npm run dev --workspace=server",
+    "dev:all": "concurrently \"cd packages/client && bun run dev\" \"npm run dev --workspace=server\"",
+    "dev:all:npm": "concurrently \"npm run dev --workspace=client\" \"npm run dev --workspace=server\"",
+    "dev:client": "cd packages/client && bun run dev",
+    "dev:client:npm": "npm run dev --workspace=client",
+    "dev:server": "npm run dev --workspace=server"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
