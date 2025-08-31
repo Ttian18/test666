@@ -37,6 +37,11 @@ const LoginLanding: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
+      console.log("🔐 LoginLanding.handleSubmit called:", {
+        email: credentials.email,
+        rememberMe,
+        hasPassword: !!credentials.password,
+      });
       setError("");
       const result = await login(
         credentials.email,
@@ -45,14 +50,17 @@ const LoginLanding: React.FC = () => {
       );
 
       if (result.success) {
+        console.log("✅ Login successful, redirecting user");
         // For new users, let ProtectedRoute handle the onboarding flow
         // For existing users, go directly to home
         const redirectPath = result.user?.isNewUser ? "/intro" : "/home";
         navigate(redirectPath);
       } else {
+        console.log("❌ Login failed:", result.error);
         setError(result.error || "Login failed");
       }
     } catch (err) {
+      console.log("❌ Login error:", err);
       setError("An unexpected error occurred");
     }
   };
@@ -184,7 +192,13 @@ const LoginLanding: React.FC = () => {
                   type="checkbox"
                   className="mr-2"
                   checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
+                  onChange={(e) => {
+                    console.log(
+                      "☑️ Remember me checkbox changed:",
+                      e.target.checked
+                    );
+                    setRememberMe(e.target.checked);
+                  }}
                 />
                 <span className="text-sm text-gray-600">Remember me</span>
               </label>

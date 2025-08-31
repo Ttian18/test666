@@ -58,7 +58,22 @@ class SecureTokenStorage {
 
   static getToken(): string | null {
     // Check sessionStorage first (for non-remember me), then localStorage (for remember me)
-    return sessionStorage.getItem(this.TOKEN_KEY) || localStorage.getItem(this.TOKEN_KEY);
+    const sessionToken = sessionStorage.getItem(this.TOKEN_KEY);
+    const localToken = localStorage.getItem(this.TOKEN_KEY);
+    const token = sessionToken || localToken;
+
+    console.log("🔍 SecureTokenStorage.getToken():", {
+      sessionToken: sessionToken ? `${sessionToken.substring(0, 20)}...` : null,
+      localToken: localToken ? `${localToken.substring(0, 20)}...` : null,
+      finalToken: token ? `${token.substring(0, 20)}...` : null,
+      source: sessionToken
+        ? "sessionStorage"
+        : localToken
+        ? "localStorage"
+        : "none",
+    });
+
+    return token;
   }
 
   static getRefreshToken(): string | null {
@@ -66,14 +81,33 @@ class SecureTokenStorage {
     const encryptedLocal = localStorage.getItem(this.REFRESH_TOKEN_KEY);
     const encryptedSession = sessionStorage.getItem(this.REFRESH_TOKEN_KEY);
     const encrypted = encryptedLocal || encryptedSession;
-    return encrypted ? this.decrypt(encrypted) : null;
+    const refreshToken = encrypted ? this.decrypt(encrypted) : null;
+
+    console.log("🔍 SecureTokenStorage.getRefreshToken():", {
+      encryptedLocal: encryptedLocal
+        ? `${encryptedLocal.substring(0, 20)}...`
+        : null,
+      encryptedSession: encryptedSession
+        ? `${encryptedSession.substring(0, 20)}...`
+        : null,
+      refreshToken: refreshToken ? `${refreshToken.substring(0, 20)}...` : null,
+      source: encryptedLocal
+        ? "localStorage"
+        : encryptedSession
+        ? "sessionStorage"
+        : "none",
+    });
+
+    return refreshToken;
   }
 
   static clearTokens(): void {
+    console.log("🧹 SecureTokenStorage.clearTokens() - clearing all tokens");
     sessionStorage.removeItem(this.TOKEN_KEY);
     sessionStorage.removeItem(this.REFRESH_TOKEN_KEY);
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    console.log("✅ All tokens cleared from both storage locations");
   }
 
   // Simple encryption/decryption for demo purposes
@@ -242,8 +276,6 @@ class AuthService {
   static async register(
     formData: RegisterFormData
   ): Promise<{ token: string; refreshToken: string; user: User }> {
-  
-
     // In production, this will make a real API call to the backend
     try {
       const response = await fetch(`${this.API_BASE}/auth/register`, {
@@ -378,19 +410,29 @@ export const useAuth = () => {
 
   const initializeAuth = useCallback(async () => {
     try {
+      console.log("🚀 Initializing authentication...");
       const token = SecureTokenStorage.getToken();
       if (!token) {
+        console.log("❌ No token found during initialization");
         setAuthState((prev) => ({ ...prev, isLoading: false }));
         return;
       }
 
+      console.log(
+        "✅ Token found during initialization:",
+        `${token.substring(0, 20)}...`
+      );
+
       if (JWTUtils.isTokenExpired(token)) {
+        console.log("⏰ Token expired, attempting refresh...");
         await refreshTokens();
         return;
       }
 
+      console.log("✅ Token valid, validating with server...");
       const user = await AuthService.validateToken(token);
       if (user) {
+        console.log("✅ User validation successful:", user.name);
         setAuthState({
           user,
           isAuthenticated: true,
@@ -398,6 +440,7 @@ export const useAuth = () => {
           token,
         });
       } else {
+        console.log("❌ User validation failed, logging out");
         await logout();
       }
     } catch (error) {
@@ -406,60 +449,81 @@ export const useAuth = () => {
     }
   }, []);
 
-  const login = useCallback(async (email: string, password: string, rememberMe: boolean = false) => {
-    try {
-      setAuthState((prev) => ({ ...prev, isLoading: true }));
+  const login = useCallback(
+    async (email: string, password: string, rememberMe: boolean = false) => {
+      try {
+        console.log("🔐 Login attempt started:", { email, rememberMe });
+        setAuthState((prev) => ({ ...prev, isLoading: true }));
 
-      const { token, refreshToken, user } = await AuthService.login(
-        email,
-        password
-      );
+        const { token, refreshToken, user } = await AuthService.login(
+          email,
+          password
+        );
+        console.log("✅ AuthService.login successful:", {
+          user: user.name,
+          tokenLength: token?.length,
+          refreshTokenLength: refreshToken?.length,
+        });
 
-      // Clear any existing tokens first to avoid conflicts
-      SecureTokenStorage.clearTokens();
-      
-      // Store tokens based on remember me preference
-      if (rememberMe) {
-        // Use localStorage for persistent storage when remember me is checked
-        localStorage.setItem(SecureTokenStorage.TOKEN_KEY, token);
-        localStorage.setItem(SecureTokenStorage.REFRESH_TOKEN_KEY, SecureTokenStorage.encrypt(refreshToken));
-      } else {
-        // Use sessionStorage for temporary storage when remember me is unchecked
-        sessionStorage.setItem(SecureTokenStorage.TOKEN_KEY, token);
-        sessionStorage.setItem(SecureTokenStorage.REFRESH_TOKEN_KEY, SecureTokenStorage.encrypt(refreshToken));
-      }
-      setAuthState({
-        user,
-        isAuthenticated: true,
-        isLoading: false,
-        token,
-      });
+        // Clear any existing tokens first to avoid conflicts
+        SecureTokenStorage.clearTokens();
 
-      // Handle new user onboarding
-      if (user.isNewUser) {
-        // Clear any existing onboarding state for new users
-        localStorage.removeItem("hasSeenIntro");
-        localStorage.removeItem("hasCompletedQuestionnaire");
-        localStorage.removeItem("userProfile");
-      } else {
-        // Store user preferences (migrate from localStorage) for existing users
-        const existingProfile = localStorage.getItem("userProfile");
-        if (existingProfile) {
-          const profile = JSON.parse(existingProfile);
-          // In production, sync this with backend
-          user.profile = { ...user.profile, ...profile };
+        // Store tokens based on remember me preference
+        if (rememberMe) {
+          // Use localStorage for persistent storage when remember me is checked
+          console.log("💾 Storing tokens in localStorage (remember me = true)");
+          localStorage.setItem(SecureTokenStorage.TOKEN_KEY, token);
+          localStorage.setItem(
+            SecureTokenStorage.REFRESH_TOKEN_KEY,
+            SecureTokenStorage.encrypt(refreshToken)
+          );
+          console.log("✅ Tokens stored in localStorage");
+        } else {
+          // Use sessionStorage for temporary storage when remember me is unchecked
+          console.log(
+            "💾 Storing tokens in sessionStorage (remember me = false)"
+          );
+          sessionStorage.setItem(SecureTokenStorage.TOKEN_KEY, token);
+          sessionStorage.setItem(
+            SecureTokenStorage.REFRESH_TOKEN_KEY,
+            SecureTokenStorage.encrypt(refreshToken)
+          );
+          console.log("✅ Tokens stored in sessionStorage");
         }
-      }
+        setAuthState({
+          user,
+          isAuthenticated: true,
+          isLoading: false,
+          token,
+        });
 
-      return { success: true, user };
-    } catch (error) {
-      setAuthState((prev) => ({ ...prev, isLoading: false }));
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : "Login failed",
-      };
-    }
-  }, []);
+        // Handle new user onboarding
+        if (user.isNewUser) {
+          // Clear any existing onboarding state for new users
+          localStorage.removeItem("hasSeenIntro");
+          localStorage.removeItem("hasCompletedQuestionnaire");
+          localStorage.removeItem("userProfile");
+        } else {
+          // Store user preferences (migrate from localStorage) for existing users
+          const existingProfile = localStorage.getItem("userProfile");
+          if (existingProfile) {
+            const profile = JSON.parse(existingProfile);
+            // In production, sync this with backend
+            user.profile = { ...user.profile, ...profile };
+          }
+        }
+
+        return { success: true, user };
+      } catch (error) {
+        setAuthState((prev) => ({ ...prev, isLoading: false }));
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : "Login failed",
+        };
+      }
+    },
+    []
+  );
 
   const register = useCallback(async (formData: RegisterFormData) => {
     try {
@@ -536,16 +600,34 @@ export const useAuth = () => {
         await AuthService.refreshToken(refreshToken);
 
       // Preserve the original storage location (localStorage for remember me, sessionStorage for temporary)
-      const wasInLocalStorage = localStorage.getItem(SecureTokenStorage.TOKEN_KEY) !== null;
-      
+      const wasInLocalStorage =
+        localStorage.getItem(SecureTokenStorage.TOKEN_KEY) !== null;
+
+      console.log("🔄 Refreshing tokens, preserving storage location:", {
+        wasInLocalStorage,
+        storageLocation: wasInLocalStorage ? "localStorage" : "sessionStorage",
+      });
+
       if (wasInLocalStorage) {
         // User had remember me checked, store in localStorage
+        console.log(
+          "💾 Storing refreshed tokens in localStorage (remember me was true)"
+        );
         localStorage.setItem(SecureTokenStorage.TOKEN_KEY, newToken);
-        localStorage.setItem(SecureTokenStorage.REFRESH_TOKEN_KEY, SecureTokenStorage.encrypt(newRefreshToken));
+        localStorage.setItem(
+          SecureTokenStorage.REFRESH_TOKEN_KEY,
+          SecureTokenStorage.encrypt(newRefreshToken)
+        );
       } else {
         // User didn't have remember me checked, store in sessionStorage
+        console.log(
+          "💾 Storing refreshed tokens in sessionStorage (remember me was false)"
+        );
         sessionStorage.setItem(SecureTokenStorage.TOKEN_KEY, newToken);
-        sessionStorage.setItem(SecureTokenStorage.REFRESH_TOKEN_KEY, SecureTokenStorage.encrypt(newRefreshToken));
+        sessionStorage.setItem(
+          SecureTokenStorage.REFRESH_TOKEN_KEY,
+          SecureTokenStorage.encrypt(newRefreshToken)
+        );
       }
 
       const user = await AuthService.validateToken(newToken);
