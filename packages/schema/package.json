@@ -5,8 +5,17 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./src/*": "./src/*",
+    "./types/*": "./src/types/*"
+  },
   "scripts": {
     "clean": "rm -rf dist",
     "build": "npm run clean && tsc",

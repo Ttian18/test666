@@ -32,6 +32,8 @@ export const restaurantSchema = z.object({
 
 export type RestaurantInfo = z.infer<typeof restaurantSchema>;
 
+// Test comment: Direct TypeScript import working! ✅ CONFIRMED WORKING!
+
 /**
  * Fallback restaurant data when extraction fails
  */
