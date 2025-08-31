@@ -1,5 +1,6 @@
 import express from "express";
-import { getAllCategories } from "common";
+import schema from "@your-project/schema";
+const { categories: allCategories } = schema;
 import { authenticate } from "../middleware/auth.js";
 import * as transactionService from "../../services/transaction/transactionService.js";
 import dotenv from "dotenv";
@@ -31,8 +32,7 @@ router.get("/stats", authenticate, async (req, res) => {
 // GET /categories - Get all available categories (public)
 router.get("/categories", async (req, res) => {
   try {
-    const categories = getAllCategories();
-    res.json({ categories });
+    res.json({ categories: allCategories });
   } catch (error) {
     console.error("Error fetching categories:", error);
     res.status(500).json({ error: "Failed to fetch categories" });

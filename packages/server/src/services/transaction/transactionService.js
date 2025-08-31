@@ -1,5 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
+/** @typedef {import('@your-project/schema').Transaction} Transaction */
+
 // Use global prisma instance in tests, otherwise create new instance
 const prisma = global.prisma || new PrismaClient();
 
@@ -17,7 +19,7 @@ const prisma = global.prisma || new PrismaClient();
  * @param {Date} options.endDate - Filter to date
  * @param {number} options.limit - Limit number of results
  * @param {number} options.offset - Offset for pagination
- * @returns {Promise<Array>} Array of user's transactions
+ * @returns {Promise<Transaction[]>} Array of user's transactions
  */
 export const getAllTransactions = async (userId, options = {}) => {
   if (

@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import { findMerchantCategory } from "common";
+import schema from "@your-project/schema";
+const { findMerchantCategory } = schema;
 
 // Use global prisma instance in tests, otherwise create new instance
 const prisma = global.prisma || new PrismaClient();
