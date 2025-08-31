@@ -27,6 +27,19 @@ model User {
   transactions    Transaction[]
   zhongcaoResults ZhongcaoResult[]
   menuAnalyses    MenuAnalysis[]
+  blacklistedTokens BlacklistedToken[]
+}
+
+model BlacklistedToken {
+  id            Int      @id @default(autoincrement())
+  token         String   @unique
+  userId        Int
+  blacklistedAt DateTime @default(now())
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("blacklisted_tokens")
 }
 
 model ZhongcaoResult {
