@@ -62,12 +62,16 @@ class SecureTokenStorage {
   }
 
   static getRefreshToken(): string | null {
-    const encrypted = localStorage.getItem(this.REFRESH_TOKEN_KEY);
+    // Check localStorage first (for remember me), then sessionStorage (for non-remember me)
+    const encryptedLocal = localStorage.getItem(this.REFRESH_TOKEN_KEY);
+    const encryptedSession = sessionStorage.getItem(this.REFRESH_TOKEN_KEY);
+    const encrypted = encryptedLocal || encryptedSession;
     return encrypted ? this.decrypt(encrypted) : null;
   }
 
   static clearTokens(): void {
     sessionStorage.removeItem(this.TOKEN_KEY);
+    sessionStorage.removeItem(this.REFRESH_TOKEN_KEY);
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
   }
@@ -411,6 +415,9 @@ export const useAuth = () => {
         password
       );
 
+      // Clear any existing tokens first to avoid conflicts
+      SecureTokenStorage.clearTokens();
+      
       // Store tokens based on remember me preference
       if (rememberMe) {
         // Use localStorage for persistent storage when remember me is checked
@@ -418,7 +425,8 @@ export const useAuth = () => {
         localStorage.setItem(SecureTokenStorage.REFRESH_TOKEN_KEY, SecureTokenStorage.encrypt(refreshToken));
       } else {
         // Use sessionStorage for temporary storage when remember me is unchecked
-        SecureTokenStorage.setTokens(token, refreshToken);
+        sessionStorage.setItem(SecureTokenStorage.TOKEN_KEY, token);
+        sessionStorage.setItem(SecureTokenStorage.REFRESH_TOKEN_KEY, SecureTokenStorage.encrypt(refreshToken));
       }
       setAuthState({
         user,
@@ -527,7 +535,18 @@ export const useAuth = () => {
       const { token: newToken, refreshToken: newRefreshToken } =
         await AuthService.refreshToken(refreshToken);
 
-      SecureTokenStorage.setTokens(newToken, newRefreshToken);
+      // Preserve the original storage location (localStorage for remember me, sessionStorage for temporary)
+      const wasInLocalStorage = localStorage.getItem(SecureTokenStorage.TOKEN_KEY) !== null;
+      
+      if (wasInLocalStorage) {
+        // User had remember me checked, store in localStorage
+        localStorage.setItem(SecureTokenStorage.TOKEN_KEY, newToken);
+        localStorage.setItem(SecureTokenStorage.REFRESH_TOKEN_KEY, SecureTokenStorage.encrypt(newRefreshToken));
+      } else {
+        // User didn't have remember me checked, store in sessionStorage
+        sessionStorage.setItem(SecureTokenStorage.TOKEN_KEY, newToken);
+        sessionStorage.setItem(SecureTokenStorage.REFRESH_TOKEN_KEY, SecureTokenStorage.encrypt(newRefreshToken));
+      }
 
       const user = await AuthService.validateToken(newToken);
       if (user) {
