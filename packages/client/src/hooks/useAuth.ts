@@ -411,6 +411,16 @@ export const useAuth = () => {
   const initializeAuth = useCallback(async () => {
     try {
       console.log("🚀 Initializing authentication...");
+      
+      // Debug: Check localStorage directly
+      console.log("🔍 Direct localStorage check:", {
+        allLocalStorageKeys: Object.keys(localStorage),
+        tokenKey: SecureTokenStorage.TOKEN_KEY,
+        refreshTokenKey: SecureTokenStorage.REFRESH_TOKEN_KEY,
+        directTokenCheck: localStorage.getItem(SecureTokenStorage.TOKEN_KEY),
+        directRefreshCheck: localStorage.getItem(SecureTokenStorage.REFRESH_TOKEN_KEY)
+      });
+      
       const token = SecureTokenStorage.getToken();
       if (!token) {
         console.log("❌ No token found during initialization");
@@ -477,7 +487,17 @@ export const useAuth = () => {
             SecureTokenStorage.REFRESH_TOKEN_KEY,
             SecureTokenStorage.encrypt(refreshToken)
           );
-          console.log("✅ Tokens stored in localStorage");
+          
+          // Verify storage immediately
+          const storedToken = localStorage.getItem(SecureTokenStorage.TOKEN_KEY);
+          const storedRefreshToken = localStorage.getItem(SecureTokenStorage.REFRESH_TOKEN_KEY);
+          console.log("✅ Tokens stored in localStorage - Verification:", {
+            tokenStored: !!storedToken,
+            refreshTokenStored: !!storedRefreshToken,
+            tokenKey: SecureTokenStorage.TOKEN_KEY,
+            refreshTokenKey: SecureTokenStorage.REFRESH_TOKEN_KEY,
+            actualTokenStart: storedToken ? storedToken.substring(0, 20) + "..." : null
+          });
         } else {
           // Use sessionStorage for temporary storage when remember me is unchecked
           console.log(
@@ -488,7 +508,15 @@ export const useAuth = () => {
             SecureTokenStorage.REFRESH_TOKEN_KEY,
             SecureTokenStorage.encrypt(refreshToken)
           );
-          console.log("✅ Tokens stored in sessionStorage");
+          
+          // Verify storage immediately
+          const storedToken = sessionStorage.getItem(SecureTokenStorage.TOKEN_KEY);
+          const storedRefreshToken = sessionStorage.getItem(SecureTokenStorage.REFRESH_TOKEN_KEY);
+          console.log("✅ Tokens stored in sessionStorage - Verification:", {
+            tokenStored: !!storedToken,
+            refreshTokenStored: !!storedRefreshToken,
+            actualTokenStart: storedToken ? storedToken.substring(0, 20) + "..." : null
+          });
         }
         setAuthState({
           user,
