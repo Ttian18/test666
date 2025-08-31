@@ -2,7 +2,7 @@
   "watch": ["src"],
   "ext": "ts,js,json",
   "ignore": ["src/**/*.spec.ts", "src/**/*.test.ts", "dist/**/*"],
-  "exec": "ts-node --esm src/index.ts",
+  "exec": "ts-node --esm src/server.ts",
   "env": {
     "NODE_OPTIONS": "--loader ts-node/esm"
   }

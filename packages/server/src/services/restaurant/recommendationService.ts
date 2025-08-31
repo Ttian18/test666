@@ -147,6 +147,7 @@ Final Answer: Provide the final recommendations list only (plain text; no code f
 Begin!
 
 Question: {input}
+{agent_scratchpad}
 `;
 
 /**
