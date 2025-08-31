@@ -18,7 +18,8 @@ interface AuthContextType {
   token: string | null;
   login: (
     email: string,
-    password: string
+    password: string,
+    rememberMe?: boolean
   ) => Promise<{ success: boolean; user?: any; error?: string }>;
   register: (
     formData: RegisterFormData

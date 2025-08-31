@@ -45,8 +45,8 @@ interface AuthState {
 // Secure token storage using httpOnly cookies simulation
 // In production, use httpOnly cookies on the server side
 class SecureTokenStorage {
-  private static readonly TOKEN_KEY = "meal_mint_token";
-  private static readonly REFRESH_TOKEN_KEY = "meal_mint_refresh_token";
+  static readonly TOKEN_KEY = "meal_mint_token";
+  static readonly REFRESH_TOKEN_KEY = "meal_mint_refresh_token";
 
   static setTokens(token: string, refreshToken: string): void {
     // In production, these should be httpOnly cookies set by the server
@@ -57,7 +57,8 @@ class SecureTokenStorage {
   }
 
   static getToken(): string | null {
-    return sessionStorage.getItem(this.TOKEN_KEY);
+    // Check sessionStorage first (for non-remember me), then localStorage (for remember me)
+    return sessionStorage.getItem(this.TOKEN_KEY) || localStorage.getItem(this.TOKEN_KEY);
   }
 
   static getRefreshToken(): string | null {
@@ -67,16 +68,17 @@ class SecureTokenStorage {
 
   static clearTokens(): void {
     sessionStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
   }
 
   // Simple encryption/decryption for demo purposes
   // In production, use proper encryption libraries
-  private static encrypt(text: string): string {
+  static encrypt(text: string): string {
     return btoa(text);
   }
 
-  private static decrypt(encrypted: string): string {
+  static decrypt(encrypted: string): string {
     return atob(encrypted);
   }
 }
@@ -400,7 +402,7 @@ export const useAuth = () => {
     }
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string, rememberMe: boolean = false) => {
     try {
       setAuthState((prev) => ({ ...prev, isLoading: true }));
 
@@ -409,7 +411,15 @@ export const useAuth = () => {
         password
       );
 
-      SecureTokenStorage.setTokens(token, refreshToken);
+      // Store tokens based on remember me preference
+      if (rememberMe) {
+        // Use localStorage for persistent storage when remember me is checked
+        localStorage.setItem(SecureTokenStorage.TOKEN_KEY, token);
+        localStorage.setItem(SecureTokenStorage.REFRESH_TOKEN_KEY, SecureTokenStorage.encrypt(refreshToken));
+      } else {
+        // Use sessionStorage for temporary storage when remember me is unchecked
+        SecureTokenStorage.setTokens(token, refreshToken);
+      }
       setAuthState({
         user,
         isAuthenticated: true,
