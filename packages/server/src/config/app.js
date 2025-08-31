@@ -13,10 +13,12 @@ const appConfig = {
     "http://localhost:3001",
     "http://localhost:3002",
     "http://localhost:5173", // Vite default
+    "http://localhost:8080", // Your frontend port
     "http://127.0.0.1:3000",
     "http://127.0.0.1:3001",
     "http://127.0.0.1:3002",
     "http://127.0.0.1:5173",
+    "http://127.0.0.1:8080", // Your frontend port
   ],
   uploadDir: process.env.UPLOAD_DIR || "uploads",
   maxFileSize: parseInt(process.env.MAX_FILE_SIZE) || 10 * 1024 * 1024, // 10MB

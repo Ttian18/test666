@@ -6,10 +6,16 @@ const zod_1 = require("zod");
 exports.RegisterRequestSchema = zod_1.z.object({
     email: zod_1.z.string().email("Invalid email format"),
     password: zod_1.z.string().min(8, "Password must be at least 8 characters"),
-    name: zod_1.z
+    firstName: zod_1.z
         .string()
-        .min(1, "Name is required")
-        .max(100, "Name must be less than 100 characters"),
+        .min(1, "First name is required")
+        .max(50, "First name must be less than 50 characters")
+        .regex(/^[a-zA-Z\s'-]+$/, "First name can only contain letters, spaces, hyphens, and apostrophes"),
+    lastName: zod_1.z
+        .string()
+        .min(1, "Last name is required")
+        .max(50, "Last name must be less than 50 characters")
+        .regex(/^[a-zA-Z\s'-]+$/, "Last name can only contain letters, spaces, hyphens, and apostrophes"),
 });
 // Login request schema
 exports.LoginRequestSchema = zod_1.z.object({

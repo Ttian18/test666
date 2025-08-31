@@ -27,7 +27,10 @@ router.post("/register", async (req, res) => {
   try {
     // Validate request body using schema
     const validatedData = RegisterRequestSchema.parse(req.body);
-    const { email, password, name } = validatedData;
+    const { email, password, firstName, lastName } = validatedData;
+
+    // Combine firstName and lastName to create full name
+    const name = `${firstName.trim()} ${lastName.trim()}`.trim();
 
     // Check existing user using Prisma
     const existingUser = await prisma.user.findUnique({ where: { email } });

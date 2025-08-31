@@ -2,15 +2,18 @@ import { z } from "zod";
 export declare const RegisterRequestSchema: z.ZodObject<{
     email: z.ZodString;
     password: z.ZodString;
-    name: z.ZodString;
+    firstName: z.ZodString;
+    lastName: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    name: string;
     email: string;
     password: string;
+    firstName: string;
+    lastName: string;
 }, {
-    name: string;
     email: string;
     password: string;
+    firstName: string;
+    lastName: string;
 }>;
 export declare const LoginRequestSchema: z.ZodObject<{
     email: z.ZodString;
