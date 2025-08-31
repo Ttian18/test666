@@ -7,6 +7,16 @@ import {
   validateEmail,
   validatePassword,
 } from "../../utils/validation/validationUtils.js";
+import {
+  RegisterRequestSchema,
+  RegisterResponseSchema,
+  LoginRequestSchema,
+  LoginResponseSchema,
+  LogoutRequestSchema,
+  LogoutResponseSchema,
+} from "@your-project/schema";
+import tokenBlacklistService from "../../services/auth/tokenBlacklistService.js";
+import { authenticate } from "../../utils/auth/authUtils.js";
 
 const prisma = new PrismaClient();
 
@@ -15,15 +25,9 @@ const router = express.Router();
 // User Registration
 router.post("/register", async (req, res) => {
   try {
-    const { email, password } = req.body;
-
-    // Validate input
-    try {
-      validateEmail(email);
-      validatePassword(password);
-    } catch (error) {
-      return res.status(400).json({ message: error.message });
-    }
+    // Validate request body using schema
+    const validatedData = RegisterRequestSchema.parse(req.body);
+    const { email, password, name } = validatedData;
 
     // Check existing user using Prisma
     const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -35,11 +39,11 @@ router.post("/register", async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create user using Prisma
+    // Create user using Prisma with name
     const newUser = await prisma.user.create({
       data: {
         email,
-        name: null, // Can be updated later in profile
+        name,
         password: hashedPassword,
         profileComplete: false,
       },
@@ -50,12 +54,24 @@ router.post("/register", async (req, res) => {
       expiresIn: "7d",
     });
 
-    res.status(201).json({
+    // Validate response before sending
+    const response = RegisterResponseSchema.parse({
       message: "User registered successfully",
       userId: newUser.id,
       token,
     });
+
+    res.status(201).json(response);
   } catch (error) {
+    if (error.name === "ZodError") {
+      return res.status(400).json({
+        error: "Validation failed",
+        details: error.errors.map((err) => ({
+          field: err.path.join("."),
+          message: err.message,
+        })),
+      });
+    }
     console.error("Registration error:", error);
     res.status(500).json({ message: "Server error during registration" });
   }
@@ -64,15 +80,9 @@ router.post("/register", async (req, res) => {
 // User Login
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
-
-    // Validate input
-    try {
-      validateEmail(email);
-      validatePassword(password);
-    } catch (error) {
-      return res.status(400).json({ message: error.message });
-    }
+    // Validate request body using schema
+    const validatedData = LoginRequestSchema.parse(req.body);
+    const { email, password } = validatedData;
 
     // Find user using Prisma
     const user = await prisma.user.findUnique({ where: { email } });
@@ -91,15 +101,66 @@ router.post("/login", async (req, res) => {
       expiresIn: "7d",
     });
 
-    res.status(200).json({
+    // Validate response before sending
+    const response = LoginResponseSchema.parse({
       message: "Login successful",
       userId: user.id,
       token,
       profileComplete: user.profileComplete,
     });
+
+    res.status(200).json(response);
   } catch (error) {
+    if (error.name === "ZodError") {
+      return res.status(400).json({
+        error: "Validation failed",
+        details: error.errors.map((err) => ({
+          field: err.path.join("."),
+          message: err.message,
+        })),
+      });
+    }
     console.error("Login error:", error);
     res.status(500).json({ message: "Server error during login" });
+  }
+});
+
+// User Logout
+router.post("/logout", authenticate, async (req, res) => {
+  try {
+    // Validate request body using schema
+    const validatedData = LogoutRequestSchema.parse(req.body);
+    const { token } = validatedData;
+
+    // Blacklist the token
+    const success = await tokenBlacklistService.blacklistToken(
+      token,
+      req.user.id
+    );
+
+    if (!success) {
+      return res.status(500).json({ message: "Failed to logout" });
+    }
+
+    // Validate response before sending
+    const response = LogoutResponseSchema.parse({
+      message: "Logout successful",
+      success: true,
+    });
+
+    res.status(200).json(response);
+  } catch (error) {
+    if (error.name === "ZodError") {
+      return res.status(400).json({
+        error: "Validation failed",
+        details: error.errors.map((err) => ({
+          field: err.path.join("."),
+          message: err.message,
+        })),
+      });
+    }
+    console.error("Logout error:", error);
+    res.status(500).json({ message: "Server error during logout" });
   }
 });
 
