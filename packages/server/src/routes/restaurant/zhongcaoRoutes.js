@@ -5,7 +5,7 @@ import {
   getZhongcaoResultById,
   updateZhongcaoResult,
   deleteZhongcaoResult,
-} from "../../services/restaurant/zhongcaoService.js";
+} from "../../services/restaurant/zhongcao/index.js";
 import { uploadImage } from "../../utils/upload/uploadUtils.js";
 import { validateFile } from "../../utils/validation/validationUtils.js";
 import { authenticate } from "../middleware/auth.js";

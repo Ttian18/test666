@@ -1174,30 +1174,6 @@ Delete zhongcao result.
 
 ---
 
-#### **Legacy Menu Analysis Endpoints (`/restaurants/recommendations`)**
-
-_These endpoints provide menu analysis without authentication and user history tracking._
-
-#### **`POST /recommendations/recommend`**
-
-Analyze menu image with caching (no authentication required).
-
-- **Authentication**: **None**
-- **Request Body**: `multipart/form-data` with fields:
-  - `image` (file): The menu image
-  - `budget` (number): The budget for the meal
-  - `note` (string, optional): Additional notes
-- **Success Response (`200 OK`)**:
-  ```json
-  {
-    "menuInfo": { ... },
-    "recommendation": { ... },
-    "cached": false
-  }
-  ```
-
----
-
 #### **`GET /recommendations/last`**
 
 Get last cached recommendation.

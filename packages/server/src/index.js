@@ -7,7 +7,7 @@ export * from "./models/index.js";
 // Services
 export { default as OpenAIService } from "./services/ai/openaiService.js";
 export { default as RecommendationService } from "./services/restaurant/recommendationService.js";
-export { default as ZhongcaoService } from "./services/restaurant/zhongcaoService.js";
+export * as ZhongcaoService from "./services/restaurant/zhongcao/index.js";
 export { default as MenuAnalysisService } from "./services/restaurant/menuAnalysisService.js";
 export { default as BudgetRecommendationService } from "./services/restaurant/budgetRecommendationService.js";
 export { default as MenuAnalysisController } from "./services/restaurant/menuAnalysisController.js";
