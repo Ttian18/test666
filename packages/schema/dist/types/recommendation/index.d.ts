@@ -1,3 +1,3 @@
-export * from "./restaurant";
-export * from "./menu";
-export * from "./errors";
+export * from "./restaurant.js";
+export * from "./menu.js";
+export * from "./errors.js";
