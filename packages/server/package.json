@@ -3,19 +3,21 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node server.js",
-    "start": "node server.js",
-    "seed": "node seed.js",
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "build:watch": "tsc -w",
+    "type-check": "tsc --noEmit",
+    "seed": "ts-node src/models/database/seed.ts",
     "test": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' jest",
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' jest --watch",
     "test:coverage": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' jest --coverage",
-    "test:reco": "node test/runRecommendation.mjs"
+    "test:reco": "ts-node test/runRecommendation.ts"
   },
   "prisma": {
     "schema": "src/models/database/schema.prisma"
   },
   "dependencies": {
-    "schema": "file:../schema",
     "@googlemaps/google-maps-services-js": "^3.4.2",
     "@langchain/community": "^0.3.50",
     "@langchain/core": "^0.3.68",
@@ -29,14 +31,24 @@
     "langchain": "^0.3.30",
     "multer": "^2.0.2",
     "openai": "^5.12.2",
+    "schema": "file:../schema",
     "sharp": "^0.34.3",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.28.3",
     "@jest/globals": "^30.1.1",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^24.3.0",
     "jest": "^30.1.1",
+    "nodemon": "^3.1.10",
     "supertest": "^7.1.4",
-    "ts-jest": "^29.1.2"
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   }
 }
