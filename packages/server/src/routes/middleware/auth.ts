@@ -24,7 +24,11 @@ interface TokenPayload extends JwtPayload {
 }
 
 // Enhanced authentication middleware with database validation
-export const authenticate = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<Response | void> => {
+export const authenticate = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<Response | void> => {
   const token = req.header("x-auth-token");
 
   if (!token) {
@@ -62,10 +66,8 @@ export const authenticate = async (req: AuthenticatedRequest, res: Response, nex
     console.error("Authentication error:", error);
     // Handle specific JWT errors vs database errors
     if (
-      error instanceof Error && (
-        error.name === "JsonWebTokenError" ||
-        error.name === "TokenExpiredError"
-      )
+      error instanceof Error &&
+      (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError")
     ) {
       return res.status(401).json({ message: "Token is not valid" });
     }

@@ -33,7 +33,9 @@ interface NormalizedImage {
 }
 
 // Image normalization for OpenAI
-export async function normalizeImageForOpenAI(file: UploadFile): Promise<NormalizedImage> {
+export async function normalizeImageForOpenAI(
+  file: UploadFile
+): Promise<NormalizedImage> {
   let { buffer, mimetype } = file;
 
   // Pass-through
@@ -81,7 +83,11 @@ export const diskStorage = multer.diskStorage({
 export const memoryStorage = multer.memoryStorage();
 
 // Common file filter for images
-export const imageFileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallback): void => {
+export const imageFileFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: FileFilterCallback
+): void => {
   // Accept only image files
   if (file.mimetype.startsWith("image/")) {
     cb(null, true);
@@ -91,7 +97,11 @@ export const imageFileFilter = (req: Request, file: Express.Multer.File, cb: Fil
 };
 
 // Extended file filter for multiple formats
-export const extendedImageFileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallback): void => {
+export const extendedImageFileFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: FileFilterCallback
+): void => {
   const allowedTypes = [
     "image/jpeg",
     "image/png",

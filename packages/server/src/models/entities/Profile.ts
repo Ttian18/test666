@@ -1,9 +1,32 @@
 import { randomUUID } from "node:crypto";
 
-const profiles = [];
+interface ProfileData {
+  userId?: string;
+  monthlyBudget?: number;
+  monthlyIncome?: number;
+  expensePreferences?: string[];
+  savingsGoals?: string[];
+  lifestylePreferences?: Record<string, any>;
+}
+
+interface ProfileQuery {
+  userId?: string;
+}
+
+const profiles: Profile[] = [];
 
 export default class Profile {
-  constructor(data = {}) {
+  public _id: string;
+  public userId?: string;
+  public monthlyBudget: number;
+  public monthlyIncome: number;
+  public expensePreferences: string[];
+  public savingsGoals: string[];
+  public lifestylePreferences: Record<string, any>;
+  public createdAt: Date;
+  public updatedAt: Date;
+
+  constructor(data: ProfileData = {}) {
     this._id = randomUUID();
     this.userId = data.userId;
     this.monthlyBudget = data.monthlyBudget ?? 0;
@@ -15,13 +38,13 @@ export default class Profile {
     this.updatedAt = new Date();
   }
 
-  static async findOne(query) {
+  static async findOne(query: ProfileQuery): Promise<Profile | null> {
     const { userId } = query || {};
     if (!userId) return null;
     return profiles.find((p) => p.userId === userId) || null;
   }
 
-  async save() {
+  async save(): Promise<Profile> {
     this.updatedAt = new Date();
     const idx = profiles.findIndex((p) => p._id === this._id);
     if (idx >= 0) profiles[idx] = this;
@@ -29,11 +52,11 @@ export default class Profile {
     return this;
   }
 
-  populate() {
+  populate(): Profile {
     return this; // no-op for in-memory stub
   }
 
-  static async deleteMany() {
+  static async deleteMany(): Promise<{ deletedCount: number }> {
     profiles.length = 0; // Clear the array
     return { deletedCount: profiles.length };
   }
