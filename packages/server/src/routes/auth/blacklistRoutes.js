@@ -1,5 +1,5 @@
 import express from "express";
-import { authenticate } from "../../utils/auth/authUtils.js";
+import { authenticate } from "../middleware/auth.js";
 import tokenBlacklistService from "../../services/auth/tokenBlacklistService.js";
 import tokenCleanupService from "../../services/auth/tokenCleanupService.js";
 

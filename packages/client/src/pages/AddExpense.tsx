@@ -1,49 +1,54 @@
 import { useState } from "react";
-import { ArrowLeft, Camera, Calendar, Tag, DollarSign, FileText, Upload } from "lucide-react";
+import {
+  ArrowLeft,
+  Camera,
+  Calendar,
+  Tag,
+  DollarSign,
+  FileText,
+  Upload,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import TopNavigation from "@/components/TopNavigation";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { categories } from "schema";
 
 const AddExpense = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const [expenseData, setExpenseData] = useState({
     amount: "",
     category: "",
     merchant: "",
-    date: new Date().toISOString().split('T')[0],
-    note: ""
+    date: new Date().toISOString().split("T")[0],
+    note: "",
   });
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const categories = [
-    "Food & Dining",
-    "Transportation",
-    "Shopping",
-    "Entertainment", 
-    "Utilities",
-    "Healthcare",
-    "Education",
-    "Travel",
-    "Other"
-  ];
-
   const handleInputChange = (field: string, value: string) => {
-    setExpenseData(prev => ({
+    setExpenseData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
-  const handleReceiptUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleReceiptUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -55,13 +60,13 @@ const AddExpense = () => {
       // Mock extracted data
       setExpenseData({
         amount: "23.45",
-        category: "Food & Dining", 
+        category: "Food & Dining",
         merchant: "Corner Cafe",
-        date: new Date().toISOString().split('T')[0],
-        note: "Receipt uploaded and processed"
+        date: new Date().toISOString().split("T")[0],
+        note: "Receipt uploaded and processed",
       });
       setIsProcessing(false);
-      
+
       toast({
         title: "Receipt Processed!",
         description: "Expense details extracted automatically",
@@ -72,9 +77,9 @@ const AddExpense = () => {
   const handleSubmit = () => {
     if (!expenseData.amount || !expenseData.category) {
       toast({
-        title: "Missing Information", 
+        title: "Missing Information",
         description: "Please fill in amount and category",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -84,21 +89,21 @@ const AddExpense = () => {
       title: "Expense Added!",
       description: `$${expenseData.amount} expense recorded successfully`,
     });
-    
-    navigate('/home');
+
+    navigate("/home");
   };
 
   return (
     <div className="page-background-add-expense">
       <TopNavigation />
-      
+
       <div className="max-w-2xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="icon"
-            onClick={() => navigate('/home')}
+            onClick={() => navigate("/home")}
             className="text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft size={20} />
@@ -126,7 +131,7 @@ const AddExpense = () => {
                   </p>
                 </div>
               )}
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <Button variant="outline" className="h-20 flex-col" asChild>
                   <label htmlFor="receipt-camera">
@@ -142,7 +147,7 @@ const AddExpense = () => {
                     />
                   </label>
                 </Button>
-                
+
                 <Button variant="outline" className="h-20 flex-col" asChild>
                   <label htmlFor="receipt-upload">
                     <Upload size={24} className="mb-2" />
@@ -174,24 +179,31 @@ const AddExpense = () => {
               <div>
                 <Label htmlFor="amount">Amount *</Label>
                 <div className="relative">
-                  <DollarSign size={18} className="absolute left-3 top-3 text-muted-foreground" />
+                  <DollarSign
+                    size={18}
+                    className="absolute left-3 top-3 text-muted-foreground"
+                  />
                   <Input
                     id="amount"
                     type="number"
                     step="0.01"
                     placeholder="0.00"
                     value={expenseData.amount}
-                    onChange={(e) => handleInputChange('amount', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("amount", e.target.value)
+                    }
                     className="luxury-input pl-10 text-lg font-semibold"
                   />
                 </div>
               </div>
-              
+
               <div>
                 <Label htmlFor="category">Category *</Label>
-                <Select 
-                  value={expenseData.category} 
-                  onValueChange={(value) => handleInputChange('category', value)}
+                <Select
+                  value={expenseData.category}
+                  onValueChange={(value) =>
+                    handleInputChange("category", value)
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
@@ -217,20 +229,25 @@ const AddExpense = () => {
                   id="merchant"
                   placeholder="Where did you spend?"
                   value={expenseData.merchant}
-                  onChange={(e) => handleInputChange('merchant', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("merchant", e.target.value)
+                  }
                   className="luxury-input"
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="date">Date</Label>
                 <div className="relative">
-                  <Calendar size={18} className="absolute left-3 top-3 text-muted-foreground" />
+                  <Calendar
+                    size={18}
+                    className="absolute left-3 top-3 text-muted-foreground"
+                  />
                   <Input
                     id="date"
                     type="date"
                     value={expenseData.date}
-                    onChange={(e) => handleInputChange('date', e.target.value)}
+                    onChange={(e) => handleInputChange("date", e.target.value)}
                     className="luxury-input pl-10"
                   />
                 </div>
@@ -243,7 +260,7 @@ const AddExpense = () => {
                 id="note"
                 placeholder="Add a note about this expense"
                 value={expenseData.note}
-                onChange={(e) => handleInputChange('note', e.target.value)}
+                onChange={(e) => handleInputChange("note", e.target.value)}
                 rows={3}
                 className="luxury-input"
               />
@@ -252,14 +269,16 @@ const AddExpense = () => {
             <div className="border-t pt-6">
               <Button
                 onClick={handleSubmit}
-                disabled={!expenseData.amount || !expenseData.category || isProcessing}
+                disabled={
+                  !expenseData.amount || !expenseData.category || isProcessing
+                }
                 className="luxury-button-primary w-full mb-3"
               >
                 {isProcessing ? "Processing..." : "Add Expense"}
               </Button>
-              
-              <Button 
-                onClick={() => navigate('/home')}
+
+              <Button
+                onClick={() => navigate("/home")}
                 className="luxury-button w-full"
               >
                 Cancel

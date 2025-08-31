@@ -2,7 +2,7 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
-import { JWT_SECRET } from "../../utils/auth/authUtils.js";
+import { JWT_SECRET } from "../middleware/auth.js";
 import {
   validateEmail,
   validatePassword,
@@ -16,7 +16,7 @@ import {
   LogoutResponseSchema,
 } from "schema";
 import tokenBlacklistService from "../../services/auth/tokenBlacklistService.js";
-import { authenticate } from "../../utils/auth/authUtils.js";
+import { authenticate } from "../middleware/auth.js";
 
 const prisma = new PrismaClient();
 

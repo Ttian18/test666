@@ -1,7 +1,11 @@
 export const categories = [
-    'Groceries',
-    'Utilities',
-    'Rent',
-    'Salary',
-    'Freelance',
+    "Food & Dining",
+    "Transportation",
+    "Shopping",
+    "Entertainment",
+    "Utilities",
+    "Healthcare",
+    "Education",
+    "Travel",
+    "Other",
 ];

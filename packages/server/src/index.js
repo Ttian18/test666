@@ -13,7 +13,7 @@ export { default as BudgetRecommendationService } from "./services/restaurant/bu
 export { default as MenuAnalysisController } from "./services/restaurant/menuAnalysisController.js";
 
 // Utils
-export * from "./utils/auth/authUtils.js";
+export * from "./routes/middleware/auth.js";
 export * from "./utils/upload/uploadUtils.js";
 export * from "./utils/validation/validationUtils.js";
 export * from "./utils/cache/menuAnalysisCache.js";
@@ -24,10 +24,7 @@ export { default as appConfig } from "./config/app.js";
 export { default as databaseConfig } from "./config/database.js";
 export { default as openaiConfig } from "./config/openai.js";
 
-// Types
-export * from "./types/auth.js";
-export * from "./types/restaurant.js";
-export * from "./types/transaction.js";
+// Types are now imported from the schema package
 
 // Database client
 export { default as prisma } from "./models/database/client.js";
