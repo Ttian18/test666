@@ -9,6 +9,7 @@ import appConfig from "./src/config/app.js";
 import authRoutes from "./src/routes/auth/index.js";
 import restaurantRoutes from "./src/routes/restaurant/index.js";
 import transactionRoutes from "./src/routes/transaction/index.js";
+import insightsRoutes from "./src/routes/insights/index.js";
 
 // Import services
 import tokenCleanupService from "./src/services/auth/tokenCleanupService.js";
@@ -43,6 +44,7 @@ app.get("/health", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/restaurants", restaurantRoutes);
 app.use("/transactions", transactionRoutes);
+app.use("/insights", insightsRoutes);
 
 // Global error handler
 app.use((error, req, res, next) => {

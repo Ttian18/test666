@@ -11,6 +11,7 @@ export { default as ZhongcaoService } from "./services/restaurant/zhongcaoServic
 export { default as MenuAnalysisService } from "./services/restaurant/menuAnalysisService.js";
 export { default as BudgetRecommendationService } from "./services/restaurant/budgetRecommendationService.js";
 export { default as MenuAnalysisController } from "./services/restaurant/menuAnalysisController.js";
+export * as InsightsService from "./services/insights/insightsService.js";
 
 // Utils
 export * from "./routes/middleware/auth.js";

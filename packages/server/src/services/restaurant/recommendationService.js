@@ -3,7 +3,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import { GooglePlacesAPI } from "@langchain/community/tools/google_places";
 import { AgentExecutor, createReactAgent } from "langchain/agents";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { z } from "zod";
+import { setupLangChainLogging } from "../../utils/logging/langchainLogger.js";
 import {
   RecommendationSchema,
   RecommendationsSchema,
@@ -11,6 +11,9 @@ import {
   GetRestaurantRecommendationsRequestSchema,
   GetRestaurantRecommendationsResponseSchema,
 } from "schema";
+
+// Initialize LangChain logging configuration for Restaurant Recommendation Service
+// Note: Handlers are created per-session in the function for better isolation
 
 /**
  * Restaurant Recommendation Service
@@ -24,11 +27,12 @@ import {
  * and location to provide tailored restaurant suggestions with detailed information.
  */
 
-// 1) Model
-const model = new ChatOpenAI({
+// 1) Model configuration - will be instantiated per request
+const baseModelConfig = {
   modelName: "gpt-4o",
   temperature: 0,
-});
+  verbose: true,
+};
 
 // 2) Tool - with better error handling
 let placesTool;
@@ -113,9 +117,9 @@ const customPromptTemplate = `
 You are a witty and incredibly helpful local guide.
 Your goal is to answer the user's question as accurately as possible.
 
-CRITICAL: You MUST follow the ReAct format exactly. Never output markdown, never use code fences, never use [Google Maps] links. Output ONLY plain text.
+CRITICAL: You MUST follow the ReAct format exactly. Never output markdown, never use code fences. Output.
 - In the Final Answer, include only plain text. Do not use markdown links or formatting.
-- For each place, append a plain Google Maps URL (not markdown) next to it.
+- For each place, append all the information about the place from the tool result.
 
 You have access to the following tools:
 {tools}
@@ -142,7 +146,6 @@ Final Answer: Provide the final recommendations list only (plain text; no code f
 Begin!
 
 Question: {input}
-Thought: {agent_scratchpad}
 `;
 
 /**
@@ -155,6 +158,18 @@ export async function getRestaurantRecommendations(requestData) {
   const validatedRequest =
     GetRestaurantRecommendationsRequestSchema.parse(requestData);
   const { query, userData } = validatedRequest;
+
+  // Create a new logging session for this request
+  const { handlers: sessionHandlers, markdownHandler: sessionMarkdownHandler } =
+    setupLangChainLogging("Restaurant Recommendation Service");
+
+  // Create model instance for this session
+  const model = new ChatOpenAI(baseModelConfig);
+
+  // Log the initial request details
+  if (sessionMarkdownHandler) {
+    sessionMarkdownHandler.logRequestDetails(query, userData);
+  }
 
   // Generate user profile from provided data (required)
   const user_profile = generateUserProfile(userData);
@@ -169,18 +184,24 @@ export async function getRestaurantRecommendations(requestData) {
     prompt,
   });
 
-  // Create the agent executor
+  // Create the agent executor with session-specific logging
   const agentExecutor = new AgentExecutor({
     agent,
     tools,
-    verbose: true,
+    verbose: true, // Enable verbose mode for detailed output
+    callbacks: sessionHandlers,
   });
   console.log("query", query);
 
-  const result = await agentExecutor.invoke({
-    input: query,
-    user_profile: user_profile,
-  });
+  const result = await agentExecutor.invoke(
+    {
+      input: query,
+      user_profile: user_profile,
+    },
+    {
+      callbacks: sessionHandlers, // Add session-specific logging handlers
+    }
+  );
 
   // Second pass: coerce to structured output with highest guarantees
   const structuredModel = model.withStructuredOutput(
@@ -231,5 +252,11 @@ export async function getRestaurantRecommendations(requestData) {
 
   const validatedResponse =
     GetRestaurantRecommendationsResponseSchema.parse(response);
+
+  // Finalize the markdown log with session summary
+  if (sessionMarkdownHandler) {
+    sessionMarkdownHandler.finalize();
+  }
+
   return validatedResponse;
 }
