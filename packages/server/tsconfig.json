@@ -12,6 +12,8 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "baseUrl": ".",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "paths": {
       "schema/*": ["../schema/src/*"],
       "schema": ["../schema/src/index.ts"]

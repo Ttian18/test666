@@ -1,4 +1,5 @@
-import multer from "multer";
+import multer, { FileFilterCallback } from "multer";
+import { Request } from "express";
 import path from "path";
 import fs from "fs";
 import sharp from "sharp";
@@ -21,8 +22,18 @@ const CONVERT_TO_JPEG = new Set([
   "image/tiff",
 ]);
 
+interface UploadFile {
+  buffer: Buffer;
+  mimetype: string;
+}
+
+interface NormalizedImage {
+  buffer: Buffer;
+  mimeType: string;
+}
+
 // Image normalization for OpenAI
-export async function normalizeImageForOpenAI(file) {
+export async function normalizeImageForOpenAI(file: UploadFile): Promise<NormalizedImage> {
   let { buffer, mimetype } = file;
 
   // Pass-through
@@ -70,17 +81,17 @@ export const diskStorage = multer.diskStorage({
 export const memoryStorage = multer.memoryStorage();
 
 // Common file filter for images
-export const imageFileFilter = (req, file, cb) => {
+export const imageFileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallback): void => {
   // Accept only image files
   if (file.mimetype.startsWith("image/")) {
     cb(null, true);
   } else {
-    cb(new Error("Only image files are allowed!"), false);
+    cb(new Error("Only image files are allowed!"));
   }
 };
 
 // Extended file filter for multiple formats
-export const extendedImageFileFilter = (req, file, cb) => {
+export const extendedImageFileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallback): void => {
   const allowedTypes = [
     "image/jpeg",
     "image/png",
@@ -95,7 +106,7 @@ export const extendedImageFileFilter = (req, file, cb) => {
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error(`Unsupported file type: ${file.mimetype}`), false);
+    cb(new Error(`Unsupported file type: ${file.mimetype}`));
   }
 };
 

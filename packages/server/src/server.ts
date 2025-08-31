@@ -1,18 +1,18 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
 // Import configurations
-import appConfig from "./src/config/app.js";
+import appConfig from "./config/app.ts";
 
 // Import routes
-import authRoutes from "./src/routes/auth/index.js";
-import restaurantRoutes from "./src/routes/restaurant/index.js";
-import transactionRoutes from "./src/routes/transaction/index.js";
-import insightsRoutes from "./src/routes/insights/index.js";
+import authRoutes from "./routes/auth/index.js";
+import restaurantRoutes from "./routes/restaurant/index.js";
+import transactionRoutes from "./routes/transaction/index.js";
+import insightsRoutes from "./routes/insights/index.js";
 
 // Import services
-import tokenCleanupService from "./src/services/auth/tokenCleanupService.js";
+import tokenCleanupService from "./services/auth/tokenCleanupService.js";
 
 dotenv.config({ debug: false });
 
@@ -47,7 +47,7 @@ app.use("/transactions", transactionRoutes);
 app.use("/insights", insightsRoutes);
 
 // Global error handler
-app.use((error, req, res, next) => {
+app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
   console.error("Global error handler:", error);
   res.status(500).json({
     error: "Internal server error",
@@ -59,7 +59,7 @@ app.use((error, req, res, next) => {
 });
 
 // 404 handler
-app.use((req, res) => {
+app.use((req: Request, res: Response) => {
   res.status(404).json({
     error: "Not found",
     message: `Route ${req.method} ${req.path} not found`,

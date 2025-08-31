@@ -2,13 +2,25 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const appConfig = {
-  port: process.env.PORT || 5001,
+interface AppConfig {
+  port: number;
+  host: string;
+  nodeEnv: string;
+  jwtSecret: string;
+  jwtExpiresIn: string;
+  corsOrigin: string[];
+  uploadDir: string;
+  maxFileSize: number;
+  allowedFileTypes: string[];
+}
+
+const appConfig: AppConfig = {
+  port: parseInt(process.env.PORT || '5001'),
   host: process.env.HOST || "localhost",
   nodeEnv: process.env.NODE_ENV || "development",
   jwtSecret: process.env.JWT_SECRET || "your_secure_secret",
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
-  corsOrigin: process.env.CORS_ORIGIN || [
+  corsOrigin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : [
     "http://localhost:3000",
     "http://localhost:3001",
     "http://localhost:3002",
@@ -21,7 +33,7 @@ const appConfig = {
     "http://127.0.0.1:8080", // Your frontend port
   ],
   uploadDir: process.env.UPLOAD_DIR || "uploads",
-  maxFileSize: parseInt(process.env.MAX_FILE_SIZE) || 10 * 1024 * 1024, // 10MB
+  maxFileSize: parseInt(process.env.MAX_FILE_SIZE || '0') || 10 * 1024 * 1024, // 10MB
   allowedFileTypes: [
     "image/jpeg",
     "image/png",
