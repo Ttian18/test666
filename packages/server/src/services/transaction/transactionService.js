@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-/** @typedef {import('@your-project/schema').Transaction} Transaction */
+/** @typedef {import('schema').Transaction} Transaction */
 
 // Use global prisma instance in tests, otherwise create new instance
 const prisma = global.prisma || new PrismaClient();

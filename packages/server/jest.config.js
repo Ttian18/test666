@@ -1,8 +1,8 @@
 export default {
-  preset: 'ts-jest',
+  preset: "ts-jest",
   testEnvironment: "node",
   transform: {
-    '^.+\.ts$': 'ts-jest',
+    "^.+.ts$": "ts-jest",
   },
   testMatch: ["**/tests/**/*.test.js", "**/tests/**/*.spec.js"],
   collectCoverageFrom: [
@@ -13,7 +13,7 @@ export default {
   setupFilesAfterEnv: ["<rootDir>/tests/setup.js"],
   moduleFileExtensions: ["js", "json", "ts"],
   moduleNameMapper: {
-    '^@your-project/schema$': '<rootDir>/../schema/dist/index.js',
+    "^schema$": "<rootDir>/../schema/dist/index.js",
   },
   testTimeout: 30000,
 };

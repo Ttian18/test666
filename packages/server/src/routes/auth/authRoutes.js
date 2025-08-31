@@ -14,7 +14,7 @@ import {
   LoginResponseSchema,
   LogoutRequestSchema,
   LogoutResponseSchema,
-} from "@your-project/schema";
+} from "schema";
 import tokenBlacklistService from "../../services/auth/tokenBlacklistService.js";
 import { authenticate } from "../../utils/auth/authUtils.js";
 
@@ -134,7 +134,7 @@ router.get("/validate", authenticate, async (req, res) => {
   try {
     // If we reach here, the token is valid (authenticate middleware passed)
     const userId = req.user.id;
-    
+
     // Get user details from database
     const user = await prisma.user.findUnique({
       where: { id: userId },

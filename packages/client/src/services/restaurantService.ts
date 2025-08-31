@@ -2,7 +2,7 @@ import {
   GetRestaurantRecommendationsResponse,
   GetRestaurantRecommendationsRequest,
   Recommendation,
-} from "@your-project/schema";
+} from "schema";
 
 interface RestaurantAPIResponse {
   message: string;
@@ -43,7 +43,7 @@ class RestaurantService {
     };
 
     const response = await fetch(
-      `${this.API_BASE}/restaurants?query=${encodeURIComponent(query)}`,
+      `${this.API_BASE}/restaurants?location=${encodeURIComponent(query)}`,
       {
         method: "GET",
         headers,

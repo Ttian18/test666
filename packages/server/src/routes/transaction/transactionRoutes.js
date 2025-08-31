@@ -1,6 +1,5 @@
 import express from "express";
-import schema from "@your-project/schema";
-const { categories: allCategories } = schema;
+import { categories as allCategories } from "schema";
 import { authenticate } from "../middleware/auth.js";
 import * as transactionService from "../../services/transaction/transactionService.js";
 import dotenv from "dotenv";

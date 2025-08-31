@@ -9,7 +9,7 @@ import {
   GetRestaurantRecommendationsRequestSchema,
   GetRestaurantRecommendationsResponseSchema,
   RecommendationErrorResponseSchema,
-} from "@your-project/schema";
+} from "schema";
 
 const router = express.Router();
 

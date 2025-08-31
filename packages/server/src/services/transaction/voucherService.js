@@ -1,6 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import schema from "@your-project/schema";
-const { findMerchantCategory, categories: allCategories } = schema;
+import { findMerchantCategory, categories as allCategories } from "schema";
 import OpenAI from "openai";
 import fs from "fs";
 import path from "path";

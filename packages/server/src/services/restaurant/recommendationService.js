@@ -10,7 +10,7 @@ import {
   RecommendationsEnvelopeSchema,
   GetRestaurantRecommendationsRequestSchema,
   GetRestaurantRecommendationsResponseSchema,
-} from "@your-project/schema";
+} from "schema";
 
 /**
  * Restaurant Recommendation Service

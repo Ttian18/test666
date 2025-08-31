@@ -13,7 +13,7 @@ import {
   MenuAnalysisResponseSchema,
   RebudgetRequestSchema,
   RecommendationErrorResponseSchema,
-} from "@your-project/schema";
+} from "schema";
 
 const router = express.Router();
 
