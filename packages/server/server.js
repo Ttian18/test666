@@ -10,6 +10,9 @@ import authRoutes from "./src/routes/auth/index.js";
 import restaurantRoutes from "./src/routes/restaurant/index.js";
 import transactionRoutes from "./src/routes/transaction/index.js";
 
+// Import services
+import tokenCleanupService from "./src/services/auth/tokenCleanupService.js";
+
 dotenv.config({ debug: false });
 
 const app = express();
@@ -66,4 +69,8 @@ app.listen(PORT, HOST, () => {
   console.log(`🚀 Server running on http://${HOST}:${PORT}`);
   console.log(`📊 Health check: http://${HOST}:${PORT}/health`);
   console.log(`🌍 Environment: ${appConfig.nodeEnv}`);
+
+  // Start token cleanup service
+  tokenCleanupService.startCleanup(24); // Run cleanup every 24 hours
+  console.log(`🔒 Token cleanup service started`);
 });
