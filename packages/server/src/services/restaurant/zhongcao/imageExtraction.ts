@@ -2,8 +2,9 @@ import { ChatOpenAI } from "@langchain/openai";
 import { HumanMessage } from "@langchain/core/messages";
 import * as fs from "fs";
 import * as path from "path";
-import { restaurantSchema, fallbackRestaurantData } from "schema";
+import { restaurantSchema, fallbackRestaurantData } from "schema/src/types/zhongcao.js";
 import "dotenv/config";
+import type { RestaurantInfo } from "schema/src/types/zhongcao.js";
 
 // Initialize the model and chain it with the schema
 const model = new ChatOpenAI({
@@ -13,10 +14,10 @@ const model = new ChatOpenAI({
 
 /**
  * Extracts structured restaurant info from a local image file.
- * @param {string} imageFileName - The name of the image file located in the uploads directory.
- * @returns {Promise<object>} A promise that resolves to the structured data.
+ * @param imageFileName - The name of the image file located in the uploads directory.
+ * @returns A promise that resolves to the structured data.
  */
-export async function extractInfoFromImage(imageFileName) {
+export async function extractInfoFromImage(imageFileName: string): Promise<RestaurantInfo> {
   console.log(`🤖 Analyzing ${imageFileName}...`);
   try {
     const imagePath = path.resolve(process.cwd(), "uploads", imageFileName);
@@ -61,8 +62,9 @@ export async function extractInfoFromImage(imageFileName) {
     };
 
     return normalized;
-  } catch (error) {
-    console.error("Zhongcao extraction failed:", error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error("Zhongcao extraction failed:", errorMessage);
     return fallbackRestaurantData;
   }
 }
