@@ -42,12 +42,8 @@ class RestaurantService {
       "x-auth-token": token,
     };
 
-    // Extract location from query for the API call
-    const locationMatch = query.match(/in\s+([^.]+)/i);
-    const location = locationMatch ? locationMatch[1].trim() : query;
-
     const response = await fetch(
-      `${this.API_BASE}/restaurants?location=${encodeURIComponent(location)}`,
+      `${this.API_BASE}/restaurants?query=${encodeURIComponent(query)}`,
       {
         method: "GET",
         headers,
