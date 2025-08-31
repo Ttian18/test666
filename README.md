@@ -22,6 +22,14 @@ A comprehensive AI-powered finance and restaurant recommendation application bui
 - **Financial Analytics**: Generate personalized insights and statistics from your spending data
 - **Cross-User Security**: Complete data isolation between users
 
+### Authentication & Security
+
+- **JWT-Based Authentication**: Secure token-based authentication system
+- **Token Blacklisting**: Secure logout functionality that invalidates JWT tokens
+- **Automatic Token Cleanup**: Periodic cleanup of expired blacklisted tokens
+- **User Session Management**: Complete session control with token invalidation
+- **Cross-User Data Isolation**: Complete data separation and access control
+
 ### AI Capabilities
 
 - **Image Recognition**: Extract information from restaurant photos and receipts
@@ -31,23 +39,23 @@ A comprehensive AI-powered finance and restaurant recommendation application bui
 
 ## 🏗️ Architecture
 
-This is a monorepo containing three main packages:
+This is a monorepo containing two main packages:
 
 ```
 nextai-finance-app-monorepo/
 ├── packages/
-│   ├── client/          # React frontend application
-│   ├── server/          # Node.js/Express backend API
-│   └── common/          # Shared utilities and types
+│   ├── schema/          # Shared Zod schemas and TypeScript types
+│   └── server/          # Node.js/Express backend API
 ├── package.json         # Root package configuration
 └── README.md           # This file
 ```
 
-### Frontend (Client)
+### Schema Package
 
-- **Framework**: React 18 with Vite
-- **UI**: Custom CSS with modern design
-- **Features**: File upload, real-time updates, responsive design
+- **Purpose**: Centralized schema validation and TypeScript types
+- **Technology**: Zod for runtime validation
+- **Features**: Request/response schemas, TypeScript type inference
+- **Usage**: Imported by server package for API validation
 
 ### Backend (Server)
 
@@ -57,6 +65,7 @@ nextai-finance-app-monorepo/
 - **Authentication**: JWT-based authentication with user-aware security
 - **File Processing**: Multer for file uploads, Sharp for image processing
 - **User Isolation**: Complete data separation and access control
+- **Schema Validation**: Zod schemas from shared schema package
 
 ## 🛠️ Prerequisites
 
@@ -104,17 +113,13 @@ Before you begin, ensure you have the following installed:
    npx prisma db seed
    ```
 
-5. **Set up frontend environment**
+5. **Set up environment variables**
 
-   Create a `.env` file in the `packages/client/` directory:
-
-   ```env
-   VITE_BACKEND_URL=http://localhost:5001
-   ```
+   Create a `.env` file in the `packages/server/` directory with all required variables (see Environment Variables section below).
 
 ## 🚀 Development
 
-### Starting the Development Servers
+### Starting the Development Server
 
 From the root directory, run:
 
@@ -122,25 +127,24 @@ From the root directory, run:
 npm run dev
 ```
 
-This will start both the frontend and backend servers concurrently:
+This will start the backend server:
 
-- **Frontend**: http://localhost:3000
 - **Backend**: http://localhost:5001
 
 ### Individual Package Development
 
 You can also run packages individually:
 
-**Frontend only:**
-
-```bash
-npm run dev --workspace=client
-```
-
-**Backend only:**
+**Server only:**
 
 ```bash
 npm run dev --workspace=server
+```
+
+**Schema package (for development):**
+
+```bash
+npm run dev --workspace=schema
 ```
 
 ### Database Management
@@ -173,23 +177,69 @@ cd packages/server
 npx prisma studio
 ```
 
+### Schema Package Development
+
+**Build schema package:**
+
+```bash
+cd packages/schema
+npm run build
+```
+
+**Watch mode for schema development:**
+
+```bash
+cd packages/schema
+npm run dev
+```
+
+### Testing
+
+**Run all tests:**
+
+```bash
+cd packages/server
+npm test
+```
+
+**Run tests in watch mode:**
+
+```bash
+cd packages/server
+npm run test:watch
+```
+
+**Run tests with coverage:**
+
+```bash
+cd packages/server
+npm run test:coverage
+```
+
+**Run recommendation tests:**
+
+```bash
+cd packages/server
+npm run test:reco
+```
+
 ## 📁 Project Structure
 
-### Client Package (`packages/client/`)
+### Schema Package (`packages/schema/`)
 
 ```
-client/
+schema/
 ├── src/
-│   ├── App.jsx              # Main application component
-│   ├── main.jsx             # Application entry point
-│   ├── index.css            # Global styles
-│   ├── services/            # API service functions
-│   ├── utils/               # Utility functions
-│   └── types/               # TypeScript type definitions
-├── dist/                    # Build output
-├── index.html               # HTML template
-├── vite.config.js           # Vite configuration
-└── package.json             # Client dependencies
+│   ├── types/               # Zod schemas and TypeScript types
+│   │   ├── auth.ts          # Authentication schemas
+│   │   ├── transaction.ts   # Transaction schemas
+│   │   └── recommendation.ts # Recommendation schemas
+│   ├── category.ts          # Category schemas
+│   ├── merchant.ts          # Merchant schemas
+│   └── index.ts             # Main export file
+├── dist/                    # Compiled JavaScript output
+├── tsconfig.json            # TypeScript configuration
+└── package.json             # Schema package dependencies
 ```
 
 ### Server Package (`packages/server/`)
@@ -198,17 +248,33 @@ client/
 server/
 ├── src/
 │   ├── config/              # Application configuration
+│   │   ├── app.js           # App configuration
+│   │   ├── database.js      # Database configuration
+│   │   └── openai.js        # OpenAI configuration
 │   ├── models/              # Database models and Prisma schema
+│   │   ├── database/        # Prisma schema and migrations
+│   │   └── entities/        # Database entity models
 │   ├── routes/              # API route handlers
 │   │   ├── auth/            # Authentication routes
 │   │   ├── restaurant/      # Restaurant-related routes
-│   │   └── transaction/     # Transaction management routes
+│   │   ├── transaction/     # Transaction management routes
+│   │   └── middleware/      # Express middleware
 │   ├── services/            # Business logic services
+│   │   ├── ai/              # AI service integrations
+│   │   ├── auth/            # Authentication services
+│   │   ├── restaurant/      # Restaurant services
+│   │   └── transaction/     # Transaction services
 │   ├── utils/               # Utility functions
+│   │   ├── auth/            # Authentication utilities
+│   │   ├── validation/      # Validation utilities
+│   │   ├── upload/          # File upload utilities
+│   │   ├── cache/           # Caching utilities
+│   │   └── errors/          # Error handling utilities
 │   └── types/               # Type definitions
 ├── uploads/                 # File upload directory
 ├── server.js                # Express server entry point
 ├── seed.js                  # Database seeding script
+├── jest.config.js           # Jest configuration
 └── package.json             # Server dependencies
 ```
 
@@ -229,7 +295,8 @@ Registers a new user.
   ```json
   {
     "email": "user@example.com",
-    "password": "a-strong-password"
+    "password": "a-strong-password",
+    "name": "John Doe"
   }
   ```
 - **Success Response (`201 Created`)**:
@@ -241,7 +308,7 @@ Registers a new user.
   }
   ```
 - **Error Responses**:
-  - `400 Bad Request`: If email or password are invalid.
+  - `400 Bad Request`: If email, password, or name are invalid.
   - `409 Conflict`: If the email is already registered.
 
 ---
@@ -269,6 +336,31 @@ Logs in an existing user.
   ```
 - **Error Responses**:
   - `401 Unauthorized`: If credentials are invalid.
+
+---
+
+#### **`POST /logout`**
+
+Logs out the authenticated user by blacklisting their JWT token.
+
+- **Authentication**: **Required** (`x-auth-token` header)
+- **Request Body**:
+  ```json
+  {
+    "token": "jwt.token.string"
+  }
+  ```
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "message": "Logout successful",
+    "success": true
+  }
+  ```
+- **Error Responses**:
+  - `400 Bad Request`: If token is missing or invalid
+  - `401 Unauthorized`: If authentication token is invalid
+  - `500 Internal Server Error`: If logout process fails
 
 ---
 
@@ -339,6 +431,79 @@ Retrieves the authenticated user's profile.
   ```
 - **Error Responses**:
   - `404 Not Found`: If the user does not have a profile.
+
+---
+
+### Token Blacklist Management (`/auth/blacklist`)
+
+#### **`GET /stats`**
+
+Retrieves blacklist statistics and cleanup service status.
+
+- **Authentication**: **Required** (`x-auth-token` header)
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "blacklist": {
+      "totalBlacklisted": 15,
+      "recentBlacklisted": 3,
+      "inMemoryCount": 15
+    },
+    "cleanup": {
+      "isRunning": true,
+      "lastCleanup": "2023-10-28T10:00:00.000Z"
+    }
+  }
+  ```
+
+---
+
+#### **`POST /cleanup`**
+
+Manually triggers cleanup of expired blacklisted tokens.
+
+- **Authentication**: **Required** (`x-auth-token` header)
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "message": "Cleanup completed successfully"
+  }
+  ```
+
+---
+
+#### **`POST /cleanup/start`**
+
+Starts the automatic cleanup service.
+
+- **Authentication**: **Required** (`x-auth-token` header)
+- **Request Body** (optional):
+  ```json
+  {
+    "intervalHours": 24
+  }
+  ```
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "message": "Cleanup service started",
+    "intervalHours": 24
+  }
+  ```
+
+---
+
+#### **`POST /cleanup/stop`**
+
+Stops the automatic cleanup service.
+
+- **Authentication**: **Required** (`x-auth-token` header)
+- **Success Response (`200 OK`)**:
+  ```json
+  {
+    "message": "Cleanup service stopped"
+  }
+  ```
 
 ---
 
@@ -1040,10 +1205,10 @@ npm test
 
 ## 📦 Building for Production
 
-### Build Frontend
+### Build Schema Package
 
 ```bash
-cd packages/client
+cd packages/schema
 npm run build
 ```
 
