@@ -1,9 +1,18 @@
-import MenuAnalysisService from "./menuAnalysisService.js";
-import BudgetRecommendationService from "./budgetRecommendationService.js";
-import { createError } from "../../utils/errors/menuAnalysisErrors.js";
+import MenuAnalysisService from "./menuAnalysisService.ts";
+import BudgetRecommendationService from "./budgetRecommendationService.ts";
+import { createError } from "../../utils/errors/menuAnalysisErrors.ts";
 
 export default class MenuAnalysisController {
-  constructor({ imageService, budgetService } = {}) {
+  private imageService: MenuAnalysisService;
+  private budgetService: BudgetRecommendationService;
+
+  constructor({
+    imageService,
+    budgetService,
+  }: {
+    imageService?: MenuAnalysisService;
+    budgetService?: BudgetRecommendationService;
+  } = {}) {
     this.imageService = imageService || new MenuAnalysisService();
     this.budgetService = budgetService || new BudgetRecommendationService();
   }
@@ -18,6 +27,12 @@ export default class MenuAnalysisController {
     budget,
     userNote = "",
     userId = null,
+  }: {
+    imageBuffer: Buffer;
+    imageMimeType: string;
+    budget: number;
+    userNote?: string;
+    userId?: number | null;
   }) {
     if (!imageBuffer || !imageMimeType) {
       throw createError.missingImageBuffer();

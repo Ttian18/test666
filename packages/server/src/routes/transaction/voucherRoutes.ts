@@ -1,11 +1,11 @@
 import express from "express";
-import { authenticate } from "../middleware/auth.js";
-import * as voucherService from "../../services/transaction/voucherService.js";
+import { authenticate } from "../middleware/auth.ts";
+import * as voucherService from "../../services/transaction/voucherService.ts";
 import {
   uploadExtended,
   normalizeImageForOpenAI,
-} from "../../utils/upload/uploadUtils.js";
-import { validateFile } from "../../utils/validation/validationUtils.js";
+} from "../../utils/upload/uploadUtils.ts";
+import { validateFile } from "../../utils/validation/validationUtils.ts";
 
 // Phase 3: Secured voucher routes with authentication middleware
 // All routes now require valid JWT token and use service layer for user isolation

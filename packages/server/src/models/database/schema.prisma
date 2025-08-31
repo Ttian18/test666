@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,20 +8,18 @@ datasource db {
 }
 
 model User {
-  id              Int      @id @default(autoincrement())
-  email           String   @unique
-  name            String?
-  password        String   // Required for authentication
-  profileComplete Boolean  @default(false) // Track profile completion
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  // Relations
-  vouchers        Voucher[]
-  transactions    Transaction[]
-  zhongcaoResults ZhongcaoResult[]
-  menuAnalyses    MenuAnalysis[]
+  id                Int                @id @default(autoincrement())
+  email             String             @unique
+  name              String?
+  createdAt         DateTime           @default(now())
+  password          String
+  profileComplete   Boolean            @default(false)
+  updatedAt         DateTime           @updatedAt
+  menuAnalyses      MenuAnalysis[]
+  zhongcaoResults   ZhongcaoResult[]
   blacklistedTokens BlacklistedToken[]
+  transactions      Transaction[]
+  vouchers          Voucher[]
 }
 
 model BlacklistedToken {
@@ -35,28 +27,24 @@ model BlacklistedToken {
   token         String   @unique
   userId        Int
   blacklistedAt DateTime @default(now())
-  
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("blacklisted_tokens")
 }
 
 model ZhongcaoResult {
-  id                  Int      @id @default(autoincrement())
-  user_id             Int      // User relationship
-  originalFilename    String
-  restaurantName      String
-  dishName            String?
-  address             String?
-  description         String
-  socialMediaHandle   String?
-  processedAt         DateTime
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  
-  // Relations
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  id                Int      @id @default(autoincrement())
+  originalFilename  String
+  restaurantName    String
+  dishName          String?
+  address           String?
+  description       String
+  socialMediaHandle String?
+  processedAt       DateTime
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user_id           Int
+  user              User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
 model Voucher {
@@ -65,10 +53,8 @@ model Voucher {
   image_path  String
   parsed_data Json?
   timestamp   DateTime @default(now())
-  
-  // Relations
-  user User @relation(fields: [user_id], references: [id])
-  
+  user        User     @relation(fields: [user_id], references: [id])
+
   @@map("vouchers")
 }
 
@@ -84,25 +70,21 @@ model Transaction {
   merchant_category String?
   created_at        DateTime @default(now())
   updated_at        DateTime @updatedAt
-  
-  // Relations
-  user User @relation(fields: [user_id], references: [id])
-  
+  user              User     @relation(fields: [user_id], references: [id])
+
   @@map("transactions")
 }
 
 model MenuAnalysis {
   id            Int      @id @default(autoincrement())
-  user_id       Int      // User relationship
-  menuData      Json     // Extracted menu items and currency
-  budget        Float?   // Budget used for analysis
-  userNote      String?  // User's note for the analysis
-  imageSize     Int?     // Size of the analyzed image in bytes
-  imageMimeType String?  // MIME type of the analyzed image
-  isFallback    Boolean  @default(false) // Whether fallback data was used
+  user_id       Int
+  menuData      Json
+  budget        Float?
+  userNote      String?
+  imageSize     Int?
+  imageMimeType String?
+  isFallback    Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  
-  // Relations
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }

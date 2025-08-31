@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { createError } from "../../utils/errors/menuAnalysisErrors.js";
+import { createError } from "../../utils/errors/menuAnalysisErrors.ts";
 
 export default class BudgetRecommendationService {
   constructor({ openai } = {}) {

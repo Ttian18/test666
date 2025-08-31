@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
-import { authenticate } from "../middleware/auth.js";
-import * as insightsService from "../../services/insights/insightsService.js";
+import { authenticate } from "../middleware/auth.ts";
+import * as insightsService from "../../services/insights/insightsService.ts";
 
 // Phase 3: Secured insights routes with authentication middleware
 // All routes now require valid JWT token and use service layer for user isolation

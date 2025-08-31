@@ -1,11 +1,11 @@
-import { extractInfoFromImage } from "./imageExtraction.js";
+import { extractInfoFromImage } from "./imageExtraction.ts";
 import {
   createZhongcaoResult,
   getAllZhongcaoResults,
   getZhongcaoResultById,
   updateZhongcaoResult,
   deleteZhongcaoResult,
-} from "./crudOperations.js";
+} from "./crudOperations.ts";
 
 /**
  * Process an uploaded image and create a zhongcao result for a user
@@ -60,7 +60,7 @@ export {
   getZhongcaoResultById,
   updateZhongcaoResult,
   deleteZhongcaoResult,
-} from "./crudOperations.js";
+} from "./crudOperations.ts";
 
 // Re-export image extraction for direct use
-export { extractInfoFromImage } from "./imageExtraction.js";
+export { extractInfoFromImage } from "./imageExtraction.ts";

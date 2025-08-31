@@ -5,9 +5,9 @@ import * as path from "path";
 import {
   restaurantSchema,
   fallbackRestaurantData,
-} from "schema/src/types/zhongcao.js";
+} from "schema/src/types/zhongcao.ts";
 import "dotenv/config";
-import type { RestaurantInfo } from "schema/src/types/zhongcao.js";
+import type { RestaurantInfo } from "schema/src/types/zhongcao.ts";
 
 // Initialize the model and chain it with the schema
 const model = new ChatOpenAI({

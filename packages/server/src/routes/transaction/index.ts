@@ -1,6 +1,6 @@
 import express from "express";
-import transactionRoutes from "./transactionRoutes.js";
-import voucherRoutes from "./voucherRoutes.js";
+import transactionRoutes from "./transactionRoutes.ts";
+import voucherRoutes from "./voucherRoutes.ts";
 
 const router = express.Router();
 

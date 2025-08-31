@@ -1,13 +1,23 @@
 import express from "express";
-import { authenticate } from "../middleware/auth.js";
-import * as profileService from "../../services/auth/profileService.js";
+import type { Request } from "express";
+import { authenticate } from "../middleware/auth.ts";
+import * as profileService from "../../services/auth/profileService.ts";
+
+// Define AuthenticatedRequest interface
+interface AuthenticatedRequest extends Request {
+  user: {
+    id: number;
+    email: string;
+    name: string | null;
+  };
+}
 
 const router = express.Router();
 
 // Create/Update Profile
 router.post("/", authenticate, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
     const profileData = req.body;
 
     const result = await profileService.createOrUpdateProfile(
@@ -22,8 +32,9 @@ router.post("/", authenticate, async (req, res) => {
     });
   } catch (error) {
     console.error("Profile save error:", error);
-    if (error.message.includes("Missing required profile fields")) {
-      const missingFields = error.message.split(": ")[1].split(", ");
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage.includes("Missing required profile fields")) {
+      const missingFields = errorMessage.split(": ")[1].split(", ");
       return res.status(400).json({
         message: "Missing required profile fields",
         missing: missingFields,
@@ -36,7 +47,7 @@ router.post("/", authenticate, async (req, res) => {
 // Get Profile
 router.get("/", authenticate, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
 
     const profileData = await profileService.getUserProfile(userId);
 

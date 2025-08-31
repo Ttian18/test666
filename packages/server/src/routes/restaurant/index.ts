@@ -1,10 +1,10 @@
 import express from "express";
 import { z } from "zod";
-import { getRestaurantRecommendations } from "../../services/restaurant/recommendationService.js";
-import { validateLocation } from "../../utils/validation/validationUtils.js";
-import { getUserForPersonalization } from "../../services/auth/authUtils.js";
-import zhongcaoRoutes from "./zhongcaoRoutes.js";
-import menuAnalysisRoutes from "./menuAnalysisRoutes.js";
+import { getRestaurantRecommendations } from "../../services/restaurant/recommendationService.ts";
+import { validateLocation } from "../../utils/validation/validationUtils.ts";
+import { getUserForPersonalization } from "../../services/auth/authUtils.ts";
+import zhongcaoRoutes from "./zhongcaoRoutes.ts";
+import menuAnalysisRoutes from "./menuAnalysisRoutes.ts";
 import {
   GetRestaurantRecommendationsRequestSchema,
   GetRestaurantRecommendationsResponseSchema,
@@ -54,15 +54,21 @@ router.get("/", async (req, res) => {
     }
 
     try {
+      // Ensure location is a string before validation
+      if (typeof location !== "string") {
+        throw new Error("Location parameter must be a string");
+      }
       validateLocation(location);
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       const errorResponse = {
-        error: error.message,
+        error: errorMessage,
         code: "INVALID_LOCATION",
         details: [
           {
             field: "location",
-            message: error.message,
+            message: errorMessage,
           },
         ],
       };
@@ -131,12 +137,13 @@ router.get("/", async (req, res) => {
       return res.status(400).json(validatedErrorResponse);
     }
 
+    const errorMessage = error instanceof Error ? error.message : String(error);
     const errorResponse = {
       error: "Failed to get recommendations",
       details: [
         {
           field: "general",
-          message: error.message,
+          message: errorMessage,
         },
       ],
     };

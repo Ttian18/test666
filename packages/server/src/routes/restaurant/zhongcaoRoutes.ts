@@ -1,14 +1,24 @@
 import express from "express";
+import type { Request, Response } from "express";
 import {
   processImageForUser,
   getAllZhongcaoResults,
   getZhongcaoResultById,
   updateZhongcaoResult,
   deleteZhongcaoResult,
-} from "../../services/restaurant/zhongcao/index.js";
-import { uploadImage } from "../../utils/upload/uploadUtils.js";
-import { validateFile } from "../../utils/validation/validationUtils.js";
-import { authenticate } from "../middleware/auth.js";
+} from "../../services/restaurant/zhongcao/index.ts";
+import { uploadImage } from "../../utils/upload/uploadUtils.ts";
+import { validateFile } from "../../utils/validation/validationUtils.ts";
+import { authenticate } from "../middleware/auth.ts";
+
+// Define AuthenticatedRequest interface
+interface AuthenticatedRequest extends Request {
+  user: {
+    id: number;
+    email: string;
+    name: string | null;
+  };
+}
 
 const router = express.Router();
 
@@ -18,7 +28,7 @@ router.use(authenticate);
 // POST /social-upload - Analyze restaurant images from social media
 router.post("/social-upload", uploadImage.single("image"), async (req, res) => {
   try {
-    const userId = req.user.id; // Guaranteed to exist after authentication
+    const userId = (req as unknown as AuthenticatedRequest).user.id; // Guaranteed to exist after authentication
     validateFile(req.file, "image");
 
     const result = await processImageForUser(userId, req.file);
@@ -29,9 +39,10 @@ router.post("/social-upload", uploadImage.single("image"), async (req, res) => {
     });
   } catch (error) {
     console.error("Error processing image:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     res.status(500).json({
       error: "Failed to process image",
-      details: error.message,
+      details: errorMessage,
     });
   }
 });
@@ -39,7 +50,7 @@ router.post("/social-upload", uploadImage.single("image"), async (req, res) => {
 // GET /zhongcao - list all for authenticated user
 router.get("/", async (req, res) => {
   try {
-    const userId = req.user.id; // Guaranteed to exist after authentication
+    const userId = (req as unknown as AuthenticatedRequest).user.id; // Guaranteed to exist after authentication
     console.log(`Fetching zhongcao results for user ${userId}`);
 
     const results = await getAllZhongcaoResults(userId);
@@ -48,7 +59,7 @@ router.get("/", async (req, res) => {
     console.error("Error fetching zhongcao results:", error);
     res.status(500).json({
       error: "Failed to fetch results",
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -56,7 +67,7 @@ router.get("/", async (req, res) => {
 // GET /zhongcao/:id - get one for authenticated user
 router.get("/:id", async (req, res) => {
   try {
-    const userId = req.user.id; // Guaranteed to exist after authentication
+    const userId = (req as unknown as AuthenticatedRequest).user.id; // Guaranteed to exist after authentication
     const id = Number(req.params.id);
 
     // Validate ID
@@ -76,7 +87,7 @@ router.get("/:id", async (req, res) => {
     console.error("Error fetching zhongcao result:", error);
     res.status(500).json({
       error: "Failed to fetch result",
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -84,7 +95,7 @@ router.get("/:id", async (req, res) => {
 // PUT /zhongcao/:id - update for authenticated user
 router.put("/:id", async (req, res) => {
   try {
-    const userId = req.user.id; // Guaranteed to exist after authentication
+    const userId = (req as unknown as AuthenticatedRequest).user.id; // Guaranteed to exist after authentication
     const id = Number(req.params.id);
 
     // Validate ID
@@ -111,24 +122,25 @@ router.put("/:id", async (req, res) => {
     res.json(updated);
   } catch (error) {
     console.error("Error updating zhongcao result:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
 
     if (
-      error.message.includes("not found") ||
-      error.message.includes("access denied")
+      errorMessage.includes("not found") ||
+      errorMessage.includes("access denied")
     ) {
-      return res.status(404).json({ error: error.message });
+      return res.status(404).json({ error: errorMessage });
     }
 
     if (
-      error.message.includes("cannot be empty") ||
-      error.message.includes("required")
+      errorMessage.includes("cannot be empty") ||
+      errorMessage.includes("required")
     ) {
-      return res.status(400).json({ error: error.message });
+      return res.status(400).json({ error: errorMessage });
     }
 
     res.status(500).json({
       error: "Failed to update result",
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -136,7 +148,7 @@ router.put("/:id", async (req, res) => {
 // DELETE /zhongcao/:id - delete for authenticated user
 router.delete("/:id", async (req, res) => {
   try {
-    const userId = req.user.id; // Guaranteed to exist after authentication
+    const userId = (req as unknown as AuthenticatedRequest).user.id; // Guaranteed to exist after authentication
     const id = Number(req.params.id);
 
     // Validate ID
@@ -148,17 +160,18 @@ router.delete("/:id", async (req, res) => {
     res.status(204).send();
   } catch (error) {
     console.error("Error deleting zhongcao result:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
 
     if (
-      error.message.includes("not found") ||
-      error.message.includes("access denied")
+      errorMessage.includes("not found") ||
+      errorMessage.includes("access denied")
     ) {
-      return res.status(404).json({ error: error.message });
+      return res.status(404).json({ error: errorMessage });
     }
 
     res.status(500).json({
       error: "Failed to delete result",
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });

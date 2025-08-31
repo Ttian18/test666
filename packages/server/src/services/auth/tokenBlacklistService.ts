@@ -3,16 +3,16 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 // In-memory blacklist for tokens (for production, consider using Redis)
-const tokenBlacklist = new Set();
+const tokenBlacklist = new Set<string>();
 
 class TokenBlacklistService {
   /**
    * Add a token to the blacklist
-   * @param {string} token - The JWT token to blacklist
-   * @param {number} userId - The user ID associated with the token
-   * @returns {Promise<boolean>} - Success status
+   * @param token - The JWT token to blacklist
+   * @param userId - The user ID associated with the token
+   * @returns Success status
    */
-  async blacklistToken(token, userId) {
+  async blacklistToken(token: string, userId: number): Promise<boolean> {
     try {
       // Add to in-memory blacklist
       tokenBlacklist.add(token);
@@ -35,10 +35,10 @@ class TokenBlacklistService {
 
   /**
    * Check if a token is blacklisted
-   * @param {string} token - The JWT token to check
-   * @returns {Promise<boolean>} - True if token is blacklisted
+   * @param token - The JWT token to check
+   * @returns True if token is blacklisted
    */
-  async isTokenBlacklisted(token) {
+  async isTokenBlacklisted(token: string): Promise<boolean> {
     try {
       // Check in-memory blacklist first
       if (tokenBlacklist.has(token)) {
@@ -59,9 +59,9 @@ class TokenBlacklistService {
 
   /**
    * Clean up expired tokens from blacklist
-   * @returns {Promise<number>} - Number of tokens cleaned up
+   * @returns Number of tokens cleaned up
    */
-  async cleanupExpiredTokens() {
+  async cleanupExpiredTokens(): Promise<number> {
     try {
       const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
@@ -82,9 +82,13 @@ class TokenBlacklistService {
 
   /**
    * Get blacklist statistics
-   * @returns {Promise<Object>} - Blacklist statistics
+   * @returns Blacklist statistics
    */
-  async getBlacklistStats() {
+  async getBlacklistStats(): Promise<{
+    totalBlacklisted: number;
+    recentBlacklisted: number;
+    inMemoryCount: number;
+  }> {
     try {
       const totalBlacklisted = await prisma.blacklistedToken.count();
       const recentBlacklisted = await prisma.blacklistedToken.count({

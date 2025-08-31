@@ -6,7 +6,7 @@ export * from "./models/index.ts";
 
 // Services (converted)
 export { default as OpenAIService } from "./services/ai/openaiService.ts";
-export { default as RecommendationService } from "./services/restaurant/recommendationService.ts";
+export * as RecommendationService from "./services/restaurant/recommendationService.ts";
 export * as ZhongcaoService from "./services/restaurant/zhongcao/index.ts";
 export { default as MenuAnalysisService } from "./services/restaurant/menuAnalysisService.ts";
 export { default as BudgetRecommendationService } from "./services/restaurant/budgetRecommendationService.ts";

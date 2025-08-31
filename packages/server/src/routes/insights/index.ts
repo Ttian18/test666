@@ -1,5 +1,5 @@
 import express from "express";
-import insightsRoutes from "./insightsRoutes.js";
+import insightsRoutes from "./insightsRoutes.ts";
 
 const router = express.Router();
 

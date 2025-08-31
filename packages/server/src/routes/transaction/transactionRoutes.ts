@@ -1,7 +1,7 @@
 import express from "express";
 import { categories as allCategories } from "schema";
-import { authenticate } from "../middleware/auth.js";
-import * as transactionService from "../../services/transaction/transactionService.js";
+import { authenticate } from "../middleware/auth.ts";
+import * as transactionService from "../../services/transaction/transactionService.ts";
 import dotenv from "dotenv";
 
 dotenv.config();

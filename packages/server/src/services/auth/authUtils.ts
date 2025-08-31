@@ -1,12 +1,17 @@
-import jwt from "jsonwebtoken";
-import * as profileService from "./profileService.js";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import * as profileService from "./profileService.ts";
+
+// Define JWT payload interface
+interface TokenPayload extends JwtPayload {
+  id: number;
+}
 
 /**
  * Attempt to authenticate user from JWT token (optional authentication)
  * @param {string} token - JWT token from request header
  * @returns {Promise<Object|null>} User data if authenticated, null if not
  */
-export const optionalAuthenticate = async (token) => {
+export const optionalAuthenticate = async (token: string) => {
   if (!token) {
     return null;
   }
@@ -15,7 +20,7 @@ export const optionalAuthenticate = async (token) => {
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET || "your_secure_secret"
-    );
+    ) as TokenPayload;
 
     // Validate user exists and get user data
     const user = await profileService.validateUser(decoded.id);
@@ -23,7 +28,8 @@ export const optionalAuthenticate = async (token) => {
     return user;
   } catch (error) {
     // Ignore auth errors for optional authentication
-    console.log("Optional auth failed:", error.message);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.log("Optional auth failed:", errorMessage);
     return null;
   }
 };
@@ -33,7 +39,7 @@ export const optionalAuthenticate = async (token) => {
  * @param {string} token - JWT token from request header
  * @returns {Promise<Object|null>} User data with profile if available, null if not authenticated
  */
-export const getUserForPersonalization = async (token) => {
+export const getUserForPersonalization = async (token: string) => {
   if (!token) {
     return null;
   }
@@ -42,7 +48,7 @@ export const getUserForPersonalization = async (token) => {
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET || "your_secure_secret"
-    );
+    ) as TokenPayload;
 
     // Get user data with profile for personalization
     const userData = await profileService.getUserDataForPersonalization(
@@ -52,7 +58,8 @@ export const getUserForPersonalization = async (token) => {
     return userData;
   } catch (error) {
     // Ignore auth errors for optional authentication
-    console.log("Optional auth failed:", error.message);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.log("Optional auth failed:", errorMessage);
     return null;
   }
 };

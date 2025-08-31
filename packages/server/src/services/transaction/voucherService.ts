@@ -3,7 +3,7 @@ import { findMerchantCategory, categories as allCategories } from "schema";
 import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
-import { normalizeImageForOpenAI } from "../../utils/upload/uploadUtils.js";
+import { normalizeImageForOpenAI } from "../../utils/upload/uploadUtils.ts";
 
 const prisma = new PrismaClient();
 const openai = new OpenAI({

@@ -2,11 +2,12 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
-import { JWT_SECRET } from "../middleware/auth.js";
+import { JWT_SECRET } from "../middleware/auth.ts";
+import type { Request, Response } from "express";
 import {
   validateEmail,
   validatePassword,
-} from "../../utils/validation/validationUtils.js";
+} from "../../utils/validation/validationUtils.ts";
 import {
   RegisterRequestSchema,
   RegisterResponseSchema,
@@ -15,10 +16,19 @@ import {
   LogoutRequestSchema,
   LogoutResponseSchema,
 } from "schema";
-import tokenBlacklistService from "../../services/auth/tokenBlacklistService.js";
-import { authenticate } from "../middleware/auth.js";
+import tokenBlacklistService from "../../services/auth/tokenBlacklistService.ts";
+import { authenticate } from "../middleware/auth.ts";
 
 const prisma = new PrismaClient();
+
+// Define AuthenticatedRequest interface
+interface AuthenticatedRequest extends Request {
+  user: {
+    id: number;
+    email: string;
+    name: string | null;
+  };
+}
 
 const router = express.Router();
 
@@ -66,10 +76,11 @@ router.post("/register", async (req, res) => {
 
     res.status(201).json(response);
   } catch (error) {
-    if (error.name === "ZodError") {
+    if (error instanceof Error && error.name === "ZodError") {
+      const zodError = error as any; // ZodError type
       return res.status(400).json({
         error: "Validation failed",
-        details: error.errors.map((err) => ({
+        details: zodError.errors.map((err: any) => ({
           field: err.path.join("."),
           message: err.message,
         })),
@@ -115,10 +126,11 @@ router.post("/login", async (req, res) => {
 
     res.status(200).json(response);
   } catch (error) {
-    if (error.name === "ZodError") {
+    if (error instanceof Error && error.name === "ZodError") {
+      const zodError = error as any; // ZodError type
       return res.status(400).json({
         error: "Validation failed",
-        details: error.errors.map((err) => ({
+        details: zodError.errors.map((err: any) => ({
           field: err.path.join("."),
           message: err.message,
         })),
@@ -133,7 +145,7 @@ router.post("/login", async (req, res) => {
 router.get("/validate", authenticate, async (req, res) => {
   try {
     // If we reach here, the token is valid (authenticate middleware passed)
-    const userId = req.user.id;
+    const userId = (req as AuthenticatedRequest).user.id;
 
     // Get user details from database
     const user = await prisma.user.findUnique({
@@ -172,7 +184,7 @@ router.post("/logout", authenticate, async (req, res) => {
     // Blacklist the token
     const success = await tokenBlacklistService.blacklistToken(
       token,
-      req.user.id
+      (req as AuthenticatedRequest).user.id
     );
 
     if (!success) {
@@ -187,10 +199,11 @@ router.post("/logout", authenticate, async (req, res) => {
 
     res.status(200).json(response);
   } catch (error) {
-    if (error.name === "ZodError") {
+    if (error instanceof Error && error.name === "ZodError") {
+      const zodError = error as any; // ZodError type
       return res.status(400).json({
         error: "Validation failed",
-        details: error.errors.map((err) => ({
+        details: zodError.errors.map((err: any) => ({
           field: err.path.join("."),
           message: err.message,
         })),

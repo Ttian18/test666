@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { PrismaClient } from "@prisma/client";
-import { createError } from "../../utils/errors/menuAnalysisErrors.js";
+import { createError } from "../../utils/errors/menuAnalysisErrors.ts";
 
 // Use global prisma instance in tests, otherwise create new instance
 const prisma = global.prisma || new PrismaClient();

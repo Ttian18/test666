@@ -1,14 +1,24 @@
 import express from "express";
-import MenuAnalysisController from "../../services/restaurant/menuAnalysisController.js";
-import MenuAnalysisService from "../../services/restaurant/menuAnalysisService.js";
+import type { Request, Response } from "express";
+import MenuAnalysisController from "../../services/restaurant/menuAnalysisController.ts";
+import MenuAnalysisService from "../../services/restaurant/menuAnalysisService.ts";
 import {
   handleError,
   createError,
-} from "../../utils/errors/menuAnalysisErrors.js";
-import menuAnalysisCache from "../../utils/cache/menuAnalysisCache.js";
-import { uploadImageMemory } from "../../utils/upload/uploadUtils.js";
-import { validateBudget } from "../../utils/validation/validationUtils.js";
-import { authenticate } from "../middleware/auth.js";
+} from "../../utils/errors/menuAnalysisErrors.ts";
+import menuAnalysisCache from "../../utils/cache/menuAnalysisCache.ts";
+import { uploadImageMemory } from "../../utils/upload/uploadUtils.ts";
+import { validateBudget } from "../../utils/validation/validationUtils.ts";
+import { authenticate } from "../middleware/auth.ts";
+
+// Define AuthenticatedRequest interface
+interface AuthenticatedRequest extends Request {
+  user: {
+    id: number;
+    email: string;
+    name: string | null;
+  };
+}
 
 const router = express.Router();
 
@@ -24,7 +34,7 @@ router.post(
   async (req, res) => {
     try {
       // Authentication is required - user is guaranteed to exist
-      const userId = req.user.id;
+      const userId = (req as unknown as AuthenticatedRequest).user.id;
 
       if (!req.file) {
         return handleError(createError.missingImage(), res);
@@ -120,12 +130,16 @@ router.delete("/cache", (req, res) => {
 // GET /menu-analysis/history - Get user's menu analysis history (requires auth)
 router.get("/history", authenticate, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = (req as unknown as AuthenticatedRequest).user.id;
     const { limit, offset, includeUser } = req.query;
 
     const options = {
-      limit: limit ? parseInt(limit) : 50,
-      offset: offset ? parseInt(offset) : 0,
+      limit: limit
+        ? parseInt(typeof limit === "string" ? limit : String(limit))
+        : 50,
+      offset: offset
+        ? parseInt(typeof offset === "string" ? offset : String(offset))
+        : 0,
       includeUser: includeUser === "true",
     };
 
@@ -147,7 +161,7 @@ router.get("/history", authenticate, async (req, res) => {
 // GET /menu-analysis/history/:id - Get specific menu analysis (requires auth)
 router.get("/history/:id", authenticate, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = (req as unknown as AuthenticatedRequest).user.id;
     const analysisId = parseInt(req.params.id);
 
     if (isNaN(analysisId) || analysisId <= 0) {
@@ -175,7 +189,7 @@ router.get("/history/:id", authenticate, async (req, res) => {
 // PUT /menu-analysis/history/:id - Update menu analysis (requires auth)
 router.put("/history/:id", authenticate, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = (req as unknown as AuthenticatedRequest).user.id;
     const analysisId = parseInt(req.params.id);
 
     if (isNaN(analysisId) || analysisId <= 0) {
@@ -198,11 +212,12 @@ router.put("/history/:id", authenticate, async (req, res) => {
       analysis: updatedAnalysis,
     });
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     if (
-      error.message.includes("not found") ||
-      error.message.includes("access denied")
+      errorMessage.includes("not found") ||
+      errorMessage.includes("access denied")
     ) {
-      return handleError(createError.notFound(error.message), res);
+      return handleError(createError.notFound(errorMessage), res);
     }
     handleError(error, res);
   }
@@ -211,7 +226,7 @@ router.put("/history/:id", authenticate, async (req, res) => {
 // DELETE /menu-analysis/history/:id - Delete menu analysis (requires auth)
 router.delete("/history/:id", authenticate, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = (req as unknown as AuthenticatedRequest).user.id;
     const analysisId = parseInt(req.params.id);
 
     if (isNaN(analysisId) || analysisId <= 0) {
@@ -222,11 +237,12 @@ router.delete("/history/:id", authenticate, async (req, res) => {
 
     res.status(204).send();
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     if (
-      error.message.includes("not found") ||
-      error.message.includes("access denied")
+      errorMessage.includes("not found") ||
+      errorMessage.includes("access denied")
     ) {
-      return handleError(createError.notFound(error.message), res);
+      return handleError(createError.notFound(errorMessage), res);
     }
     handleError(error, res);
   }
@@ -235,7 +251,7 @@ router.delete("/history/:id", authenticate, async (req, res) => {
 // GET /menu-analysis/stats - Get user's menu analysis statistics (requires auth)
 router.get("/stats", authenticate, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = (req as unknown as AuthenticatedRequest).user.id;
 
     const stats = await menuAnalysisService.getMenuAnalysisStats(userId);
 

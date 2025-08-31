@@ -1,7 +1,7 @@
 import express from "express";
-import authRoutes from "./authRoutes.js";
-import profileRoutes from "./profileRoutes.js";
-import blacklistRoutes from "./blacklistRoutes.js";
+import authRoutes from "./authRoutes.ts";
+import profileRoutes from "./profileRoutes.ts";
+import blacklistRoutes from "./blacklistRoutes.ts";
 
 const router = express.Router();
 

@@ -3,16 +3,16 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --exec ts-node src/server.ts",
+    "dev": "NODE_OPTIONS=\"--loader ts-node/esm\" nodemon src/server.ts",
     "start": "node dist/server.js",
     "build": "tsc",
     "build:watch": "tsc -w",
     "type-check": "tsc --noEmit",
-    "seed": "ts-node src/models/database/seed.ts",
+    "seed": "NODE_OPTIONS=\"--loader ts-node/esm\" node src/models/database/seed.ts",
     "test": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' jest",
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' jest --watch",
     "test:coverage": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' jest --coverage",
-    "test:reco": "ts-node test/runRecommendation.ts"
+    "test:reco": "NODE_OPTIONS=\"--loader ts-node/esm\" node test/runRecommendation.ts"
   },
   "prisma": {
     "schema": "src/models/database/schema.prisma"

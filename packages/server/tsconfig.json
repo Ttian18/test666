@@ -19,6 +19,10 @@
       "schema": ["../schema/src/index.ts"]
     }
   },
+  "ts-node": {
+    "esm": true,
+    "transpileOnly": true
+  },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test"]
 }

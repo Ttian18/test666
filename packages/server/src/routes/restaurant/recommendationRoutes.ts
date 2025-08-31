@@ -1,13 +1,13 @@
 import express from "express";
 import { z } from "zod";
-import MenuAnalysisController from "../../services/restaurant/menuAnalysisController.js";
+import MenuAnalysisController from "../../services/restaurant/menuAnalysisController.ts";
 import {
   createError,
   handleError,
-} from "../../utils/errors/menuAnalysisErrors.js";
-import menuAnalysisCache from "../../utils/cache/menuAnalysisCache.js";
-import { uploadImageMemory } from "../../utils/upload/uploadUtils.js";
-import { validateBudget } from "../../utils/validation/validationUtils.js";
+} from "../../utils/errors/menuAnalysisErrors.ts";
+import menuAnalysisCache from "../../utils/cache/menuAnalysisCache.ts";
+import { uploadImageMemory } from "../../utils/upload/uploadUtils.ts";
+import { validateBudget } from "../../utils/validation/validationUtils.ts";
 import {
   MenuAnalysisRequestSchema,
   MenuAnalysisResponseSchema,

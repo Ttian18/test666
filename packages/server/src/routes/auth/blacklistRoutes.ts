@@ -1,7 +1,7 @@
 import express from "express";
-import { authenticate } from "../middleware/auth.js";
-import tokenBlacklistService from "../../services/auth/tokenBlacklistService.js";
-import tokenCleanupService from "../../services/auth/tokenCleanupService.js";
+import { authenticate } from "../middleware/auth.ts";
+import tokenBlacklistService from "../../services/auth/tokenBlacklistService.ts";
+import tokenCleanupService from "../../services/auth/tokenCleanupService.ts";
 
 const router = express.Router();
 

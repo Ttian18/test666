@@ -1,16 +1,19 @@
 import { PrismaClient } from "@prisma/client";
-import Profile from "../../models/entities/Profile.js";
+import Profile from "../../models/entities/Profile.ts";
 
 // Use global prisma instance in tests, otherwise create new instance
 const prisma = global.prisma || new PrismaClient();
 
 /**
  * Create or update a user profile
- * @param {number} userId - User ID (integer from Prisma User model)
- * @param {Object} profileData - Profile data to save
- * @returns {Promise<Object>} Profile creation/update result
+ * @param userId - User ID (integer from Prisma User model)
+ * @param profileData - Profile data to save
+ * @returns Profile creation/update result
  */
-export const createOrUpdateProfile = async (userId, profileData) => {
+export const createOrUpdateProfile = async (
+  userId: number,
+  profileData: any
+) => {
   if (
     !userId ||
     typeof userId !== "number" ||
@@ -51,18 +54,20 @@ export const createOrUpdateProfile = async (userId, profileData) => {
     }
 
     // Create/update profile using the existing Profile entity
-    let profile = await Profile.findOne({ userId });
+    let profile = await Profile.findOne({ userId: userId.toString() });
 
     if (!profile) {
       // Create new profile
       profile = new Profile({
-        userId,
+        userId: userId.toString(),
         ...profileData,
       });
     } else {
       // Update existing profile
       Object.keys(profileData).forEach((key) => {
-        profile[key] = profileData[key];
+        if (profile && key in profile) {
+          (profile as any)[key] = profileData[key];
+        }
       });
     }
 
@@ -80,16 +85,17 @@ export const createOrUpdateProfile = async (userId, profileData) => {
     };
   } catch (error) {
     console.error("Profile service error:", error);
-    throw new Error(`Failed to save profile: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to save profile: ${errorMessage}`);
   }
 };
 
 /**
  * Get user profile by user ID
- * @param {number} userId - User ID (integer from Prisma User model)
- * @returns {Promise<Object|null>} Profile data or null if not found
+ * @param userId - User ID (integer from Prisma User model)
+ * @returns Profile data or null if not found
  */
-export const getUserProfile = async (userId) => {
+export const getUserProfile = async (userId: number) => {
   if (
     !userId ||
     typeof userId !== "number" ||
@@ -100,7 +106,7 @@ export const getUserProfile = async (userId) => {
   }
 
   try {
-    const profile = await Profile.findOne({ userId });
+    const profile = await Profile.findOne({ userId: userId.toString() });
 
     if (!profile) {
       return null;
@@ -118,16 +124,17 @@ export const getUserProfile = async (userId) => {
     };
   } catch (error) {
     console.error("Profile fetch error:", error);
-    throw new Error(`Failed to fetch profile: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to fetch profile: ${errorMessage}`);
   }
 };
 
 /**
  * Get user profile for personalization (includes user data)
- * @param {number} userId - User ID (integer from Prisma User model)
- * @returns {Promise<Object|null>} User data with profile for personalization
+ * @param userId - User ID (integer from Prisma User model)
+ * @returns User data with profile for personalization
  */
-export const getUserDataForPersonalization = async (userId) => {
+export const getUserDataForPersonalization = async (userId: number) => {
   if (
     !userId ||
     typeof userId !== "number" ||
@@ -149,7 +156,7 @@ export const getUserDataForPersonalization = async (userId) => {
     }
 
     // Get profile data
-    const profile = await Profile.findOne({ userId });
+    const profile = await Profile.findOne({ userId: userId.toString() });
 
     if (!profile) {
       return {
@@ -171,16 +178,17 @@ export const getUserDataForPersonalization = async (userId) => {
     };
   } catch (error) {
     console.error("User data fetch error:", error);
-    throw new Error(`Failed to fetch user data: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to fetch user data: ${errorMessage}`);
   }
 };
 
 /**
  * Check if user exists and is valid
- * @param {number} userId - User ID to validate
- * @returns {Promise<Object|null>} User data if valid, null if not found
+ * @param userId - User ID to validate
+ * @returns User data if valid, null if not found
  */
-export const validateUser = async (userId) => {
+export const validateUser = async (userId: number) => {
   if (
     !userId ||
     typeof userId !== "number" ||

@@ -3,7 +3,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import { GooglePlacesAPI } from "@langchain/community/tools/google_places";
 import { AgentExecutor, createReactAgent } from "langchain/agents";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { setupLangChainLogging } from "../../utils/logging/langchainLogger.js";
+import { setupLangChainLogging } from "../../utils/logging/langchainLogger.ts";
 import {
   RecommendationSchema,
   RecommendationsSchema,
@@ -35,8 +35,8 @@ const baseModelConfig = {
 };
 
 // 2) Tool - with better error handling
-let placesTool;
-let tools = [];
+let placesTool: any;
+let tools: any[] = [];
 
 try {
   placesTool = new GooglePlacesAPI({
@@ -45,16 +45,17 @@ try {
   tools = [placesTool];
   console.log("Google Places API tool initialized successfully");
 } catch (error) {
-  console.warn("Failed to initialize Google Places API tool:", error.message);
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  console.warn("Failed to initialize Google Places API tool:", errorMessage);
   tools = [];
 }
 
 /**
  * Generate user profile string from user data
- * @param {Object} userData - User data object (required)
+ * @param userData - User data object (required)
  * @returns {string} Formatted user profile string
  */
-function generateUserProfile(userData) {
+function generateUserProfile(userData: any) {
   if (!userData) {
     throw new Error("User data is required for personalized recommendations");
   }
@@ -153,7 +154,7 @@ Question: {input}
  * @param {Object} requestData - The request data containing query and userData (required)
  * @returns {Promise<Object>} Object containing query, answer, and rawAnswer
  */
-export async function getRestaurantRecommendations(requestData) {
+export async function getRestaurantRecommendations(requestData: any) {
   // Validate request data using Zod schema
   const validatedRequest =
     GetRestaurantRecommendationsRequestSchema.parse(requestData);
@@ -204,6 +205,7 @@ export async function getRestaurantRecommendations(requestData) {
   );
 
   // Second pass: coerce to structured output with highest guarantees
+  // @ts-ignore - Complex LangChain type inference causes deep instantiation
   const structuredModel = model.withStructuredOutput(
     RecommendationsEnvelopeSchema
   );
@@ -219,7 +221,7 @@ export async function getRestaurantRecommendations(requestData) {
 
   // Normalize: always compute a precise Google Maps link and description
   const normalizedRecommendations = (envelope?.recommendations || []).map(
-    (r) => {
+    (r: any) => {
       const q = [r.name, r.address].filter(Boolean).join(" ");
       const computedLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
         q
