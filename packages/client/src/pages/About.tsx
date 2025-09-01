@@ -60,7 +60,7 @@ const About: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-6">
-            About MealMint AI
+            About LaiSpend
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             We're on a mission to make personal finance management as easy as taking a photo of your receipt.

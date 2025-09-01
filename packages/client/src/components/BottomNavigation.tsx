@@ -34,7 +34,7 @@ const BottomNavigation = () => {
     },
     {
       id: "zhongcao",
-      label: "Discovery",
+      label: "Wishlists",
       icon: Camera,
       path: "/zhongcao",
     },

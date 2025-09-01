@@ -47,7 +47,7 @@ const TopNavigation = () => {
     },
     {
       id: "zhongcao",
-      label: "Discovery",
+      label: "Wishlists",
       icon: Camera,
       path: "/zhongcao",
     },
@@ -84,7 +84,7 @@ const TopNavigation = () => {
             "font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent transition-all duration-500 ease-in-out",
             isScrolled ? "text-lg" : "text-xl"
           )}>
-            MealMint AI
+            LaiSpend
           </span>
         </div>
 

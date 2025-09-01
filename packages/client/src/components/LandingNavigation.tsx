@@ -75,7 +75,7 @@ const LandingNavigation = () => {
               "font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent transition-all duration-500 ease-in-out",
               isScrolled ? "text-xl" : "text-2xl"
             )}>
-              MealMint AI
+              LaiSpend
             </span>
           </div>
 

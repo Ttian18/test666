@@ -245,7 +245,7 @@ const Zhongcao = () => {
               <Camera className="w-6 h-6 text-white" />
             </div>
             <h1 className="text-3xl font-bold text-foreground">
-              Restaurant Discovery
+              Wishlists
             </h1>
           </div>
           <p className="text-muted-foreground">
@@ -347,7 +347,7 @@ const Zhongcao = () => {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-foreground">
-                Your Restaurant Discoveries
+                Your Restaurant Wishlists
               </h2>
               <Badge variant="secondary" className="flex items-center gap-1">
                 <Sparkles size={14} />
