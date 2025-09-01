@@ -25,6 +25,7 @@ import TopNavigation from "@/components/TopNavigation";
 import RestaurantService from "@/services/restaurantService";
 import { Recommendation } from "@your-project/schema";
 import { toast } from "@/components/ui/use-toast";
+import restaurantIcon from "@/assets/restaurant-icon.png";
 
 const Recommendations = () => {
   const { token, user } = useAuthContext();
@@ -320,6 +321,7 @@ const Recommendations = () => {
                   onOpenMaps={openGoogleMaps}
                   onCall={callRestaurant}
                   onVisitWebsite={visitWebsite}
+                  showIcon={index < 2}
                 />
               ))}
             </div>
@@ -335,6 +337,7 @@ interface RestaurantCardProps {
   onOpenMaps: (link: string) => void;
   onCall: (phone: string) => void;
   onVisitWebsite: (website: string) => void;
+  showIcon?: boolean;
 }
 
 const RestaurantCard: React.FC<RestaurantCardProps> = ({
@@ -342,11 +345,19 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   onOpenMaps,
   onCall,
   onVisitWebsite,
+  showIcon = false,
 }) => {
   return (
     <Card className="themed-card hover:shadow-lg transition-shadow duration-200">
-      <CardHeader>
-        <div className="space-y-2">
+      <CardHeader className="relative">
+        {showIcon && (
+          <img
+            src={restaurantIcon}
+            alt="Restaurant"
+            className="absolute top-4 right-4 w-8 h-8 opacity-70"
+          />
+        )}
+        <div className={`space-y-2 ${showIcon ? "pr-12" : ""}`}>
           <CardTitle className="text-lg line-clamp-2">
             {restaurant.name}
           </CardTitle>
