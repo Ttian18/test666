@@ -20,11 +20,33 @@ const app = express();
 const PORT = appConfig.port;
 const HOST = appConfig.host;
 
-// Middleware
+// Middleware - Manual CORS setup for learning environment
+app.use((req, res, next) => {
+  // Allow all origins for learning purposes
+  const origin = req.headers.origin || "*";
+  res.header("Access-Control-Allow-Origin", origin);
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, x-auth-token"
+  );
+
+  // Handle preflight requests
+  if (req.method === "OPTIONS") {
+    res.sendStatus(200);
+    return;
+  } else {
+    next();
+  }
+});
+
+// Backup CORS middleware (should not be needed now)
 app.use(
   cors({
-    origin: appConfig.corsOrigin,
+    origin: true,
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization", "x-auth-token"],
   })
 );
 app.use(express.json({ limit: "10mb" }));
@@ -36,7 +58,7 @@ app.get("/health", (req, res) => {
     status: "OK",
     timestamp: new Date().toISOString(),
     environment: appConfig.nodeEnv,
-    version: "1.0.0",
+    version: "1.0.1",
   });
 });
 

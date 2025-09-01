@@ -20,6 +20,7 @@ import About from "./pages/About";
 import Home from "./pages/Home";
 import Reports from "./pages/Reports";
 import Recommendations from "./pages/Recommendations";
+import Zhongcao from "./pages/Zhongcao";
 import AddExpense from "./pages/AddExpense";
 import Questionnaire from "./pages/Questionnaire";
 import Profile from "./pages/Profile";
@@ -111,6 +112,14 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <Recommendations />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/zhongcao" 
+                element={
+                  <ProtectedRoute>
+                    <Zhongcao />
                   </ProtectedRoute>
                 } 
               />

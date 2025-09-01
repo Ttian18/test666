@@ -1,4 +1,4 @@
-import { BarChart3, Home, Utensils, Plus, User, Sparkles } from "lucide-react";
+import { BarChart3, Home, Utensils, Plus, User, Sparkles, Camera } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,12 @@ const TopNavigation = () => {
       icon: Utensils,
       path: "/recommendations",
     },
+    {
+      id: "zhongcao",
+      label: "Wishlists",
+      icon: Camera,
+      path: "/zhongcao",
+    },
   ];
 
   return (
@@ -78,7 +84,7 @@ const TopNavigation = () => {
             "font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent transition-all duration-500 ease-in-out",
             isScrolled ? "text-lg" : "text-xl"
           )}>
-            MealMint AI
+            LaiSpend
           </span>
         </div>
 

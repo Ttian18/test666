@@ -2,9 +2,26 @@ import { useState } from "react";
 import { TrendingUp, Calendar, Filter, TrendingDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import TopNavigation from "@/components/TopNavigation";
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
 
 const Reports = () => {
   const [timeframe, setTimeframe] = useState("Month");
@@ -35,7 +52,12 @@ const Reports = () => {
   ];
 
   const recentExpenses = [
-    { name: "Fresh Market Cafe", category: "Food & Dining", amount: 67.5, change: "+12%" },
+    {
+      name: "Fresh Market Cafe",
+      category: "Food & Dining",
+      amount: 67.5,
+      change: "+12%",
+    },
     { name: "Uber", category: "Transportation", amount: 45.3, change: "-5%" },
     { name: "Amazon", category: "Shopping", amount: 89.99, change: "+23%" },
     { name: "Netflix", category: "Entertainment", amount: 15.99, change: "0%" },
@@ -44,15 +66,17 @@ const Reports = () => {
   return (
     <div className="page-background-reports">
       <TopNavigation />
-      
+
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Spending Reports</h1>
+            <h1 className="text-3xl font-bold text-foreground">
+              Spending Reports
+            </h1>
             <p className="text-muted-foreground">Your financial insights</p>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <div className="flex gap-2">
               {["Week", "Month", "Year"].map((period) => (
@@ -61,7 +85,9 @@ const Reports = () => {
                   variant={timeframe === period ? "default" : "outline"}
                   size="sm"
                   onClick={() => setTimeframe(period)}
-                  className={timeframe === period ? "bg-primary text-white" : ""}
+                  className={
+                    timeframe === period ? "bg-primary text-white" : ""
+                  }
                 >
                   {period}
                 </Button>
@@ -77,15 +103,15 @@ const Reports = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Spent</p>
-                  <p className="text-2xl font-bold text-expense">${totalSpent}</p>
+                  <p className="text-2xl font-bold text-expense">
+                    ${totalSpent}
+                  </p>
                 </div>
-                <div className="text-expense">
-                  $
-                </div>
+                <div className="text-expense">$</div>
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="themed-card">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -99,7 +125,7 @@ const Reports = () => {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="themed-card">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -107,13 +133,11 @@ const Reports = () => {
                   <p className="text-sm text-muted-foreground">This Week</p>
                   <p className="text-2xl font-bold text-primary">$403</p>
                 </div>
-                <div className="text-primary">
-                  📅
-                </div>
+                <div className="text-primary">📅</div>
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="themed-card">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -121,9 +145,7 @@ const Reports = () => {
                   <p className="text-sm text-muted-foreground">Avg Daily</p>
                   <p className="text-2xl font-bold text-warning">$57.60</p>
                 </div>
-                <div className="text-warning">
-                  📊
-                </div>
+                <div className="text-warning">📊</div>
               </div>
             </CardContent>
           </Card>
@@ -155,13 +177,16 @@ const Reports = () => {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              
+
               <div className="space-y-4">
                 {categoryData.map((category, index) => (
-                  <div key={index} className="flex items-center justify-between">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
                     <div className="flex items-center gap-3">
-                      <div 
-                        className="w-3 h-3 rounded-full" 
+                      <div
+                        className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: category.color }}
                       />
                       <span className="font-medium">{category.name}</span>
@@ -186,7 +211,11 @@ const Reports = () => {
                     <XAxis dataKey="day" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="amount" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+                    <Bar
+                      dataKey="amount"
+                      fill="#8B5CF6"
+                      radius={[4, 4, 0, 0]}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -203,18 +232,27 @@ const Reports = () => {
             <CardContent>
               <div className="space-y-4">
                 {recentExpenses.map((expense, index) => (
-                  <div key={index} className="flex items-center justify-between py-3">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between py-3"
+                  >
                     <div>
                       <p className="font-semibold">{expense.name}</p>
-                      <p className="text-sm text-muted-foreground">{expense.category}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {expense.category}
+                      </p>
                     </div>
                     <div className="text-right">
                       <p className="font-bold">${expense.amount}</p>
-                      <p className={`text-xs ${
-                        expense.change.startsWith('+') ? 'text-expense' : 
-                        expense.change.startsWith('-') ? 'text-success' : 
-                        'text-muted-foreground'
-                      }`}>
+                      <p
+                        className={`text-xs ${
+                          expense.change.startsWith("+")
+                            ? "text-expense"
+                            : expense.change.startsWith("-")
+                            ? "text-success"
+                            : "text-muted-foreground"
+                        }`}
+                      >
                         {expense.change}
                       </p>
                     </div>
@@ -235,14 +273,19 @@ const Reports = () => {
                   <div key={index}>
                     <div className="flex justify-between mb-2">
                       <span className="font-medium">{item.category}</span>
-                      <span className="font-semibold">${item.spent} / ${item.budget}</span>
+                      <span className="font-semibold">
+                        ${item.spent} / ${item.budget}
+                      </span>
                     </div>
                     <div className="w-full bg-secondary rounded-full h-2">
-                      <div 
+                      <div
                         className="h-2 rounded-full transition-all duration-300"
-                        style={{ 
-                          width: `${Math.min((item.spent / item.budget) * 100, 100)}%`,
-                          backgroundColor: item.color
+                        style={{
+                          width: `${Math.min(
+                            (item.spent / item.budget) * 100,
+                            100
+                          )}%`,
+                          backgroundColor: item.color,
                         }}
                       />
                     </div>
