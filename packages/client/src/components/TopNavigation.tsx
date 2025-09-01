@@ -1,4 +1,4 @@
-import { BarChart3, Home, Utensils, Plus, User, Sparkles } from "lucide-react";
+import { BarChart3, Home, Utensils, Plus, User, Sparkles, Camera } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,12 @@ const TopNavigation = () => {
       label: "Recommendation",
       icon: Utensils,
       path: "/recommendations",
+    },
+    {
+      id: "zhongcao",
+      label: "Discovery",
+      icon: Camera,
+      path: "/zhongcao",
     },
   ];
 

@@ -327,6 +327,23 @@
   background-size: 40px 40px, 40px 40px, 160px 160px, 160px 160px, 190px 190px, 100% 100%;
 }
 
+.page-background-zhongcao {
+  min-height: 100vh;
+  background: 
+    /* Camera/photo grid pattern */
+    linear-gradient(90deg, rgba(168, 85, 247, 0.06) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(168, 85, 247, 0.06) 1px, transparent 1px),
+    /* Diagonal accent lines for visual interest */
+    linear-gradient(45deg, transparent 49px, rgba(168, 85, 247, 0.08) 50px, transparent 51px),
+    linear-gradient(-45deg, transparent 49px, rgba(168, 85, 247, 0.08) 50px, transparent 51px),
+    /* Noise texture */
+    url('/nnnoise.svg'),
+    /* Purple-tinted ivory base for discovery theme */
+    linear-gradient(135deg, #fefefe 0%, #fdfcff 30%, #fbfaff 70%, #f9f7ff 100%);
+  background-size: 35px 35px, 35px 35px, 100px 100px, 100px 100px, 180px 180px, 100% 100%;
+  background-blend-mode: normal, normal, normal, normal, multiply, normal;
+}
+
 .page-background-add-expense {
   min-height: 100vh;
   background: 
