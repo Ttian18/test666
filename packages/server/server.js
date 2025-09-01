@@ -16,6 +16,16 @@ const app = express();
 const PORT = appConfig.port;
 const HOST = appConfig.host;
 
+// Set server timeouts for long-running AI requests
+app.use((req, res, next) => {
+  // Set timeout to 10 minutes for AI processing routes
+  if (req.path.includes('/menu-analysis') || req.path.includes('/recommend')) {
+    req.setTimeout(600000); // 10 minutes
+    res.setTimeout(600000); // 10 minutes
+  }
+  next();
+});
+
 // Middleware
 app.use(
   cors({

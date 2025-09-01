@@ -1,16 +1,16 @@
 import axios from "axios";
 
-// Create axios instance with base URL
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5001",
-  timeout: 30000, // 30 seconds timeout for file uploads
+// Create axios instance for menu analysis and restaurant endpoints
+const menuApi = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || "/api", // Use proxy for development
+  timeout: 300000, // 5 minutes timeout for AI processing (increased from 30 seconds)
 });
 
 // Response interceptor for error handling
-api.interceptors.response.use(
+menuApi.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error("API Error:", error);
+    console.error("Menu API Error:", error);
     return Promise.reject(error);
   }
 );
@@ -82,11 +82,16 @@ export interface MenuRecommendation {
     phase: string;
   }>;
   cached?: boolean;
+  // New fields for tag source transparency
+  usedTags?: string[];
+  tagSource?: "user" | "profile" | "defaults";
 }
 
 export interface RecommendationPayload {
   budget: number;
   tags?: string[];
+  calories?: number;
+  ignoreProfileTags?: boolean;
 }
 
 /**
@@ -96,7 +101,7 @@ export const fetchRestaurants = async (
   location: string
 ): Promise<Restaurant[]> => {
   try {
-    const response = await api.get(
+    const response = await menuApi.get(
       `/restaurants?location=${encodeURIComponent(location)}`
     );
     return response.data;
@@ -126,9 +131,15 @@ export const recommendFromUpload = async (
     formData.append("tags", JSON.stringify(payload.tags));
   }
 
+  if (payload.calories) {
+    formData.append("calories", payload.calories.toString());
+  }
 
+  if (payload.ignoreProfileTags) {
+    formData.append("ignoreProfileTags", payload.ignoreProfileTags.toString());
+  }
 
-  const response = await api.post(
+  const response = await menuApi.post(
     "/restaurants/menu-analysis/recommend",
     formData,
     {
@@ -147,7 +158,7 @@ export const recommendFromUpload = async (
 export const getLastRecommendation =
   async (): Promise<MenuRecommendation | null> => {
     try {
-      const response = await api.get("/restaurants/menu-analysis/last");
+      const response = await menuApi.get("/restaurants/menu-analysis/last");
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
@@ -158,8 +169,21 @@ export const getLastRecommendation =
   };
 
 /**
+ * Recalculate recommendation with different budget using cached menu info
+ */
+export const rebudgetRecommendation = async (
+  payload: Omit<RecommendationPayload, "file">
+): Promise<MenuRecommendation> => {
+  const response = await menuApi.post(
+    "/restaurants/menu-analysis/rebudget",
+    payload
+  );
+  return response.data;
+};
+
+/**
  * Clear the recommendation cache
  */
 export const clearCache = async (): Promise<void> => {
-  await api.delete("/restaurants/menu-analysis/cache");
+  await menuApi.delete("/restaurants/menu-analysis/cache");
 };

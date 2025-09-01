@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -27,6 +21,22 @@ model User {
   transactions    Transaction[]
   zhongcaoResults ZhongcaoResult[]
   menuAnalyses    MenuAnalysis[]
+  profile         Profile? // One-to-one relationship with Profile
+}
+
+model Profile {
+  id                  Int      @id @default(autoincrement())
+  userId              Int      @unique // One-to-one relationship with User
+  monthlyBudget       Float
+  monthlyIncome       Float
+  expensePreferences  Json     // Store as JSON for flexibility
+  savingsGoals        Json     // Store as JSON for flexibility
+  lifestylePreferences Json    // Store dining style and other preferences
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ZhongcaoResult {

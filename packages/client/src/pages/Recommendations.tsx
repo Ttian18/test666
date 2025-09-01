@@ -12,6 +12,7 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
+  User,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,10 +27,13 @@ import {
   clearCache,
   type Restaurant,
   type MenuRecommendation,
-} from "@/lib/api";
+} from "@/lib/menuApi";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { getUserProfile, type UserProfile } from "@/lib/profileApi";
 
 const Recommendations = () => {
   const { toast } = useToast();
+  const { isAuthenticated } = useAuthContext();
 
   // State
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
@@ -42,6 +46,9 @@ const Recommendations = () => {
     useState<MenuRecommendation | null>(null);
   const [lastRecommendation, setLastRecommendation] =
     useState<MenuRecommendation | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [profileTags, setProfileTags] = useState<string[]>([]);
+  const [isUsingProfileTags, setIsUsingProfileTags] = useState(false);
 
   // Dietary preference options - using backend default tags
   const preferenceOptions = [
@@ -112,6 +119,45 @@ const Recommendations = () => {
     loadLastRecommendation();
     testBackendConnection();
   }, []);
+
+  // Load user profile and dietary preferences
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadUserProfile();
+    }
+  }, [isAuthenticated]);
+
+  const loadUserProfile = async () => {
+    try {
+      const profile = await getUserProfile();
+      setUserProfile(profile);
+
+      // Extract dining style preferences from profile
+      const diningStyles = profile.lifestylePreferences?.diningStyle || [];
+      setProfileTags(diningStyles);
+
+      // If user has profile tags and no explicit tags are set, use profile tags
+      if (diningStyles.length > 0 && dietaryTags.length === 0) {
+        setDietaryTags(diningStyles);
+        setIsUsingProfileTags(true);
+      }
+    } catch (error) {
+      console.error("Failed to load user profile:", error);
+      // Continue without profile tags
+    }
+  };
+
+  // Update isUsingProfileTags when dietaryTags change
+  useEffect(() => {
+    if (profileTags.length > 0) {
+      const hasProfileTags = profileTags.some((tag) =>
+        dietaryTags.includes(tag)
+      );
+      setIsUsingProfileTags(hasProfileTags && dietaryTags.length > 0);
+    } else {
+      setIsUsingProfileTags(false);
+    }
+  }, [dietaryTags, profileTags]);
 
   // File validation
   const validateFile = (file: File): boolean => {
@@ -477,36 +523,78 @@ const Recommendations = () => {
 
               <div>
                 <Label>Dietary Preferences</Label>
+
+                {/* Profile Tags Indicator */}
+                {isUsingProfileTags && (
+                  <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center gap-2 text-blue-800">
+                      <User size={16} />
+                      <span className="text-sm font-medium">
+                        Using your profile preferences
+                      </span>
+                    </div>
+                    <p className="text-xs text-blue-600 mt-1">
+                      These tags are automatically loaded from your profile. You
+                      can modify them below or add custom tags.
+                    </p>
+                  </div>
+                )}
+
                 <div className="space-y-3">
-                  {/* Default tags */}
+                  {/* Profile-based tags or Default tags */}
                   <div>
                     <p className="text-sm text-muted-foreground mb-2">
-                      Default Options:
+                      {profileTags.length > 0
+                        ? "From Your Profile:"
+                        : "Default Options:"}
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {preferenceOptions.map((option) => {
-                        const Icon = option.icon;
-                        const isSelected = dietaryTags.includes(option.id);
+                      {/* Show profile tags if available, otherwise show default options */}
+                      {(profileTags.length > 0
+                        ? profileTags
+                        : preferenceOptions.map((opt) => opt.id)
+                      ).map((tagId) => {
+                        // Find the option details (either from profile or default)
+                        const option = preferenceOptions.find(
+                          (opt) => opt.id === tagId
+                        );
+                        const Icon = option?.icon || Heart;
+                        const label = option?.label || tagId;
+                        const isSelected = dietaryTags.includes(tagId);
 
                         return (
                           <Button
-                            key={option.id}
+                            key={tagId}
                             variant={isSelected ? "default" : "outline"}
                             size="sm"
-                            onClick={() => togglePreference(option.id)}
-                            className={isSelected ? "bg-primary" : ""}
+                            onClick={() => togglePreference(tagId)}
+                            className={`${isSelected ? "bg-primary" : ""} ${
+                              isSelected && isUsingProfileTags
+                                ? "ring-2 ring-blue-200"
+                                : ""
+                            }`}
                           >
                             <Icon size={14} className="mr-1" />
-                            {option.label}
+                            {label}
+                            {isSelected && isUsingProfileTags && (
+                              <Badge
+                                variant="secondary"
+                                className="ml-1 text-xs bg-blue-100 text-blue-800"
+                              >
+                                Profile
+                              </Badge>
+                            )}
                           </Button>
                         );
                       })}
                     </div>
                   </div>
 
-                  {/* Custom tags */}
+                  {/* Custom tags - only show truly custom tags, not profile tags */}
                   {dietaryTags.filter(
-                    (tag) => !preferenceOptions.find((opt) => opt.id === tag)
+                    (tag) =>
+                      !preferenceOptions.find((opt) => opt.id === tag) &&
+                      !profileTags.includes(tag)
                   ).length > 0 && (
                     <div>
                       <p className="text-sm text-muted-foreground mb-2">
@@ -516,7 +604,9 @@ const Recommendations = () => {
                         {dietaryTags
                           .filter(
                             (tag) =>
-                              !preferenceOptions.find((opt) => opt.id === tag)
+                              !preferenceOptions.find(
+                                (opt) => opt.id === tag
+                              ) && !profileTags.includes(tag)
                           )
                           .map((tag) => (
                             <Button
@@ -592,6 +682,27 @@ const Recommendations = () => {
                   </>
                 )}
               </Button>
+
+              {/* Progress indicator for long AI processing */}
+              {isLoading && (
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-4 h-4 bg-blue-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-medium text-blue-800">
+                      AI is processing your menu...
+                    </span>
+                  </div>
+                  <div className="w-full bg-blue-200 rounded-full h-2">
+                    <div
+                      className="bg-blue-500 h-2 rounded-full animate-pulse"
+                      style={{ width: "100%" }}
+                    ></div>
+                  </div>
+                  <p className="text-xs text-blue-600 mt-2">
+                    This may take 2-5 minutes. Please don't close this page.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

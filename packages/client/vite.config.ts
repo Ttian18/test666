@@ -8,12 +8,26 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      "/auth": {
+        target: "http://localhost:5001",
+        changeOrigin: true,
+        secure: false,
+        timeout: 300000, // 5 minutes timeout
+        proxyTimeout: 300000, // 5 minutes proxy timeout
+      },
+      "/api": {
+        target: "http://localhost:5001",
+        changeOrigin: true,
+        secure: false,
+        timeout: 300000, // 5 minutes timeout
+        proxyTimeout: 300000, // 5 minutes proxy timeout
+      },
+    },
   },
-  plugins: [
-    react(),
-    mode === 'development' &&
-    componentTagger(),
-  ].filter(Boolean),
+  plugins: [react(), mode === "development" && componentTagger()].filter(
+    Boolean
+  ),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -21,18 +35,18 @@ export default defineConfig(({ mode }) => ({
   },
   define: {
     // Fix for "process is not defined" error
-    global: 'globalThis',
-    'process.env': {},
+    global: "globalThis",
+    "process.env": {},
   },
   optimizeDeps: {
     // Pre-bundle dependencies for better compatibility with Bun
     include: [
-      'react', 
-      'react-dom', 
-      'react-router-dom',
-      'zustand',
-      'immer',
-      '@tanstack/react-query'
+      "react",
+      "react-dom",
+      "react-router-dom",
+      "zustand",
+      "immer",
+      "@tanstack/react-query",
     ],
   },
   build: {
@@ -40,18 +54,18 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          state: ['zustand', 'immer'],
-          query: ['@tanstack/react-query'],
+          vendor: ["react", "react-dom"],
+          router: ["react-router-dom"],
+          state: ["zustand", "immer"],
+          query: ["@tanstack/react-query"],
           ui: [
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-toast',
-            '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-select'
-          ]
-        }
-      }
-    }
-  }
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-toast",
+            "@radix-ui/react-dropdown-menu",
+            "@radix-ui/react-select",
+          ],
+        },
+      },
+    },
+  },
 }));

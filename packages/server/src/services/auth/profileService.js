@@ -50,7 +50,7 @@ export const createOrUpdateProfile = async (userId, profileData) => {
       throw new Error("User not found");
     }
 
-    // Create/update profile using the existing Profile entity
+    // Create/update profile using the updated Profile entity
     let profile = await Profile.findOne({ userId });
 
     if (!profile) {
@@ -75,7 +75,7 @@ export const createOrUpdateProfile = async (userId, profileData) => {
     });
 
     return {
-      profileId: profile._id,
+      profileId: profile.id,
       profileComplete: true,
     };
   } catch (error) {

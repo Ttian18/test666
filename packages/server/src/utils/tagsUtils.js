@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { DEFAULT_TAGS } from "../config/preferenceTags.js";
+import { DEFAULT_TAGS, HARD_DEFAULT_TAGS } from "../config/preferenceTags.js";
 import { INGREDIENT_SYNONYMS } from "../services/restaurant/tagRules.js";
 
 /**
@@ -186,4 +186,120 @@ export function tagsHash(tags) {
   const sortedTags = [...tags].sort();
   const tagsString = sortedTags.join(",");
   return crypto.createHash("sha1").update(tagsString).digest("hex");
+}
+
+/**
+ * Map profile dining style preferences to normalized tags
+ * @param {string[]} diningStyle - Array of dining style preferences from profile
+ * @returns {string[]} Normalized tags array
+ */
+export function mapProfileDiningStyleToTags(diningStyle = []) {
+  if (!Array.isArray(diningStyle) || diningStyle.length === 0) {
+    return [];
+  }
+
+  const tagMapping = {
+    // Common variations to normalized tags
+    Vegan: "vegan",
+    Vegetarian: "vegetarian",
+    "Gluten-free": "glutenfree",
+    "Gluten Free": "glutenfree",
+    "Dairy-free": "dairyfree",
+    "Dairy Free": "dairyfree",
+    Halal: "halal",
+    Kosher: "kosher",
+    Pescatarian: "pescatarian",
+    Keto: "keto",
+    Paleo: "paleo",
+    "Low-carb": "lowcarb",
+    "Low Carb": "lowcarb",
+    "Low-sodium": "lowsodium",
+    "Low Sodium": "lowsodium",
+    "Nut-free": "nutfree",
+    "Nut Free": "nutfree",
+    "Shellfish-free": "shellfishfree",
+    "Shellfish Free": "shellfishfree",
+    "Soy-free": "soyfree",
+    "Soy Free": "soyfree",
+    "Egg-free": "eggfree",
+    "Egg Free": "eggfree",
+    "Wheat-free": "wheatfree",
+    "Wheat Free": "wheatfree",
+  };
+
+  const normalizedTags = diningStyle
+    .map((style) => {
+      const trimmed = style.trim();
+      // Direct mapping
+      if (tagMapping[trimmed]) {
+        return tagMapping[trimmed];
+      }
+
+      // Case-insensitive matching
+      const lowerStyle = trimmed.toLowerCase();
+      for (const [key, value] of Object.entries(tagMapping)) {
+        if (key.toLowerCase() === lowerStyle) {
+          return value;
+        }
+      }
+
+      // Handle variations with spaces and hyphens
+      const normalized = trimmed
+        .toLowerCase()
+        .replace(/\s+/g, "") // Remove spaces
+        .replace(/[^a-z0-9]/g, ""); // Keep only alphanumeric
+
+      // Check if normalized version matches any known tags
+      if (Object.values(tagMapping).includes(normalized)) {
+        return normalized;
+      }
+
+      // Return original if no mapping found
+      return trimmed.toLowerCase();
+    })
+    .filter((tag) => tag && tag.length > 0);
+
+  // Remove duplicates
+  return [...new Set(normalizedTags)];
+}
+
+/**
+ * Determine final tags based on tag merge strategy
+ * @param {Object} options - Options for tag determination
+ * @param {string[]} options.requestTags - Tags from request
+ * @param {boolean} options.ignoreProfileTags - Whether to ignore profile tags
+ * @param {string[]} options.profileTags - Tags from user profile
+ * @returns {Object} Object with finalTags and source information
+ */
+export function determineFinalTags({
+  requestTags = [],
+  ignoreProfileTags = false,
+  profileTags = [],
+}) {
+  // Start with request tags if provided
+  if (requestTags && Array.isArray(requestTags) && requestTags.length > 0) {
+    return {
+      finalTags: requestTags,
+      source: "user",
+    };
+  }
+
+  // If request tags are empty/absent and we're not ignoring profile tags
+  if (
+    !ignoreProfileTags &&
+    profileTags &&
+    Array.isArray(profileTags) &&
+    profileTags.length > 0
+  ) {
+    return {
+      finalTags: profileTags,
+      source: "profile",
+    };
+  }
+
+  // Fallback to hard defaults
+  return {
+    finalTags: [...HARD_DEFAULT_TAGS],
+    source: "defaults",
+  };
 }

@@ -18,6 +18,11 @@ import { extractTextFromImage } from "../../utils/ocr/ocrUtils.js";
 import { scoreMenuLikeness } from "../../services/restaurant/menuPhotoFilter.js";
 import { normalizeTags, tagsHash } from "../../utils/tagsUtils.js";
 import { normalizeCalories, caloriesHash } from "../../utils/caloriesUtils.js";
+import * as profileService from "../../services/auth/profileService.js";
+import {
+  mapProfileDiningStyleToTags,
+  determineFinalTags,
+} from "../../utils/tagsUtils.js";
 
 const router = express.Router();
 
@@ -100,8 +105,9 @@ router.post(
     try {
       const budgetRaw = req.body?.budget;
       const budget = budgetRaw !== undefined ? Number(budgetRaw) : undefined;
-      const tags = req.body?.tags;
+      const requestTags = req.body?.tags;
       const calories = req.body?.calories;
+      const ignoreProfileTags = req.body?.ignoreProfileTags === "true";
 
       if (!req.file) {
         throw createError.missingImage();
@@ -128,8 +134,61 @@ router.post(
         throw createError.invalidBudget();
       }
 
+      // Profile-based tag logic
+      let profileTags = [];
+      let tagSource = "defaults";
+
+      try {
+        // Check if user is authenticated via JWT
+        const authHeader = req.header("x-auth-token");
+        if (authHeader) {
+          // Try to decode JWT to get user ID
+          const jwt = (await import("jsonwebtoken")).default;
+          const JWT_SECRET = process.env.JWT_SECRET || "your_secure_secret";
+
+          try {
+            const decoded = jwt.verify(authHeader, JWT_SECRET);
+            if (decoded && decoded.id && typeof decoded.id === "number") {
+              // Fetch user profile
+              const profile = await profileService.getUserProfile(decoded.id);
+              if (
+                profile &&
+                profile.lifestylePreferences &&
+                profile.lifestylePreferences.diningStyle
+              ) {
+                profileTags = mapProfileDiningStyleToTags(
+                  profile.lifestylePreferences.diningStyle
+                );
+                if (profileTags.length > 0) {
+                  tagSource = "profile";
+                }
+              }
+            }
+          } catch (jwtError) {
+            // JWT invalid or expired, continue without profile
+            console.warn(
+              "JWT validation failed, proceeding without profile:",
+              jwtError.message
+            );
+          }
+        }
+      } catch (profileError) {
+        // Profile fetch failed, continue without profile
+        console.warn(
+          "Profile fetch failed, proceeding without profile:",
+          profileError.message
+        );
+      }
+
+      // Determine final tags using the tag merge strategy
+      const { finalTags, source } = determineFinalTags({
+        requestTags: requestTags ? JSON.parse(requestTags) : [],
+        ignoreProfileTags,
+        profileTags,
+      });
+
       // Normalize tags and compute signature
-      const normalizedTags = normalizeTags(tags);
+      const normalizedTags = normalizeTags(finalTags);
       const tagsSig = tagsHash(normalizedTags);
 
       // Normalize calories and compute signature
@@ -160,6 +219,8 @@ router.post(
             removedByTags: cached.removedByTags || 0,
             filterDebug: cached.filterDebug || [],
             cached: true,
+            usedTags: normalizedTags,
+            tagSource: source,
           });
         } else {
           // Same menu, different budget or tags - reuse menuInfo, run full tag-aware recommendation
@@ -221,7 +282,12 @@ router.post(
         filterDebug: result.filterDebug,
       });
 
-      res.json(result);
+      // Return result with tag source information
+      res.json({
+        ...result,
+        usedTags: normalizedTags,
+        tagSource: source,
+      });
     } catch (error) {
       handleError(error, res);
     }
@@ -255,7 +321,7 @@ router.get("/last", (req, res) => {
 // POST /menu-analysis/rebudget - Recalculate recommendation with different budget using cached menu info
 router.post("/rebudget", async (req, res) => {
   try {
-    const { budget, tags, calories } = req.body;
+    const { budget, tags, calories, ignoreProfileTags } = req.body;
 
     if (!Number.isFinite(budget) || budget <= 0) {
       throw createError.invalidBudget();
@@ -270,8 +336,61 @@ router.post("/rebudget", async (req, res) => {
       throw createError.noCache();
     }
 
+    // Profile-based tag logic
+    let profileTags = [];
+    let tagSource = "defaults";
+
+    try {
+      // Check if user is authenticated via JWT
+      const authHeader = req.header("x-auth-token");
+      if (authHeader) {
+        // Try to decode JWT to get user ID
+        const jwt = (await import("jsonwebtoken")).default;
+        const JWT_SECRET = process.env.JWT_SECRET || "your_secure_secret";
+
+        try {
+          const decoded = jwt.verify(authHeader, JWT_SECRET);
+          if (decoded && decoded.id && typeof decoded.id === "number") {
+            // Fetch user profile
+            const profile = await profileService.getUserProfile(decoded.id);
+            if (
+              profile &&
+              profile.lifestylePreferences &&
+              profile.lifestylePreferences.diningStyle
+            ) {
+              profileTags = mapProfileDiningStyleToTags(
+                profile.lifestylePreferences.diningStyle
+              );
+              if (profileTags.length > 0) {
+                tagSource = "profile";
+              }
+            }
+          }
+        } catch (jwtError) {
+          // JWT invalid or expired, continue without profile
+          console.warn(
+            "JWT validation failed, proceeding without profile:",
+            jwtError.message
+          );
+        }
+      }
+    } catch (profileError) {
+      // Profile fetch failed, continue without profile
+      console.warn(
+        "Profile fetch failed, proceeding without profile:",
+        profileError.message
+      );
+    }
+
+    // Determine final tags using the tag merge strategy
+    const { finalTags, source } = determineFinalTags({
+      requestTags: tags || [],
+      ignoreProfileTags: ignoreProfileTags === true,
+      profileTags,
+    });
+
     // Normalize tags and compute signature
-    const normalizedTags = normalizeTags(tags);
+    const normalizedTags = normalizeTags(finalTags);
     const tagsSig = tagsHash(normalizedTags);
 
     // Normalize calories and compute signature
@@ -325,7 +444,12 @@ router.post("/rebudget", async (req, res) => {
       filterDebug: result.filterDebug,
     });
 
-    res.json(result);
+    // Return result with tag source information
+    res.json({
+      ...result,
+      usedTags: normalizedTags,
+      tagSource: source,
+    });
   } catch (error) {
     handleError(error, res);
   }
@@ -618,7 +742,14 @@ router.get("/from-place/:placeId/photos", async (req, res) => {
 router.post("/from-place/:placeId/menu-recommendation", async (req, res) => {
   try {
     const { placeId } = req.params;
-    const { budget, note = "", photoName, tags, calories } = req.body;
+    const {
+      budget,
+      note = "",
+      photoName,
+      tags,
+      calories,
+      ignoreProfileTags,
+    } = req.body;
 
     if (!placeId) {
       return res.status(400).json({
@@ -636,13 +767,66 @@ router.post("/from-place/:placeId/menu-recommendation", async (req, res) => {
       });
     }
 
-    // Call the unified service method
+    // Profile-based tag logic
+    let profileTags = [];
+    let tagSource = "defaults";
+
+    try {
+      // Check if user is authenticated via JWT
+      const authHeader = req.header("x-auth-token");
+      if (authHeader) {
+        // Try to decode JWT to get user ID
+        const jwt = (await import("jsonwebtoken")).default;
+        const JWT_SECRET = process.env.JWT_SECRET || "your_secure_secret";
+
+        try {
+          const decoded = jwt.verify(authHeader, JWT_SECRET);
+          if (decoded && decoded.id && typeof decoded.id === "number") {
+            // Fetch user profile
+            const profile = await profileService.getUserProfile(decoded.id);
+            if (
+              profile &&
+              profile.lifestylePreferences &&
+              profile.lifestylePreferences.diningStyle
+            ) {
+              profileTags = mapProfileDiningStyleToTags(
+                profile.lifestylePreferences.diningStyle
+              );
+              if (profileTags.length > 0) {
+                tagSource = "profile";
+              }
+            }
+          }
+        } catch (jwtError) {
+          // JWT invalid or expired, continue without profile
+          console.warn(
+            "JWT validation failed, proceeding without profile:",
+            jwtError.message
+          );
+        }
+      }
+    } catch (profileError) {
+      // Profile fetch failed, continue without profile
+      console.warn(
+        "Profile fetch failed, proceeding without profile:",
+        profileError.message
+      );
+    }
+
+    // Determine final tags using the tag merge strategy
+    const { finalTags, source } = determineFinalTags({
+      requestTags: tags || [],
+      ignoreProfileTags: ignoreProfileTags === true,
+      profileTags,
+    });
+
+    // Call the unified service method with final tags
     const result = await getMenuRecommendationFromPlace(
       placeId,
       numericBudget,
       note,
       photoName,
-      tags,
+      finalTags,
       calories
     );
 
@@ -663,11 +847,17 @@ router.post("/from-place/:placeId/menu-recommendation", async (req, res) => {
           componentScores: candidate.componentScores || {},
         })),
         selection: result.selection,
+        usedTags: finalTags,
+        tagSource: source,
       });
     }
 
-    // Return successful result
-    res.status(200).json(result);
+    // Return successful result with tag source information
+    res.status(200).json({
+      ...result,
+      usedTags: finalTags,
+      tagSource: source,
+    });
   } catch (error) {
     console.error("Error processing menu recommendation from place:", error);
 
