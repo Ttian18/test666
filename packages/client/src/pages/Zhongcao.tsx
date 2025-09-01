@@ -48,18 +48,26 @@ const Zhongcao = () => {
   }, [token]);
 
   const fetchResults = async () => {
-    if (!token) return;
+    if (!token) {
+      console.log('🔍 No token available for fetching zhongcao results');
+      return;
+    }
 
+    console.log('🔍 Fetching zhongcao results for user:', user?.email);
     setIsLoading(true);
     try {
       const data = await RestaurantService.getAllZhongcaoResults(token);
+      console.log('✅ Successfully fetched zhongcao results:', data.length, 'items');
       setResults(data);
       setHasLoaded(true);
     } catch (error) {
-      console.error("Error fetching zhongcao results:", error);
+      console.error("❌ Error fetching zhongcao results:", error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error("❌ Error details:", errorMessage);
+      
       toast({
         title: "Error",
-        description: "Failed to load your saved restaurant discoveries",
+        description: `Failed to load your saved restaurant discoveries: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
@@ -76,6 +84,7 @@ const Zhongcao = () => {
 
   const handleUpload = async (file: File) => {
     if (!token) {
+      console.log('🔍 No token available for upload');
       toast({
         title: "Authentication Required",
         description: "Please log in to upload and analyze restaurant images",
@@ -84,8 +93,11 @@ const Zhongcao = () => {
       return;
     }
 
+    console.log('🔍 Starting upload for file:', file.name, 'Size:', file.size, 'Type:', file.type);
+
     // Validate file type
     if (!file.type.startsWith("image/")) {
+      console.log('❌ Invalid file type:', file.type);
       toast({
         title: "Invalid File Type",
         description: "Please select an image file",
@@ -96,6 +108,7 @@ const Zhongcao = () => {
 
     // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
+      console.log('❌ File too large:', file.size, 'bytes');
       toast({
         title: "File Too Large",
         description: "Please select an image smaller than 10MB",
@@ -106,7 +119,9 @@ const Zhongcao = () => {
 
     setIsUploading(true);
     try {
+      console.log('🚀 Uploading image to zhongcao service...');
       const response = await RestaurantService.uploadZhongcaoImage(file, token);
+      console.log('✅ Upload successful:', response);
       
       // Add the new result to the top of the list
       setResults((prev) => [response.result, ...prev]);
@@ -116,10 +131,13 @@ const Zhongcao = () => {
         description: `Extracted information for ${response.restaurant_name}`,
       });
     } catch (error) {
-      console.error("Error uploading image:", error);
+      console.error("❌ Error uploading image:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to analyze image";
+      console.error("❌ Upload error details:", errorMessage);
+      
       toast({
         title: "Upload Failed",
-        description: error instanceof Error ? error.message : "Failed to analyze image",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

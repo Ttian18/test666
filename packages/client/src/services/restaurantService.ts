@@ -78,8 +78,10 @@ class RestaurantService {
       "x-auth-token": token,
     };
 
+    console.log('🔍 Uploading zhongcao image to:', `${this.API_BASE}/restaurants/zhongcao/social-upload`);
+    
     const response = await fetch(
-      `${this.API_BASE}/zhongcao/social-upload`,
+      `${this.API_BASE}/restaurants/zhongcao/social-upload`,
       {
         method: "POST",
         headers,
@@ -88,8 +90,20 @@ class RestaurantService {
     );
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || "Failed to upload and analyze image");
+      console.error('❌ Upload Error - Status:', response.status, 'StatusText:', response.statusText);
+      console.error('❌ Upload Error - URL:', response.url);
+      
+      let errorMessage = "Failed to upload and analyze image";
+      try {
+        const error = await response.json();
+        console.error('❌ Upload Error - Response:', error);
+        errorMessage = error.error || error.message || errorMessage;
+      } catch (parseError) {
+        console.error('❌ Could not parse upload error response:', parseError);
+        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      }
+      
+      throw new Error(errorMessage);
     }
 
     return await response.json();
@@ -106,14 +120,28 @@ class RestaurantService {
       "x-auth-token": token,
     };
 
-    const response = await fetch(`${this.API_BASE}/zhongcao`, {
+    console.log('🔍 Fetching zhongcao results from:', `${this.API_BASE}/restaurants/zhongcao`);
+    
+    const response = await fetch(`${this.API_BASE}/restaurants/zhongcao`, {
       method: "GET",
       headers,
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || "Failed to fetch zhongcao results");
+      console.error('❌ API Error - Status:', response.status, 'StatusText:', response.statusText);
+      console.error('❌ API Error - URL:', response.url);
+      
+      let errorMessage = "Failed to fetch zhongcao results";
+      try {
+        const error = await response.json();
+        console.error('❌ API Error - Response:', error);
+        errorMessage = error.error || error.message || errorMessage;
+      } catch (parseError) {
+        console.error('❌ Could not parse error response:', parseError);
+        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      }
+      
+      throw new Error(errorMessage);
     }
 
     return await response.json();
@@ -134,7 +162,9 @@ class RestaurantService {
       "x-auth-token": token,
     };
 
-    const response = await fetch(`${this.API_BASE}/zhongcao/${id}`, {
+    console.log('🔍 Fetching zhongcao result by ID from:', `${this.API_BASE}/restaurants/zhongcao/${id}`);
+    
+    const response = await fetch(`${this.API_BASE}/restaurants/zhongcao/${id}`, {
       method: "GET",
       headers,
     });
@@ -170,7 +200,9 @@ class RestaurantService {
       "x-auth-token": token,
     };
 
-    const response = await fetch(`${this.API_BASE}/zhongcao/${id}`, {
+    console.log('🔍 Updating zhongcao result at:', `${this.API_BASE}/restaurants/zhongcao/${id}`);
+    
+    const response = await fetch(`${this.API_BASE}/restaurants/zhongcao/${id}`, {
       method: "PUT",
       headers,
       body: JSON.stringify(data),
@@ -196,7 +228,9 @@ class RestaurantService {
       "x-auth-token": token,
     };
 
-    const response = await fetch(`${this.API_BASE}/zhongcao/${id}`, {
+    console.log('🔍 Deleting zhongcao result at:', `${this.API_BASE}/restaurants/zhongcao/${id}`);
+    
+    const response = await fetch(`${this.API_BASE}/restaurants/zhongcao/${id}`, {
       method: "DELETE",
       headers,
     });
