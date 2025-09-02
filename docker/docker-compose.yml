@@ -6,7 +6,7 @@ services:
       dockerfile: docker/Dockerfile
     container_name: nextai-server
     env_file:
-      - ../.env  # Uses your existing root .env file
+      - ../.env # Uses your existing root .env file
     environment:
       NODE_ENV: development
       HOST: 0.0.0.0
@@ -15,7 +15,7 @@ services:
       - ../packages/server/logs:/app/packages/server/logs
     ports:
       - "5001:5001"
-    restart: unless-stopped
+    restart: always
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5001/health || exit 1"]
       interval: 30s
@@ -31,7 +31,7 @@ services:
     container_name: nextai-frontend
     ports:
       - "8080:80"
-    restart: unless-stopped
+    restart: always
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost/ || exit 1"]
       interval: 30s
