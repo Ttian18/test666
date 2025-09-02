@@ -13,8 +13,7 @@ import {
  * Handles both manual transaction creation and AI-powered receipt processing
  */
 class TransactionService {
-  private static readonly API_BASE =
-    import.meta.env.VITE_API_URL || "http://localhost:5001";
+  private static readonly API_BASE = import.meta.env.VITE_API_URL || "";
 
   /**
    * Create a new manual transaction
@@ -33,7 +32,7 @@ class TransactionService {
 
     console.log("🔍 Creating transaction:", transactionData);
 
-    const response = await fetch(`${this.API_BASE}/transactions`, {
+    const response = await fetch(`${this.API_BASE}/api/transactions`, {
       method: "POST",
       headers,
       body: JSON.stringify(transactionData),
@@ -82,7 +81,7 @@ class TransactionService {
     console.log("🔍 Uploading receipt:", file.name, "Size:", file.size);
 
     const response = await fetch(
-      `${this.API_BASE}/transactions/vouchers/upload`,
+      `${this.API_BASE}/api/transactions/vouchers/upload`,
       {
         method: "POST",
         headers,
@@ -141,7 +140,7 @@ class TransactionService {
     if (filters.offset) queryParams.append("offset", filters.offset.toString());
 
     const queryString = queryParams.toString();
-    const url = `${this.API_BASE}/transactions${
+    const url = `${this.API_BASE}/api/transactions${
       queryString ? `?${queryString}` : ""
     }`;
 
@@ -198,7 +197,7 @@ class TransactionService {
     if (options.endDate) queryParams.append("endDate", options.endDate);
 
     const queryString = queryParams.toString();
-    const url = `${this.API_BASE}/transactions/stats${
+    const url = `${this.API_BASE}/api/transactions/stats${
       queryString ? `?${queryString}` : ""
     }`;
 
@@ -258,7 +257,7 @@ class TransactionService {
     if (options.endDate) queryParams.append("endDate", options.endDate);
 
     const queryString = queryParams.toString();
-    const url = `${this.API_BASE}/transactions/vouchers${
+    const url = `${this.API_BASE}/api/transactions/vouchers${
       queryString ? `?${queryString}` : ""
     }`;
 
@@ -310,7 +309,7 @@ class TransactionService {
     console.log("🔍 Updating transaction:", transactionId, updateData);
 
     const response = await fetch(
-      `${this.API_BASE}/transactions/${transactionId}`,
+      `${this.API_BASE}/api/transactions/${transactionId}`,
       {
         method: "PUT",
         headers,
@@ -357,7 +356,7 @@ class TransactionService {
     console.log("🔍 Deleting transaction:", transactionId);
 
     const response = await fetch(
-      `${this.API_BASE}/transactions/${transactionId}`,
+      `${this.API_BASE}/api/transactions/${transactionId}`,
       {
         method: "DELETE",
         headers,

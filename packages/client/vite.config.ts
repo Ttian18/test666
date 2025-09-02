@@ -8,6 +8,18 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      "/api": {
+        target: "http://localhost:5001",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/health": {
+        target: "http://localhost:5001",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(
     Boolean
@@ -31,6 +43,7 @@ export default defineConfig(({ mode }) => ({
       "zustand",
       "immer",
       "@tanstack/react-query",
+      "schema",
     ],
   },
   build: {

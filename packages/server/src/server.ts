@@ -63,10 +63,10 @@ app.get("/health", (req, res) => {
 });
 
 // Assign routes to the app
-app.use("/auth", authRoutes);
-app.use("/restaurants", restaurantRoutes);
-app.use("/transactions", transactionRoutes);
-app.use("/insights", insightsRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/restaurants", restaurantRoutes);
+app.use("/api/transactions", transactionRoutes);
+app.use("/api/insights", insightsRoutes);
 
 // Global error handler
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {

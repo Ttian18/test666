@@ -154,14 +154,14 @@ class JWTUtils {
 // Authentication API service
 class AuthService {
   private static readonly API_BASE =
-    import.meta.env.VITE_API_URL || "http://localhost:5001";
+    import.meta.env.VITE_API_URL || "";
 
   static async login(
     email: string,
     password: string
   ): Promise<{ token: string; refreshToken: string; user: User }> {
     try {
-      const response = await fetch(`${this.API_BASE}/auth/login`, {
+      const response = await fetch(`${this.API_BASE}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -214,7 +214,7 @@ class AuthService {
   ): Promise<{ token: string; refreshToken: string; user: User }> {
     // In production, this will make a real API call to the backend
     try {
-      const response = await fetch(`${this.API_BASE}/auth/register`, {
+      const response = await fetch(`${this.API_BASE}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -292,7 +292,7 @@ class AuthService {
     try {
       console.log("🔍 Validating token with backend API...");
 
-      const response = await fetch(`${this.API_BASE}/auth/validate`, {
+      const response = await fetch(`${this.API_BASE}/api/auth/validate`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

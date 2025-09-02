@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create axios instance for auth endpoints
 const authApi = axios.create({
-  baseURL: "/auth", // This will use the Vite proxy to http://localhost:5001
+  baseURL: "/api/auth", // This will use the Vite proxy to http://localhost:5001
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",

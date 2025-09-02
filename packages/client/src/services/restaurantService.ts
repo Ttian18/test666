@@ -59,7 +59,7 @@ export interface ZhongcaoUploadResponse {
 
 class RestaurantService {
   private static readonly API_BASE =
-    import.meta.env.VITE_API_URL || "http://localhost:5001";
+    import.meta.env.VITE_API_URL || "";
 
   /**
    * Upload and analyze a restaurant image from social media
@@ -78,10 +78,10 @@ class RestaurantService {
       "x-auth-token": token,
     };
 
-    console.log('🔍 Uploading zhongcao image to:', `${this.API_BASE}/restaurants/zhongcao/social-upload`);
+    console.log('🔍 Uploading zhongcao image to:', `${this.API_BASE}/api/restaurants/zhongcao/social-upload`);
     
     const response = await fetch(
-      `${this.API_BASE}/restaurants/zhongcao/social-upload`,
+      `${this.API_BASE}/api/restaurants/zhongcao/social-upload`,
       {
         method: "POST",
         headers,
@@ -120,9 +120,9 @@ class RestaurantService {
       "x-auth-token": token,
     };
 
-    console.log('🔍 Fetching zhongcao results from:', `${this.API_BASE}/restaurants/zhongcao`);
+    console.log('🔍 Fetching zhongcao results from:', `${this.API_BASE}/api/restaurants/zhongcao`);
     
-    const response = await fetch(`${this.API_BASE}/restaurants/zhongcao`, {
+    const response = await fetch(`${this.API_BASE}/api/restaurants/zhongcao`, {
       method: "GET",
       headers,
     });
@@ -162,9 +162,9 @@ class RestaurantService {
       "x-auth-token": token,
     };
 
-    console.log('🔍 Fetching zhongcao result by ID from:', `${this.API_BASE}/restaurants/zhongcao/${id}`);
+    console.log('🔍 Fetching zhongcao result by ID from:', `${this.API_BASE}/api/restaurants/zhongcao/${id}`);
     
-    const response = await fetch(`${this.API_BASE}/restaurants/zhongcao/${id}`, {
+    const response = await fetch(`${this.API_BASE}/api/restaurants/zhongcao/${id}`, {
       method: "GET",
       headers,
     });
@@ -200,9 +200,9 @@ class RestaurantService {
       "x-auth-token": token,
     };
 
-    console.log('🔍 Updating zhongcao result at:', `${this.API_BASE}/restaurants/zhongcao/${id}`);
+    console.log('🔍 Updating zhongcao result at:', `${this.API_BASE}/api/restaurants/zhongcao/${id}`);
     
-    const response = await fetch(`${this.API_BASE}/restaurants/zhongcao/${id}`, {
+    const response = await fetch(`${this.API_BASE}/api/restaurants/zhongcao/${id}`, {
       method: "PUT",
       headers,
       body: JSON.stringify(data),
@@ -228,9 +228,9 @@ class RestaurantService {
       "x-auth-token": token,
     };
 
-    console.log('🔍 Deleting zhongcao result at:', `${this.API_BASE}/restaurants/zhongcao/${id}`);
+    console.log('🔍 Deleting zhongcao result at:', `${this.API_BASE}/api/restaurants/zhongcao/${id}`);
     
-    const response = await fetch(`${this.API_BASE}/restaurants/zhongcao/${id}`, {
+    const response = await fetch(`${this.API_BASE}/api/restaurants/zhongcao/${id}`, {
       method: "DELETE",
       headers,
     });
@@ -259,7 +259,7 @@ class RestaurantService {
     };
 
     const response = await fetch(
-      `${this.API_BASE}/restaurants?location=${encodeURIComponent(query)}`,
+      `${this.API_BASE}/api/restaurants?location=${encodeURIComponent(query)}`,
       {
         method: "GET",
         headers,

@@ -1,5 +1,5 @@
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5001";
+  import.meta.env.VITE_API_BASE_URL || "";
 
 // Simple token utility - in production, this should come from a proper auth context
 const getAuthToken = (): string | null => {
@@ -45,7 +45,7 @@ export const getUserProfile = async (): Promise<UserProfile> => {
       return {};
     }
 
-    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/profile`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -82,7 +82,7 @@ export const createOrUpdateProfile = async (
       throw new Error("Authentication required");
     }
 
-    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/profile`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

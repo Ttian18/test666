@@ -1,10 +1,28 @@
 import { PrismaClient } from "@prisma/client";
+import { randomUUID } from "crypto";
 
 // Use global prisma instance in tests, otherwise create new instance
 const prisma = global.prisma || new PrismaClient();
 
+interface ProfileData {
+  id?: string;
+  userId?: string;
+  monthlyBudget?: number;
+  monthlyIncome?: number;
+  expensePreferences?: string[];
+  savingsGoals?: string[];
+  lifestylePreferences?: Record<string, any>;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+interface ProfileQuery {
+  userId?: string;
+}
+
 export default class Profile {
   public _id: string;
+  public id?: string;
   public userId?: string;
   public monthlyBudget: number;
   public monthlyIncome: number;
@@ -20,8 +38,8 @@ export default class Profile {
     this.userId = data.userId;
     this.monthlyBudget = data.monthlyBudget ?? 0;
     this.monthlyIncome = data.monthlyIncome ?? 0;
-    this.expensePreferences = data.expensePreferences ?? {};
-    this.savingsGoals = data.savingsGoals ?? {};
+    this.expensePreferences = data.expensePreferences ?? [];
+    this.savingsGoals = data.savingsGoals ?? [];
     this.lifestylePreferences = data.lifestylePreferences ?? {};
     this.createdAt = data.createdAt || new Date();
     this.updatedAt = data.updatedAt || new Date();
