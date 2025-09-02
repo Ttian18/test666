@@ -6,6 +6,7 @@ import {
   User,
   Sparkles,
   Camera,
+  MapPin,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -55,6 +56,12 @@ const TopNavigation = () => {
       label: "Menu Analysis",
       icon: Utensils,
       path: "/menu-analysis",
+    },
+    {
+      id: "restaurant-recommendations",
+      label: "Restaurants",
+      icon: MapPin,
+      path: "/restaurant-recommendations",
     },
     {
       id: "zhongcao",

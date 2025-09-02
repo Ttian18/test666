@@ -20,6 +20,7 @@ import About from "./pages/About";
 import Home from "./pages/Home";
 import Reports from "./pages/Reports";
 import MenuAnalysis from "./pages/MenuAnalysis";
+import Recommendations from "./pages/Recommendations";
 import Zhongcao from "./pages/Zhongcao";
 import AddExpense from "./pages/AddExpense";
 import Questionnaire from "./pages/Questionnaire";
@@ -115,6 +116,14 @@ const App = () => {
                   element={
                     <ProtectedRoute>
                       <MenuAnalysis />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/restaurant-recommendations"
+                  element={
+                    <ProtectedRoute>
+                      <Recommendations />
                     </ProtectedRoute>
                   }
                 />

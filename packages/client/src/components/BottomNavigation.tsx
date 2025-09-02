@@ -1,4 +1,4 @@
-import { BarChart3, Home, Utensils, Camera } from "lucide-react";
+import { BarChart3, Home, Utensils, Camera, MapPin } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -34,6 +34,12 @@ const BottomNavigation = () => {
       label: "Menu Analysis",
       icon: Utensils,
       path: "/menu-analysis",
+    },
+    {
+      id: "restaurant-recommendations",
+      label: "Restaurants",
+      icon: MapPin,
+      path: "/restaurant-recommendations",
     },
     {
       id: "zhongcao",
