@@ -120,7 +120,19 @@ Before you begin, ensure you have the following installed:
 
 3. **Set up environment variables**
 
-   This project requires **three separate .env files** for different purposes:
+   This project requires **three separate .env files** for different purposes. **Example files are provided** - copy and rename them:
+
+   ```bash
+   # Option 1: Use the setup script (recommended)
+   ./setup-env.sh
+
+   # Option 2: Copy example files manually
+   cp env.example.root .env
+   cp packages/server/env.example.server packages/server/.env
+   cp packages/client/env.example.client packages/client/.env
+   ```
+
+   Then update each file with your actual API keys and database credentials:
 
    **Root `.env`** (Docker Compose Configuration):
    ```env
@@ -1361,6 +1373,22 @@ Your project requires **three separate .env files** because each serves a differ
 - **Purpose**: Vite build-time environment variables
 - **Location**: `/packages/client/.env`
 - **Contains**: `VITE_*` prefixed variables for frontend build
+
+### 📋 **Quick Setup with Example Files**
+
+To get started quickly, use the provided example files:
+
+```bash
+# Copy example files and rename them
+cp env.example.root .env
+cp packages/server/env.example.server packages/server/.env  
+cp packages/client/env.example.client packages/client/.env
+
+# Then edit each file with your actual values:
+# - Database URL from Neon (https://neon.tech/)
+# - OpenAI API key (https://platform.openai.com/api-keys)
+# - Google Places API key (https://developers.google.com/maps/documentation/places/web-service/get-api-key)
+```
 
 ### 🔧 **Configuration Details**
 
