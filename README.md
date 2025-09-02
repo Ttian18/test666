@@ -469,7 +469,8 @@ Registers a new user.
   {
     "email": "user@example.com",
     "password": "a-strong-password",
-    "name": "John Doe"
+    "firstName": "John",
+    "lastName": "Doe"
   }
   ```
 - **Success Response (`201 Created`)**:
@@ -481,7 +482,7 @@ Registers a new user.
   }
   ```
 - **Error Responses**:
-  - `400 Bad Request`: If email, password, or name are invalid.
+  - `400 Bad Request`: If email, password, firstName, or lastName are invalid.
   - `409 Conflict`: If the email is already registered.
 
 ---
