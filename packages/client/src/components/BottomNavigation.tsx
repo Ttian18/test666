@@ -7,7 +7,10 @@ const BottomNavigation = () => {
   const navigate = useNavigate();
 
   const isActive = (path: string) => {
-    if (path === "/home" && (location.pathname === "/" || location.pathname === "/home")) {
+    if (
+      path === "/home" &&
+      (location.pathname === "/" || location.pathname === "/home")
+    ) {
       return true;
     }
     return location.pathname === path;
@@ -27,10 +30,10 @@ const BottomNavigation = () => {
       path: "/home",
     },
     {
-      id: "recommendations",
-      label: "Recommendation",
+      id: "menu-analysis",
+      label: "Menu Analysis",
       icon: Utensils,
-      path: "/recommendations",
+      path: "/menu-analysis",
     },
     {
       id: "zhongcao",
@@ -46,15 +49,15 @@ const BottomNavigation = () => {
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const active = isActive(tab.path);
-          
+
           return (
             <button
               key={tab.id}
               onClick={() => navigate(tab.path)}
               className={cn(
                 "flex flex-col items-center gap-1 py-2 px-4 rounded-lg transition-all duration-200",
-                active 
-                  ? "text-primary bg-primary/10" 
+                active
+                  ? "text-primary bg-primary/10"
                   : "text-muted-foreground hover:text-foreground hover:bg-secondary"
               )}
             >

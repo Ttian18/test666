@@ -31,7 +31,7 @@ import {
 import { useAuthContext } from "@/contexts/AuthContext";
 import { getUserProfile, type UserProfile } from "@/lib/profileApi";
 
-const Recommendations = () => {
+const MenuAnalysis = () => {
   const { toast } = useToast();
   const { isAuthenticated } = useAuthContext();
 
@@ -956,5 +956,4 @@ const Recommendations = () => {
   );
 };
 
-export default Recommendations;
-
+export default MenuAnalysis;

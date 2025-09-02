@@ -211,6 +211,19 @@ const AddExpense = () => {
   const handleDeleteTransaction = async (id: number) => {
     if (!token) return;
 
+    // Find the transaction to get merchant name for confirmation
+    const transaction = transactions.find((t) => t.id === id);
+    const merchantName = transaction?.merchant || "this transaction";
+
+    // Add confirmation dialog
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete the transaction from ${merchantName}? This action cannot be undone.`
+    );
+
+    if (!confirmDelete) {
+      return; // User cancelled
+    }
+
     try {
       await TransactionService.deleteTransaction(id, token);
       setTransactions((prev) =>

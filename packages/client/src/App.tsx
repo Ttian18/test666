@@ -19,7 +19,7 @@ import Pricing from "./pages/Pricing";
 import About from "./pages/About";
 import Home from "./pages/Home";
 import Reports from "./pages/Reports";
-import Recommendations from "./pages/Recommendations";
+import MenuAnalysis from "./pages/MenuAnalysis";
 import Zhongcao from "./pages/Zhongcao";
 import AddExpense from "./pages/AddExpense";
 import Questionnaire from "./pages/Questionnaire";
@@ -32,14 +32,17 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const [hasSeenIntro, setHasSeenIntro] = useState(false);
-  const [hasCompletedQuestionnaire, setHasCompletedQuestionnaire] = useState(false);
+  const [hasCompletedQuestionnaire, setHasCompletedQuestionnaire] =
+    useState(false);
 
   useEffect(() => {
-    const seenIntro = localStorage.getItem('hasSeenIntro');
-    const completedQuestionnaire = localStorage.getItem('hasCompletedQuestionnaire');
-    
-    setHasSeenIntro(seenIntro === 'true');
-    setHasCompletedQuestionnaire(completedQuestionnaire === 'true');
+    const seenIntro = localStorage.getItem("hasSeenIntro");
+    const completedQuestionnaire = localStorage.getItem(
+      "hasCompletedQuestionnaire"
+    );
+
+    setHasSeenIntro(seenIntro === "true");
+    setHasCompletedQuestionnaire(completedQuestionnaire === "true");
   }, []);
 
   return (
@@ -56,116 +59,116 @@ const App = () => {
               <Toaster />
               <Sonner />
               <Routes>
-              {/* Landing and Public routes */}
-              <Route path="/" element={<Landing />} />
-              <Route path="/blogs" element={<Blogs />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/login" element={<LoginLanding />} />
-              <Route path="/signup" element={<Signup />} />
-              
-              {/* Legacy public routes */}
-              <Route 
-                path="/legacy-login" 
-                element={
-                  <ProtectedRoute requireAuth={false}>
-                    <Login />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/intro" 
-                element={
-                  <ProtectedRoute skipOnboarding={true}>
-                    <IntroSlides />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* Protected app routes */}
-              <Route 
-                path="/app" 
-                element={
-                  <ProtectedRoute>
-                    {hasSeenIntro ? <Home /> : <IntroSlides />}
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/home" 
-                element={
-                  <ProtectedRoute>
-                    <Home />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/reports" 
-                element={
-                  <ProtectedRoute>
-                    <Reports />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/recommendations" 
-                element={
-                  <ProtectedRoute>
-                    <Recommendations />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/zhongcao" 
-                element={
-                  <ProtectedRoute>
-                    <Zhongcao />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/add-expense" 
-                element={
-                  <ProtectedRoute>
-                    <AddExpense />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/questionnaire" 
-                element={
-                  <ProtectedRoute skipOnboarding={true}>
-                    <Questionnaire />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/profile" 
-                element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/showcase" 
-                element={
-                  <ProtectedRoute>
-                    <ButtonShowcase />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/style-showcase" 
-                element={
-                  <ProtectedRoute>
-                    <StyleShowcase />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* Catch-all route */}
-              <Route path="*" element={<NotFound />} />
+                {/* Landing and Public routes */}
+                <Route path="/" element={<Landing />} />
+                <Route path="/blogs" element={<Blogs />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/login" element={<LoginLanding />} />
+                <Route path="/signup" element={<Signup />} />
+
+                {/* Legacy public routes */}
+                <Route
+                  path="/legacy-login"
+                  element={
+                    <ProtectedRoute requireAuth={false}>
+                      <Login />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/intro"
+                  element={
+                    <ProtectedRoute skipOnboarding={true}>
+                      <IntroSlides />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Protected app routes */}
+                <Route
+                  path="/app"
+                  element={
+                    <ProtectedRoute>
+                      {hasSeenIntro ? <Home /> : <IntroSlides />}
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/home"
+                  element={
+                    <ProtectedRoute>
+                      <Home />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/reports"
+                  element={
+                    <ProtectedRoute>
+                      <Reports />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/menu-analysis"
+                  element={
+                    <ProtectedRoute>
+                      <MenuAnalysis />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/zhongcao"
+                  element={
+                    <ProtectedRoute>
+                      <Zhongcao />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/add-expense"
+                  element={
+                    <ProtectedRoute>
+                      <AddExpense />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/questionnaire"
+                  element={
+                    <ProtectedRoute skipOnboarding={true}>
+                      <Questionnaire />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/showcase"
+                  element={
+                    <ProtectedRoute>
+                      <ButtonShowcase />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/style-showcase"
+                  element={
+                    <ProtectedRoute>
+                      <StyleShowcase />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Catch-all route */}
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </AuthProvider>
           </BrowserRouter>

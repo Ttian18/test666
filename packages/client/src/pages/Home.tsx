@@ -151,7 +151,7 @@ const Home = () => {
                     variant="ai_primary"
                     icon="brain"
                     className="w-full"
-                    onClick={() => navigate("/recommendations")}
+                    onClick={() => navigate("/menu-analysis")}
                     glow="medium"
                     glowOnHover={true}
                   >
