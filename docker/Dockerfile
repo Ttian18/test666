@@ -1,7 +1,7 @@
 FROM node:18-alpine
 
-# Install OpenSSL for Prisma compatibility
-RUN apk add --no-cache openssl
+# Install OpenSSL and curl for Prisma compatibility and health checks
+RUN apk add --no-cache openssl curl
 
 WORKDIR /app
 
@@ -31,6 +31,10 @@ RUN npx prisma generate
 RUN mkdir -p uploads logs
 
 EXPOSE 5001
+
+# Add health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:5001/health || exit 1
 
 # Start server (migrations can be run manually if needed)
 CMD ["npm", "run", "dev"]
