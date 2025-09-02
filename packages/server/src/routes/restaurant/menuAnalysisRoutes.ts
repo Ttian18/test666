@@ -1,29 +1,29 @@
 import express from "express";
 import type { Request, Response } from "express";
-import MenuAnalysisController from "../../services/restaurant/menuAnalysisController.ts";
-import MenuAnalysisService from "../../services/restaurant/menuAnalysisService.ts";
+import MenuAnalysisController from "../../services/restaurant/menuAnalysisController";
+import MenuAnalysisService from "../../services/restaurant/menuAnalysisService";
 import {
   handleError,
   createError,
-} from "../../utils/errors/menuAnalysisErrors.js";
-import menuAnalysisCache from "../../utils/cache/menuAnalysisCache.js";
-import { uploadImageMemory } from "../../utils/upload/uploadUtils.js";
-import { validateBudget } from "../../utils/validation/validationUtils.js";
+} from "../../utils/errors/menuAnalysisErrors";
+import menuAnalysisCache from "../../utils/cache/menuAnalysisCache";
+import { uploadImageMemory } from "../../utils/upload/uploadUtils";
+import { validateBudget } from "../../utils/validation/validationUtils";
 import {
   getRestaurantPhotos,
   getMenuRecommendationFromPlace,
   getPlace,
   downloadPhotoBuffer,
-} from "../../services/restaurant/placeMenuPhotoService.js";
-import { extractTextFromImage } from "../../utils/ocr/ocrUtils.js";
-import { scoreMenuLikeness } from "../../services/restaurant/menuPhotoFilter.js";
-import { normalizeTags, tagsHash } from "../../utils/tagsUtils.js";
-import { normalizeCalories, caloriesHash } from "../../utils/caloriesUtils.js";
-import * as profileService from "../../services/auth/profileService.js";
+} from "../../services/restaurant/placeMenuPhotoService";
+import { extractTextFromImage } from "../../utils/ocr/ocrUtils";
+import { scoreMenuLikeness } from "../../services/restaurant/menuPhotoFilter";
+import { normalizeTags, tagsHash } from "../../utils/tagsUtils";
+import { normalizeCalories, caloriesHash } from "../../utils/caloriesUtils";
+import * as profileService from "../../services/auth/profileService";
 import {
   mapProfileDiningStyleToTags,
   determineFinalTags,
-} from "../../utils/tagsUtils.js";
+} from "../../utils/tagsUtils";
 
 const router = express.Router();
 

@@ -1,7 +1,7 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { PrismaClient } from "@prisma/client";
+import prisma from "../../models/database/client.ts";
 import { JWT_SECRET } from "../middleware/auth.ts";
 import type { Request, Response } from "express";
 import {
@@ -18,8 +18,6 @@ import {
 } from "schema";
 import tokenBlacklistService from "../../services/auth/tokenBlacklistService.ts";
 import { authenticate } from "../middleware/auth.ts";
-
-const prisma = new PrismaClient();
 
 // Define AuthenticatedRequest interface
 interface AuthenticatedRequest extends Request {

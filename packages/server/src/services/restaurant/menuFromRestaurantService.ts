@@ -1,6 +1,6 @@
 import "dotenv/config";
 import OpenAI from "openai";
-import { selectMenuPhoto } from "./menuPhotoFilter.js";
+import { selectMenuPhoto } from "./menuPhotoFilter";
 
 const ROOT = "https://places.googleapis.com/v1";
 const API_KEY = process.env.GOOGLE_PLACES_API_KEY;

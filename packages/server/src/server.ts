@@ -88,13 +88,28 @@ app.use((req: Request, res: Response) => {
   });
 });
 
+// Add global error handlers for unhandled promises
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+  // Don't exit the process, just log the error
+});
+
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught Exception:", error);
+  // Don't exit the process, just log the error
+});
+
 // Start the server
-app.listen(PORT, HOST, () => {
+app.listen(PORT, HOST, async () => {
   console.log(`🚀 Server running on http://${HOST}:${PORT}`);
   console.log(`📊 Health check: http://${HOST}:${PORT}/health`);
   console.log(`🌍 Environment: ${appConfig.nodeEnv}`);
 
-  // Start token cleanup service
-  tokenCleanupService.startCleanup(24); // Run cleanup every 24 hours
-  console.log(`🔒 Token cleanup service started`);
+  try {
+    // Start token cleanup service with error handling
+    tokenCleanupService.startCleanup(24); // Run cleanup every 24 hours
+    console.log(`🔒 Token cleanup service started`);
+  } catch (error) {
+    console.error("Error starting token cleanup service:", error);
+  }
 });

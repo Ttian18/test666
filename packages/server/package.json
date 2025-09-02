@@ -1,13 +1,13 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
-    "dev": "NODE_OPTIONS=\"--loader ts-node/esm\" nodemon src/server.ts",
+    "dev": "nodemon -r ts-node/register src/server.ts",
     "start": "node dist/server.js",
-    "build": "tsc",
+    "build": "NODE_OPTIONS=\"--max-old-space-size=4096\" tsc",
     "build:watch": "tsc -w",
-    "type-check": "tsc --noEmit",
+    "type-check": "NODE_OPTIONS=\"--max-old-space-size=4096\" tsc --noEmit",
     "seed": "NODE_OPTIONS=\"--loader ts-node/esm\" node src/models/database/seed.ts",
     "test": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' jest",
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' jest --watch",
@@ -16,7 +16,7 @@
   },
   "prisma": {
     "schema": "src/models/database/schema.prisma",
-    "seed": "node src/models/database/seed.js"
+    "seed": "ts-node src/models/database/seed.ts"
   },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.4.2",

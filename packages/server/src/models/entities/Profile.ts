@@ -16,7 +16,6 @@ export default class Profile {
 
   constructor(data: ProfileData = {}) {
     this._id = randomUUID();
-  constructor(data = {}) {
     this.id = data.id;
     this.userId = data.userId;
     this.monthlyBudget = data.monthlyBudget ?? 0;
@@ -47,12 +46,6 @@ export default class Profile {
   }
 
   async save(): Promise<Profile> {
-    this.updatedAt = new Date();
-    const idx = profiles.findIndex((p) => p._id === this._id);
-    if (idx >= 0) profiles[idx] = this;
-    else profiles.push(this);
-    return this;
-  async save() {
     try {
       this.updatedAt = new Date();
 
@@ -98,14 +91,9 @@ export default class Profile {
 
   populate(): Profile {
     return this; // no-op for in-memory stub
-  populate() {
-    return this; // no-op for Prisma
   }
 
   static async deleteMany(): Promise<{ deletedCount: number }> {
-    profiles.length = 0; // Clear the array
-    return { deletedCount: profiles.length };
-  static async deleteMany() {
     try {
       const result = await prisma.profile.deleteMany();
       return { deletedCount: result.count };

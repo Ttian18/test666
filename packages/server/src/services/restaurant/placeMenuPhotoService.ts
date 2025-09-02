@@ -1,11 +1,11 @@
 import "dotenv/config";
 import OpenAI from "openai";
-import { selectMenuPhoto } from "./menuPhotoFilter.js";
-import MenuAnalysisController from "./menuAnalysisController.js";
-import menuAnalysisCache from "../../utils/cache/menuAnalysisCache.js";
-import { normalizeTags, tagsHash } from "../../utils/tagsUtils.js";
-import { normalizeCalories, caloriesHash } from "../../utils/caloriesUtils.js";
-import { extractTextFromImage } from "../../utils/ocr/ocrUtils.js";
+import { selectMenuPhoto } from "./menuPhotoFilter";
+import MenuAnalysisController from "./menuAnalysisController";
+import menuAnalysisCache from "../../utils/cache/menuAnalysisCache";
+import { normalizeTags, tagsHash } from "../../utils/tagsUtils";
+import { normalizeCalories, caloriesHash } from "../../utils/caloriesUtils";
+import { extractTextFromImage } from "../../utils/ocr/ocrUtils";
 
 const ROOT = "https://places.googleapis.com/v1";
 const API_KEY = process.env.GOOGLE_PLACES_API_KEY;

@@ -1,6 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "../../models/database/client.ts";
 
 // In-memory blacklist for tokens (for production, consider using Redis)
 const tokenBlacklist = new Set<string>();

@@ -7,7 +7,7 @@ dotenv.config();
 const prisma = new PrismaClient();
 
 // Sample data arrays for generating realistic entries
-const restaurantNames = [
+const restaurantNames: string[] = [
   "Golden Dragon Restaurant",
   "Lucky Star Chinese",
   "Peking Palace",
@@ -25,7 +25,7 @@ const restaurantNames = [
   "Hong Kong Cafe",
 ];
 
-const dishNames = [
+const dishNames: string[] = [
   "Kung Pao Chicken",
   "Sweet and Sour Pork",
   "General Tso's Chicken",
@@ -48,7 +48,7 @@ const dishNames = [
   "Mongolian Beef",
 ];
 
-const addresses = [
+const addresses: string[] = [
   "123 Main Street, Downtown",
   "456 Oak Avenue, Midtown",
   "789 Pine Street, Uptown",
@@ -61,7 +61,7 @@ const addresses = [
   "741 Aspen Circle, Hillcrest",
 ];
 
-const socialMediaHandles = [
+const socialMediaHandles: string[] = [
   "@goldendragon_nyc",
   "@luckystar_chinese",
   "@pekingpalace_food",
@@ -79,7 +79,7 @@ const socialMediaHandles = [
   "@hongkongcafe_food",
 ];
 
-const descriptions = [
+const descriptions: string[] = [
   "Amazing authentic Chinese cuisine with fresh ingredients and traditional recipes passed down through generations.",
   "A hidden gem serving the best Chinese food in the neighborhood with excellent service and cozy atmosphere.",
   "Modern take on classic Chinese dishes with a fusion twist that keeps customers coming back for more.",
@@ -92,7 +92,7 @@ const descriptions = [
   "Cozy Chinese bistro offering comfort food with a gourmet touch and excellent wine pairings.",
 ];
 
-const originalFilenames = [
+const originalFilenames: string[] = [
   "food_photo_001.jpg",
   "restaurant_shot_002.png",
   "dish_image_003.jpeg",
@@ -111,12 +111,12 @@ const originalFilenames = [
 ];
 
 // Helper function to get random item from array
-function getRandomItem(array) {
+function getRandomItem<T>(array: T[]): T {
   return array[Math.floor(Math.random() * array.length)];
 }
 
 // Helper function to get random date within the last 30 days
-function getRandomDate() {
+function getRandomDate(): Date {
   const now = new Date();
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   return new Date(
@@ -125,7 +125,7 @@ function getRandomDate() {
   );
 }
 
-async function seedDatabase() {
+async function seedDatabase(): Promise<void> {
   try {
     console.log("Starting to seed ZhongcaoResult table...");
 

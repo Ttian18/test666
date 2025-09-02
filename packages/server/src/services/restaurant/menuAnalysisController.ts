@@ -1,10 +1,10 @@
-import MenuAnalysisService from "./menuAnalysisService.js";
-import BudgetRecommendationService from "./budgetRecommendationService.js";
-import { createError } from "../../utils/errors/menuAnalysisErrors.js";
-import { applyHardFilter } from "./tagHardFilter.js";
-import { rankDishesWithLLM } from "./llmMenuRanker.js";
-import { normalizeTags, tagsHash } from "../../utils/tagsUtils.js";
-import { normalizeCalories } from "../../utils/caloriesUtils.js";
+import MenuAnalysisService from "./menuAnalysisService";
+import BudgetRecommendationService from "./budgetRecommendationService";
+import { createError } from "../../utils/errors/menuAnalysisErrors";
+import { applyHardFilter } from "./tagHardFilter";
+import { rankDishesWithLLM } from "./llmMenuRanker";
+import { normalizeTags, tagsHash } from "../../utils/tagsUtils";
+import { normalizeCalories } from "../../utils/caloriesUtils";
 
 export default class MenuAnalysisController {
   constructor() {

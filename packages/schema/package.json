@@ -1,7 +1,7 @@
 {
   "name": "schema",
   "version": "1.0.0",
-  "type": "module",
+  "type": "commonjs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -11,8 +11,10 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
     },
+    "./dist/*": "./dist/*",
     "./src/*": "./src/*",
     "./types/*": "./src/types/*"
   },

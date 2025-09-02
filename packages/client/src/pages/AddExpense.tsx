@@ -31,7 +31,7 @@ import {
 import TopNavigation from "@/components/TopNavigation";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { categories } from "schema";
+import * as Schema from "schema";
 import { useAuthContext } from "@/contexts/AuthContext";
 import TransactionService from "@/services/transactionService";
 import {
@@ -752,7 +752,7 @@ const AddExpense = () => {
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
-                        {categories.map((category) => (
+                        {Schema.categories.map((category) => (
                           <SelectItem key={category} value={category}>
                             <div className="flex items-center gap-2">
                               <Tag size={16} />
@@ -923,7 +923,7 @@ const AddExpense = () => {
                           onCancel={handleCancelEdit}
                           onEditFormChange={setEditTransactionForm}
                           formatDate={formatDate}
-                          categories={categories}
+                          categories={Schema.categories}
                         />
                       ))}
 
@@ -1069,7 +1069,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
-                {categories.map((category) => (
+                {Schema.categories.map((category) => (
                   <SelectItem key={category} value={category}>
                     <div className="flex items-center gap-2">
                       <Tag size={12} />

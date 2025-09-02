@@ -1,6 +1,5 @@
-import { PrismaClient, type Prisma } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "../database/client.ts";
+import type { Prisma } from "@prisma/client";
 
 interface VoucherData {
   id?: number;

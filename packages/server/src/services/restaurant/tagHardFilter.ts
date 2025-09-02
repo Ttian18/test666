@@ -1,8 +1,8 @@
 import {
   splitHardSoftTags,
   buildDynamicHardTerms,
-} from "../../utils/tagsUtils.js";
-import { INGREDIENT_SYNONYMS } from "./tagRules.js";
+} from "../../utils/tagsUtils";
+import { INGREDIENT_SYNONYMS } from "./tagRules";
 
 /**
  * Apply hard filters for dietary restrictions

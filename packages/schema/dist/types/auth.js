@@ -1,58 +1,61 @@
-import { z } from "zod";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.UserDataSchema = exports.LoginResponseSchema = exports.RegisterResponseSchema = exports.AuthResponseSchema = exports.LogoutResponseSchema = exports.LogoutRequestSchema = exports.LoginRequestSchema = exports.RegisterRequestSchema = void 0;
+const zod_1 = require("zod");
 // Register request schema
-export const RegisterRequestSchema = z.object({
-    email: z.string().email("Invalid email format"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    firstName: z
+exports.RegisterRequestSchema = zod_1.z.object({
+    email: zod_1.z.string().email("Invalid email format"),
+    password: zod_1.z.string().min(8, "Password must be at least 8 characters"),
+    firstName: zod_1.z
         .string()
         .min(1, "First name is required")
         .max(50, "First name must be less than 50 characters")
         .regex(/^[a-zA-Z\s'-]+$/, "First name can only contain letters, spaces, hyphens, and apostrophes"),
-    lastName: z
+    lastName: zod_1.z
         .string()
         .min(1, "Last name is required")
         .max(50, "Last name must be less than 50 characters")
         .regex(/^[a-zA-Z\s'-]+$/, "Last name can only contain letters, spaces, hyphens, and apostrophes"),
 });
 // Login request schema
-export const LoginRequestSchema = z.object({
-    email: z.string().email("Invalid email format"),
-    password: z.string().min(1, "Password is required"),
+exports.LoginRequestSchema = zod_1.z.object({
+    email: zod_1.z.string().email("Invalid email format"),
+    password: zod_1.z.string().min(1, "Password is required"),
 });
 // Logout request schema
-export const LogoutRequestSchema = z.object({
-    token: z.string().min(1, "Token is required"),
+exports.LogoutRequestSchema = zod_1.z.object({
+    token: zod_1.z.string().min(1, "Token is required"),
 });
 // Logout response schema
-export const LogoutResponseSchema = z.object({
-    message: z.string(),
-    success: z.boolean(),
+exports.LogoutResponseSchema = zod_1.z.object({
+    message: zod_1.z.string(),
+    success: zod_1.z.boolean(),
 });
 // Auth response schema
-export const AuthResponseSchema = z.object({
-    message: z.string(),
-    userId: z.number(),
-    token: z.string(),
-    profileComplete: z.boolean().optional(),
+exports.AuthResponseSchema = zod_1.z.object({
+    message: zod_1.z.string(),
+    userId: zod_1.z.number(),
+    token: zod_1.z.string(),
+    profileComplete: zod_1.z.boolean().optional(),
 });
 // Register response schema
-export const RegisterResponseSchema = z.object({
-    message: z.string(),
-    userId: z.number(),
-    token: z.string(),
+exports.RegisterResponseSchema = zod_1.z.object({
+    message: zod_1.z.string(),
+    userId: zod_1.z.number(),
+    token: zod_1.z.string(),
 });
 // Login response schema
-export const LoginResponseSchema = z.object({
-    message: z.string(),
-    userId: z.number(),
-    token: z.string(),
-    profileComplete: z.boolean(),
-    name: z.string().nullable(),
+exports.LoginResponseSchema = zod_1.z.object({
+    message: zod_1.z.string(),
+    userId: zod_1.z.number(),
+    token: zod_1.z.string(),
+    profileComplete: zod_1.z.boolean(),
+    name: zod_1.z.string().nullable(),
 });
 // User data schema (for profile and other user-related responses)
-export const UserDataSchema = z.object({
-    id: z.number(),
-    email: z.string().email(),
-    name: z.string().nullable(),
-    profileComplete: z.boolean(),
+exports.UserDataSchema = zod_1.z.object({
+    id: zod_1.z.number(),
+    email: zod_1.z.string().email(),
+    name: zod_1.z.string().nullable(),
+    profileComplete: zod_1.z.boolean(),
 });

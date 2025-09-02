@@ -1,4 +1,7 @@
-export const findMerchantCategory = (merchantName) => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.findMerchantCategory = void 0;
+const findMerchantCategory = (merchantName) => {
     // This is a dummy implementation.
     // In a real application, this would use a more sophisticated method
     // to categorize merchants.
@@ -20,3 +23,4 @@ export const findMerchantCategory = (merchantName) => {
     }
     return "Others";
 };
+exports.findMerchantCategory = findMerchantCategory;

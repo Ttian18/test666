@@ -1,6 +1,6 @@
 import crypto from "crypto";
-import { DEFAULT_TAGS, HARD_DEFAULT_TAGS } from "../config/preferenceTags.js";
-import { INGREDIENT_SYNONYMS } from "../services/restaurant/tagRules.js";
+import { DEFAULT_TAGS, HARD_DEFAULT_TAGS } from "../config/preferenceTags";
+import { INGREDIENT_SYNONYMS } from "../services/restaurant/tagRules";
 
 /**
  * Normalize tags input to a standardized array

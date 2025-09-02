@@ -1,19 +1,22 @@
-import { z } from "zod";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GetRestaurantRecommendationsResponseSchema = exports.GetRestaurantRecommendationsRequestSchema = exports.RecommendationsEnvelopeSchema = exports.RecommendationsSchema = exports.RecommendationSchema = void 0;
+const zod_1 = require("zod");
 // Structured output schema for restaurant recommendations
-export const RecommendationSchema = z.object({
-    name: z.string().describe("The restaurant name"),
-    address: z.string().describe("The full street address of the restaurant"),
-    phone: z
+exports.RecommendationSchema = zod_1.z.object({
+    name: zod_1.z.string().describe("The restaurant name"),
+    address: zod_1.z.string().describe("The full street address of the restaurant"),
+    phone: zod_1.z
         .string()
         .optional()
         .default("")
         .describe("The restaurant's phone number"),
-    website: z
+    website: zod_1.z
         .string()
         .optional()
         .default("")
         .describe("The restaurant's website URL"),
-    googleMapsLink: z
+    googleMapsLink: zod_1.z
         .string()
         .optional()
         .default("")
@@ -22,66 +25,66 @@ export const RecommendationSchema = z.object({
         "Use both the search query and the place id to construct the link.",
         "e.g., https://www.google.com/maps/search/?api=1&query=Some+Place&query_place_id=ChIJN1t_tDeuEmsRUsoyG83frY4",
     ].join(" ")),
-    googleMapsLinkDescription: z
+    googleMapsLinkDescription: zod_1.z
         .string()
         .optional()
         .default("")
         .describe("Description for the Google Maps link"),
-    reason: z
+    reason: zod_1.z
         .string()
         .describe("Why this restaurant is recommended based on user preferences"),
-    recommendation: z
+    recommendation: zod_1.z
         .string()
         .describe("Specific recommendation or tip about this restaurant"),
-    cuisine: z.string().optional().default("").describe("Type of cuisine served"),
-    priceRange: z
+    cuisine: zod_1.z.string().optional().default("").describe("Type of cuisine served"),
+    priceRange: zod_1.z
         .string()
         .optional()
         .default("")
         .describe("Price range (e.g., $, $$, $$$, $$$$)"),
-    rating: z.string().optional().default("").describe("Average rating if known"),
-    hours: z.string().optional().default("").describe("Operating hours if known"),
-    specialFeatures: z
+    rating: zod_1.z.string().optional().default("").describe("Average rating if known"),
+    hours: zod_1.z.string().optional().default("").describe("Operating hours if known"),
+    specialFeatures: zod_1.z
         .string()
         .optional()
         .default("")
         .describe("Special features like outdoor seating, live music, etc."),
 });
-export const RecommendationsSchema = z.array(RecommendationSchema);
-export const RecommendationsEnvelopeSchema = z.object({
-    recommendations: RecommendationsSchema,
+exports.RecommendationsSchema = zod_1.z.array(exports.RecommendationSchema);
+exports.RecommendationsEnvelopeSchema = zod_1.z.object({
+    recommendations: exports.RecommendationsSchema,
 });
 // Request schemas for restaurant recommendations
-export const GetRestaurantRecommendationsRequestSchema = z.object({
-    query: z
+exports.GetRestaurantRecommendationsRequestSchema = zod_1.z.object({
+    query: zod_1.z
         .string()
         .min(1, "Query is required")
         .describe("The search query for restaurant recommendations"),
-    userData: z
+    userData: zod_1.z
         .object({
-        name: z.string().optional(),
-        email: z.string().email().optional(),
-        monthlyBudget: z.number().positive().optional(),
-        monthlyIncome: z.number().positive().optional(),
-        expensePreferences: z
+        name: zod_1.z.string().optional(),
+        email: zod_1.z.string().email().optional(),
+        monthlyBudget: zod_1.z.number().positive().optional(),
+        monthlyIncome: zod_1.z.number().positive().optional(),
+        expensePreferences: zod_1.z
             .object({
-            diningOut: z.string().optional(),
-            cuisineTypes: z.array(z.string()).optional(),
+            diningOut: zod_1.z.string().optional(),
+            cuisineTypes: zod_1.z.array(zod_1.z.string()).optional(),
         })
             .optional(),
-        savingsGoals: z.record(z.any()).optional(),
-        lifestylePreferences: z
+        savingsGoals: zod_1.z.record(zod_1.z.any()).optional(),
+        lifestylePreferences: zod_1.z
             .object({
-            diningStyle: z.string().optional(),
-            priceRange: z.string().optional(),
+            diningStyle: zod_1.z.string().optional(),
+            priceRange: zod_1.z.string().optional(),
         })
             .optional(),
     })
         .optional(),
 });
 // Response schema for restaurant recommendations
-export const GetRestaurantRecommendationsResponseSchema = z.object({
-    query: z.string(),
-    answer: RecommendationsSchema,
-    rawAnswer: z.string(),
+exports.GetRestaurantRecommendationsResponseSchema = zod_1.z.object({
+    query: zod_1.z.string(),
+    answer: exports.RecommendationsSchema,
+    rawAnswer: zod_1.z.string(),
 });
