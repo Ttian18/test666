@@ -120,14 +120,48 @@ Before you begin, ensure you have the following installed:
 
 3. **Set up environment variables**
 
-   Create a `.env` file in the `packages/server/` directory:
+   This project requires **three separate .env files** for different purposes:
 
+   **Root `.env`** (Docker Compose Configuration):
    ```env
+   # Database Configuration (Production - Neon)
+   DATABASE_URL="postgresql://neondb_owner:npg_***@ep-wild-math-***.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+   
+   # JWT Configuration
+   JWT_SECRET="your-jwt-secret-key-2024"
+   
+   # API Keys
+   OPENAI_API_KEY=sk-proj-***
+   GOOGLE_PLACES_API_KEY=AIzaSyD***
+   
+   # Server Configuration
+   NODE_ENV="production"
    PORT=5001
-   OPENAI_API_KEY=your_openai_api_key_here
-   GOOGLE_PLACES_API_KEY=your_google_places_api_key_here
-   DATABASE_URL="postgresql://username:password@host:port/database?sslmode=require"
-   JWT_SECRET=your_jwt_secret_here
+   HOST=0.0.0.0
+   CORS_ORIGIN=*
+   ```
+
+   **`packages/server/.env`** (Backend Development):
+   ```env
+   # Server Configuration - Local Development
+   PORT=5001
+   HOST=0.0.0.0
+   CORS_ORIGIN=*
+   NODE_ENV=development
+   
+   # API Keys (same as root .env)
+   JWT_SECRET="your-jwt-secret-key-2024"
+   OPENAI_API_KEY=sk-proj-***
+   GOOGLE_PLACES_API_KEY=AIzaSyD***
+   DATABASE_URL="postgresql://neondb_owner:npg_***@ep-wild-math-***.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+   ```
+
+   **`packages/client/.env`** (Frontend Build):
+   ```env
+   # Backend API URL
+   VITE_API_URL=http://localhost:5001
+   
+   # Environment
    NODE_ENV=development
    ```
 
@@ -140,9 +174,9 @@ Before you begin, ensure you have the following installed:
    npx prisma db seed
    ```
 
-5. **Set up environment variables**
+5. **Verify environment setup**
 
-   Create a `.env` file in the `packages/server/` directory with all required variables (see Environment Variables section below).
+   Ensure all three `.env` files are properly configured with your API keys and database credentials.
 
 ## 🚀 Development
 
@@ -1307,18 +1341,100 @@ Get comprehensive dashboard data for authenticated user.
   }
   ```
 
-## 🔐 Environment Variables
+## 🔐 Environment Variables Setup
 
-### Required Environment Variables
+### 📁 **Why Three .env Files?**
 
-| Variable                | Description                    | Example            |
-| ----------------------- | ------------------------------ | ------------------ |
-| `PORT`                  | Server port number             | `5001`             |
-| `OPENAI_API_KEY`        | OpenAI API key for AI features | `sk-...`           |
-| `GOOGLE_PLACES_API_KEY` | Google Places API key          | `AIza...`          |
-| `DATABASE_URL`          | PostgreSQL connection string   | `postgresql://...` |
-| `JWT_SECRET`            | Secret for JWT token signing   | `your-secret-key`  |
-| `NODE_ENV`              | Environment mode               | `development`      |
+Your project requires **three separate .env files** because each serves a different purpose:
+
+#### **1. Root `.env`** (Docker Compose Configuration)
+- **Purpose**: Used by Docker Compose for container orchestration
+- **Location**: `/.env`
+- **Contains**: Database URLs, API keys, Docker-specific variables
+
+#### **2. Server `.env`** (Backend Runtime Configuration)
+- **Purpose**: Server-specific runtime configuration
+- **Location**: `/packages/server/.env`
+- **Contains**: Server host/port, CORS settings, API keys, database connection
+
+#### **3. Client `.env`** (Frontend Build Configuration)
+- **Purpose**: Vite build-time environment variables
+- **Location**: `/packages/client/.env`
+- **Contains**: `VITE_*` prefixed variables for frontend build
+
+### 🔧 **Configuration Details**
+
+#### **Root `.env`** (Master Configuration)
+```env
+# Database Configuration (Production - Neon)
+DATABASE_URL="postgresql://neondb_owner:npg_***@ep-wild-math-***.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+# JWT Configuration
+JWT_SECRET="your-jwt-secret-key-2024"
+
+# API Keys
+OPENAI_API_KEY=sk-proj-***
+GOOGLE_PLACES_API_KEY=AIzaSyD***
+
+# Server Configuration
+NODE_ENV="production"
+PORT=5001
+HOST=0.0.0.0
+CORS_ORIGIN=*
+
+# For Docker Compose - PostgreSQL (local database alternative)
+POSTGRES_DB="nextai_finance"
+POSTGRES_USER="nextai_user"
+POSTGRES_PASSWORD="nextai_password"
+```
+
+#### **Server `.env`** (Local Development)
+```env
+# Server Configuration - Local Development
+PORT=5001
+HOST=0.0.0.0
+CORS_ORIGIN=*
+NODE_ENV=development
+
+# API Keys (same as root .env)
+JWT_SECRET="your-jwt-secret-key-2024"
+OPENAI_API_KEY=sk-proj-***
+GOOGLE_PLACES_API_KEY=AIzaSyD***
+DATABASE_URL="postgresql://neondb_owner:npg_***@ep-wild-math-***.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+```
+
+#### **Client `.env`** (Frontend Build)
+```env
+# Backend API URL
+VITE_API_URL=http://localhost:5001
+
+# Environment
+NODE_ENV=development
+```
+
+### 🚀 **Deployment Considerations**
+
+#### **For Production:**
+- Update `VITE_API_URL` to your production server URL
+- Set `NODE_ENV=production` in appropriate files
+- Ensure all sensitive keys are properly secured
+
+#### **For Development:**
+- Use `localhost` URLs for local development
+- Set `NODE_ENV=development` for better debugging
+
+### 🔒 **Security Notes**
+
+- **Never commit .env files** to version control (already in .gitignore)
+- **API keys are currently visible** - consider using environment variable injection for production
+- **Database credentials** should be rotated regularly
+
+### 🔄 **When to Update**
+
+- **Server IP changes**: Update `VITE_API_URL` in client .env
+- **Database migration**: Update `DATABASE_URL` in root and server .env
+- **API key rotation**: Update keys in root and server .env
+- **Environment changes**: Update `NODE_ENV` appropriately
 
 ## 🧪 Testing
 
