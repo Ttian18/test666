@@ -15,7 +15,8 @@
     "test:reco": "NODE_OPTIONS=\"--loader ts-node/esm\" node test/runRecommendation.ts"
   },
   "prisma": {
-    "schema": "src/models/database/schema.prisma"
+    "schema": "src/models/database/schema.prisma",
+    "seed": "node src/models/database/seed.js"
   },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.4.2",
@@ -33,6 +34,7 @@
     "openai": "^5.12.2",
     "schema": "file:../schema",
     "sharp": "^0.34.3",
+    "tesseract.js": "^5.0.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {

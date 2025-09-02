@@ -16,7 +16,21 @@ class MenuAnalysisCache {
   /**
    * Store the last recommendation in cache
    */
-  setLastRecommendation({ imageBuffer, menuInfo, recommendation, budget }) {
+  setLastRecommendation({
+    imageBuffer,
+    menuInfo,
+    recommendation,
+    budget,
+    tagsSig,
+    calSig,
+    tagsApplied,
+    hardConstraints,
+    softPreferences,
+    guardViolations,
+    removedByTags,
+    filterDebug,
+    caloriesApplied,
+  }) {
     const menuHash = imageBuffer
       ? this.computeMenuHash(imageBuffer)
       : this.cache?.menuHash;
@@ -27,6 +41,15 @@ class MenuAnalysisCache {
       menuInfo,
       recommendation,
       budget,
+      tagsSig: tagsSig || null,
+      calSig: calSig || null,
+      tagsApplied: tagsApplied || null,
+      hardConstraints: hardConstraints || null,
+      softPreferences: softPreferences || null,
+      guardViolations: guardViolations || [],
+      removedByTags: removedByTags || 0,
+      filterDebug: filterDebug || [],
+      caloriesApplied: caloriesApplied || null,
       ts,
     };
   }
@@ -67,6 +90,22 @@ class MenuAnalysisCache {
   hasSameBudget(budget) {
     if (this.isEmpty()) return false;
     return this.cache.budget === budget;
+  }
+
+  /**
+   * Check if tags signature matches the cached one
+   */
+  hasSameTags(tagsSig) {
+    if (this.isEmpty()) return false;
+    return this.cache.tagsSig === tagsSig;
+  }
+
+  /**
+   * Check if calories signature matches the cached one
+   */
+  hasSameCalories(calSig) {
+    if (this.isEmpty()) return false;
+    return this.cache.calSig === calSig;
   }
 
   /**
