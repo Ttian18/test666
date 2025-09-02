@@ -503,9 +503,9 @@ Below is a detailed list of all available API endpoints for developers.
 
 ---
 
-### Authentication (`/auth`)
+### Authentication (`/api/auth`)
 
-#### **`POST /register`**
+#### **`POST /api/auth/register`**
 
 Registers a new user.
 
@@ -533,7 +533,7 @@ Registers a new user.
 
 ---
 
-#### **`POST /login`**
+#### **`POST /api/auth/login`**
 
 Logs in an existing user.
 
@@ -559,7 +559,7 @@ Logs in an existing user.
 
 ---
 
-#### **`POST /logout`**
+#### **`POST /api/auth/logout`**
 
 Logs out the authenticated user by blacklisting their JWT token.
 
@@ -584,7 +584,7 @@ Logs out the authenticated user by blacklisting their JWT token.
 
 ---
 
-#### **`POST /profile`**
+#### **`POST /api/auth/profile`**
 
 Creates or updates a user's profile.
 
@@ -631,7 +631,7 @@ Creates or updates a user's profile.
 
 ---
 
-#### **`GET /profile`**
+#### **`GET /api/auth/profile`**
 
 Retrieves the authenticated user's profile.
 
@@ -654,9 +654,9 @@ Retrieves the authenticated user's profile.
 
 ---
 
-### Token Blacklist Management (`/auth/blacklist`)
+### Token Blacklist Management (`/api/auth/blacklist`)
 
-#### **`GET /stats`**
+#### **`GET /api/auth/blacklist/stats`**
 
 Retrieves blacklist statistics and cleanup service status.
 
@@ -678,7 +678,7 @@ Retrieves blacklist statistics and cleanup service status.
 
 ---
 
-#### **`POST /cleanup`**
+#### **`POST /api/auth/blacklist/cleanup`**
 
 Manually triggers cleanup of expired blacklisted tokens.
 
@@ -692,7 +692,7 @@ Manually triggers cleanup of expired blacklisted tokens.
 
 ---
 
-#### **`POST /cleanup/start`**
+#### **`POST /api/auth/blacklist/cleanup/start`**
 
 Starts the automatic cleanup service.
 
@@ -713,7 +713,7 @@ Starts the automatic cleanup service.
 
 ---
 
-#### **`POST /cleanup/stop`**
+#### **`POST /api/auth/blacklist/cleanup/stop`**
 
 Stops the automatic cleanup service.
 
@@ -727,9 +727,9 @@ Stops the automatic cleanup service.
 
 ---
 
-### Transactions (`/transactions`)
+### Transactions (`/api/transactions`)
 
-#### **`GET /`**
+#### **`GET /api/transactions`**
 
 Retrieves a list of transactions for the authenticated user.
 
@@ -760,7 +760,7 @@ Retrieves a list of transactions for the authenticated user.
 
 ---
 
-#### **`POST /`**
+#### **`POST /api/transactions`**
 
 Creates a new manual transaction.
 
@@ -792,7 +792,7 @@ Creates a new manual transaction.
 
 ---
 
-#### **`GET /:id`**
+#### **`GET /api/transactions/:id`**
 
 Retrieves a single transaction by its ID.
 
@@ -809,7 +809,7 @@ Retrieves a single transaction by its ID.
 
 ---
 
-#### **`PUT /:id`**
+#### **`PUT /api/transactions/:id`**
 
 Updates a transaction.
 
@@ -833,7 +833,7 @@ Updates a transaction.
 
 ---
 
-#### **`DELETE /:id`**
+#### **`DELETE /api/transactions/:id`**
 
 Deletes a transaction.
 
@@ -848,7 +848,7 @@ Deletes a transaction.
 
 ---
 
-#### **`GET /stats`**
+#### **`GET /api/transactions/stats`**
 
 Retrieves statistics for the user's transactions.
 
@@ -869,7 +869,7 @@ Retrieves statistics for the user's transactions.
 
 ---
 
-#### **`GET /categories`**
+#### **`GET /api/transactions/categories`**
 
 Retrieves a list of all available transaction categories.
 
@@ -883,9 +883,9 @@ Retrieves a list of all available transaction categories.
 
 ---
 
-### Vouchers (`/transactions/vouchers`)
+### Vouchers (`/api/transactions/vouchers`)
 
-#### **`POST /upload`**
+#### **`POST /api/transactions/vouchers/upload`**
 
 Uploads a single receipt image for processing.
 
@@ -907,7 +907,7 @@ Uploads a single receipt image for processing.
 
 ---
 
-#### **`POST /bulk-upload`**
+#### **`POST /api/transactions/vouchers/bulk-upload`**
 
 Uploads multiple receipt images (up to 10) for processing.
 
@@ -925,9 +925,9 @@ Uploads multiple receipt images (up to 10) for processing.
 
 ---
 
-### Restaurant & Menu Analysis (`/restaurants`)
+### Restaurant & Menu Analysis (`/api/restaurants`)
 
-#### **`GET /`**
+#### **`GET /api/restaurants`**
 
 Get personalized restaurant recommendations based on location.
 
@@ -958,7 +958,7 @@ Get personalized restaurant recommendations based on location.
 
 ---
 
-#### **`POST /menu-analysis`**
+#### **`POST /api/restaurants/menu-analysis`**
 
 Analyzes a menu image and provides budget-based recommendations with user history tracking.
 
@@ -989,7 +989,7 @@ Analyzes a menu image and provides budget-based recommendations with user histor
 
 ---
 
-#### **`GET /menu-analysis/history`**
+#### **`GET /api/restaurants/menu-analysis/history`**
 
 Get user's menu analysis history.
 
@@ -1009,7 +1009,7 @@ Get user's menu analysis history.
 
 ---
 
-#### **`GET /menu-analysis/history/:id`**
+#### **`GET /api/restaurants/menu-analysis/history/:id`**
 
 Get specific menu analysis by ID.
 
@@ -1027,7 +1027,7 @@ Get specific menu analysis by ID.
 
 ---
 
-#### **`PUT /menu-analysis/history/:id`**
+#### **`PUT /api/restaurants/menu-analysis/history/:id`**
 
 Update menu analysis notes or budget.
 
@@ -1050,7 +1050,7 @@ Update menu analysis notes or budget.
 
 ---
 
-#### **`DELETE /menu-analysis/history/:id`**
+#### **`DELETE /api/restaurants/menu-analysis/history/:id`**
 
 Delete menu analysis from history.
 
@@ -1060,7 +1060,7 @@ Delete menu analysis from history.
 
 ---
 
-#### **`GET /menu-analysis/stats`**
+#### **`GET /api/restaurants/menu-analysis/stats`**
 
 Get user's menu analysis statistics.
 
@@ -1082,7 +1082,7 @@ Get user's menu analysis statistics.
 
 ---
 
-#### **`POST /zhongcao/social-upload`**
+#### **`POST /api/restaurants/zhongcao/social-upload`**
 
 Analyzes a restaurant image from social media to extract details.
 
@@ -1099,7 +1099,7 @@ Analyzes a restaurant image from social media to extract details.
 
 ---
 
-#### **`GET /zhongcao`**
+#### **`GET /api/restaurants/zhongcao`**
 
 Get all zhongcao results for authenticated user.
 
@@ -1122,7 +1122,7 @@ Get all zhongcao results for authenticated user.
 
 ---
 
-#### **`GET /zhongcao/:id`**
+#### **`GET /api/restaurants/zhongcao/:id`**
 
 Get specific zhongcao result by ID.
 
@@ -1142,7 +1142,7 @@ Get specific zhongcao result by ID.
 
 ---
 
-#### **`PUT /zhongcao/:id`**
+#### **`PUT /api/restaurants/zhongcao/:id`**
 
 Update zhongcao result.
 
@@ -1170,7 +1170,7 @@ Update zhongcao result.
 
 ---
 
-#### **`DELETE /zhongcao/:id`**
+#### **`DELETE /api/restaurants/zhongcao/:id`**
 
 Delete zhongcao result.
 
@@ -1180,7 +1180,7 @@ Delete zhongcao result.
 
 ---
 
-#### **`GET /recommendations/last`**
+#### **`GET /api/restaurants/recommendations/last`**
 
 Get last cached recommendation.
 
@@ -1197,7 +1197,7 @@ Get last cached recommendation.
 
 ---
 
-#### **`POST /recommendations/rebudget`**
+#### **`POST /api/restaurants/recommendations/rebudget`**
 
 Re-recommend with new budget using cached menu.
 
@@ -1219,9 +1219,9 @@ Re-recommend with new budget using cached menu.
 
 ---
 
-### Financial Insights (`/transactions/insights`)
+### Financial Insights (`/api/insights`)
 
-#### **`GET /insights/summary`**
+#### **`GET /api/insights/summary`**
 
 Get spending summary for authenticated user.
 
@@ -1250,7 +1250,7 @@ Get spending summary for authenticated user.
 
 ---
 
-#### **`GET /insights/categories`**
+#### **`GET /api/insights/categories`**
 
 Get category analysis for authenticated user.
 
@@ -1272,7 +1272,7 @@ Get category analysis for authenticated user.
 
 ---
 
-#### **`GET /insights/merchants`**
+#### **`GET /api/insights/merchants`**
 
 Get merchant analysis for authenticated user.
 
@@ -1291,7 +1291,7 @@ Get merchant analysis for authenticated user.
 
 ---
 
-#### **`GET /insights/trends`**
+#### **`GET /api/insights/trends`**
 
 Get spending trends for authenticated user.
 
@@ -1312,7 +1312,7 @@ Get spending trends for authenticated user.
 
 ---
 
-#### **`GET /insights/budget`**
+#### **`GET /api/insights/budget`**
 
 Get budget analysis for authenticated user.
 
@@ -1333,7 +1333,7 @@ Get budget analysis for authenticated user.
 
 ---
 
-#### **`GET /insights/dashboard`**
+#### **`GET /api/insights/dashboard`**
 
 Get comprehensive dashboard data for authenticated user.
 
