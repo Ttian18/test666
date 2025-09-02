@@ -1,0 +1,105 @@
+mutianzhang@Mutians-MacBook-Air test666 % cd docker 
+mutianzhang@Mutians-MacBook-Air docker % docker compose up  
+Compose can now delegate builds to bake for better performance.
+ To do so, set COMPOSE_BAKE=true.
+[+] Building 87.2s (39/41)                                                  docker-container:exciting_curie
+ => [nextai-server internal] booting buildkit                                                          7.5s
+ => => pulling image moby/buildkit:buildx-stable-1                                                     6.6s
+ => => creating container buildx_buildkit_exciting_curie0                                              1.0s
+ => [nextai-server internal] load build definition from Dockerfile                                     0.0s
+ => => transferring dockerfile: 987B                                                                   0.0s
+ => [nextai-frontend internal] load metadata for docker.io/library/node:18-alpine                      1.1s
+ => [nextai-server internal] load .dockerignore                                                        0.0s
+ => => transferring context: 2B                                                                        0.0s
+ => [nextai-frontend builder  1/12] FROM docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3eb  0.0s
+ => => resolve docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0  0.0s
+ => [nextai-server internal] load build context                                                        3.8s
+ => => transferring context: 113.63MB                                                                  3.8s
+ => CACHED [nextai-server  2/14] RUN apk add --no-cache openssl curl                                   0.0s
+ => CACHED [nextai-server  3/14] WORKDIR /app                                                          0.0s
+ => [nextai-server  4/14] COPY package*.json ./                                                        0.1s
+ => [nextai-server  5/14] COPY packages/server/package*.json ./packages/server/                        0.0s
+ => [nextai-server  6/14] COPY packages/schema/package*.json ./packages/schema/                        0.0s
+ => [nextai-server  7/14] RUN npm install                                                             19.0s
+ => [nextai-server  8/14] COPY packages/schema ./packages/schema/                                      0.3s 
+ => [nextai-server  9/14] COPY packages/server ./packages/server/                                      0.4s 
+ => [nextai-server 10/14] WORKDIR /app/packages/schema                                                 0.0s 
+ => [nextai-server 11/14] RUN npm run build                                                            1.3s 
+ => [nextai-server 12/14] WORKDIR /app/packages/server                                                 0.0s
+ => [nextai-server 13/14] RUN npx prisma generate                                                      1.6s
+ => [nextai-server 14/14] RUN mkdir -p uploads logs                                                    0.1s
+ => [nextai-server] exporting to oci image format                                                     27.3s
+ => => exporting layers                                                                               14.2s
+ => => exporting manifest sha256:3bb62f687a5b9d1632ab41561be15866fb1b410ab9e89ff0100b17fdb374224f      0.0s
+ => => exporting config sha256:cce83cf3dcc861b724a2bd850b06051d6263415cdb6ccadcabda07010b1a5b13        0.0s
+ => => sending tarball                                                                                13.1s
+ => [nextai-server] importing to docker                                                                0.0s
+ => [nextai-server] resolving provenance for metadata file                                             0.0s
+ => [nextai-frontend internal] load build definition from Dockerfile.frontend                          0.0s
+ => => transferring dockerfile: 1.37kB                                                                 0.0s
+ => [nextai-frontend internal] load metadata for docker.io/library/nginx:alpine                        0.5s
+ => [nextai-frontend internal] load .dockerignore                                                      0.0s
+ => => transferring context: 2B                                                                        0.0s
+ => [nextai-frontend internal] load build context                                                      4.0s
+ => => transferring context: 44.55MB                                                                   3.9s
+ => [nextai-frontend stage-1 1/4] FROM docker.io/library/nginx:alpine@sha256:42a516af16b852e33b7682d5  0.0s
+ => => resolve docker.io/library/nginx:alpine@sha256:42a516af16b852e33b7682d5ef8acbd5d13fe08fecadc7ed  0.0s
+ => CACHED [nextai-frontend stage-1 2/4] COPY docker/nginx.conf /etc/nginx/nginx.conf                  0.0s
+ => CACHED [nextai-frontend builder  2/12] WORKDIR /app                                                0.0s
+ => [nextai-frontend builder  3/12] COPY packages/client/package*.json ./packages/client/              0.2s
+ => [nextai-frontend builder  4/12] COPY packages/schema/package*.json ./packages/schema/              0.0s
+ => [nextai-frontend builder  5/12] COPY package*.json ./                                              0.0s
+ => [nextai-frontend builder  6/12] RUN npm ci                                                        16.4s
+ => [nextai-frontend builder  7/12] COPY packages/schema ./packages/schema                             0.3s
+ => [nextai-frontend builder  8/12] WORKDIR /app/packages/schema                                       0.0s
+ => [nextai-frontend builder  9/12] RUN npm run build                                                  1.5s
+ => [nextai-frontend builder 10/12] WORKDIR /app/packages/client                                       0.3s
+ => [nextai-frontend builder 11/12] COPY packages/client ./                                            0.8s
+ => ERROR [nextai-frontend builder 12/12] RUN npm run build                                            0.3s
+------
+ > [nextai-frontend builder 12/12] RUN npm run build:
+0.180 
+0.180 > client@0.0.0 build
+0.180 > vite build
+0.180 
+0.292 /app/node_modules/rollup/dist/native.js:64
+0.292           throw new Error(
+0.292                 ^
+0.292 
+0.292 Error: Cannot find module @rollup/rollup-linux-arm64-musl. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828). Please try `npm i` again after removing both package-lock.json and node_modules directory.
+0.292     at requireWithFriendlyError (/app/node_modules/rollup/dist/native.js:64:9)
+0.292     at Object.<anonymous> (/app/node_modules/rollup/dist/native.js:73:76)
+0.292     ... 3 lines matching cause stack trace ...
+0.292     at Module._load (node:internal/modules/cjs/loader:1019:12)
+0.292     at ModuleWrap.<anonymous> (node:internal/modules/esm/translators:203:29)
+0.292     at ModuleJob.run (node:internal/modules/esm/module_job:195:25)
+0.292     at async ModuleLoader.import (node:internal/modules/esm/loader:337:24) {
+0.292   [cause]: Error: Cannot find module '@rollup/rollup-linux-arm64-musl'
+0.292   Require stack:
+0.292   - /app/node_modules/rollup/dist/native.js
+0.292       at Module._resolveFilename (node:internal/modules/cjs/loader:1140:15)
+0.292       at Module._load (node:internal/modules/cjs/loader:981:27)
+0.292       at Module.require (node:internal/modules/cjs/loader:1231:19)
+0.292       at require (node:internal/modules/helpers:177:18)
+0.292       at requireWithFriendlyError (/app/node_modules/rollup/dist/native.js:46:10)
+0.292       at Object.<anonymous> (/app/node_modules/rollup/dist/native.js:73:76)
+0.292       at Module._compile (node:internal/modules/cjs/loader:1364:14)
+0.292       at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+0.292       at Module.load (node:internal/modules/cjs/loader:1203:32)
+0.292       at Module._load (node:internal/modules/cjs/loader:1019:12) {
+0.292     code: 'MODULE_NOT_FOUND',
+0.292     requireStack: [ '/app/node_modules/rollup/dist/native.js' ]
+0.292   }
+0.292 }
+0.292 
+0.292 Node.js v18.20.8
+0.298 npm error Lifecycle script `build` failed with error:
+0.298 npm error code 1
+0.298 npm error path /app/packages/client
+0.298 npm error workspace client@0.0.0
+0.298 npm error location /app/packages/client
+0.298 npm error command failed
+0.299 npm error command sh -c vite build
+------
+failed to solve: process "/bin/sh -c npm run build" did not complete successfully: exit code: 1
+mutianzhang@Mutians-MacBook-Air docker % 
