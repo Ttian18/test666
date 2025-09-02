@@ -45,9 +45,26 @@ export default defineConfig(({ mode }) => ({
       "@tanstack/react-query",
       "schema",
     ],
+    // Ensure linked/workspace deps are pre-bundled
+    force: true,
+  },
+  ssr: {
+    // Ensure workspace package is bundled (not externalized) in SSR contexts
+    noExternal: ["schema"],
   },
   build: {
     // Optimize build for production
+    // Force Rollup CJS transform for workspace package paths (in local & Docker)
+    commonjsOptions: {
+      include: [
+        /node_modules/,
+        /packages[\\\/]schema[\\\/]dist[\\\/].*/,
+        /packages[\\\/]schema[\\\/].*/,
+        /app[\\\/]packages[\\\/]schema[\\\/]dist[\\\/].*/,
+      ],
+      transformMixedEsModules: true,
+      requireReturnsDefault: "auto",
+    },
     rollupOptions: {
       output: {
         manualChunks: {
