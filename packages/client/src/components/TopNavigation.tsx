@@ -4,9 +4,8 @@ import {
   Utensils,
   Plus,
   User,
-  Sparkles,
-  Camera,
   MapPin,
+  ShoppingBag,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -17,6 +16,7 @@ const TopNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,6 +27,32 @@ const TopNavigation = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Close mobile menu when clicking outside or on escape
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (isMobileMenuOpen && !target.closest("nav")) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    if (isMobileMenuOpen) {
+      document.addEventListener("click", handleClickOutside);
+      document.addEventListener("keydown", handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isMobileMenuOpen]);
 
   const isActive = (path: string) => {
     if (
@@ -42,86 +68,54 @@ const TopNavigation = () => {
     {
       id: "home",
       label: "Home",
-      icon: Home,
       path: "/home",
     },
     {
       id: "reports",
-      label: "Reports",
-      icon: BarChart3,
+      label: "Analytics",
       path: "/reports",
     },
     {
       id: "menu-analysis",
-      label: "Menu Analysis",
-      icon: Utensils,
+      label: "AI Menu",
       path: "/menu-analysis",
     },
     {
       id: "restaurant-recommendations",
       label: "Restaurants",
-      icon: MapPin,
       path: "/restaurant-recommendations",
     },
     {
       id: "zhongcao",
       label: "Wishlists",
-      icon: Camera,
       path: "/zhongcao",
     },
   ];
 
   return (
-    <div
+    <nav
       className={cn(
-        "sticky top-0 z-50 transition-all duration-500 ease-in-out",
-        isScrolled ? "px-[10%] py-2" : "px-0 py-0"
+        "sticky top-0 z-50 w-full transition-all duration-300 ease-in-out",
+        isScrolled
+          ? "bg-white/80 backdrop-blur-xl border-b border-gray-200/50"
+          : "bg-white/95 backdrop-blur-sm"
       )}
     >
-      <div
-        className={cn(
-          "transition-all duration-500 ease-in-out",
-          isScrolled
-            ? "bg-white/70 backdrop-blur-xl border border-border/30 shadow-soft rounded-2xl mx-auto"
-            : "bg-white border-b border-border"
-        )}
-      >
-        <div
-          className={cn(
-            "flex items-center justify-between px-6 transition-all duration-500 ease-in-out",
-            isScrolled ? "py-2" : "py-4"
-          )}
-        >
-          {/* Logo with AI branding */}
-          <div className="flex items-center gap-3">
-            <div
-              className={cn(
-                "bg-gradient-primary rounded-xl flex items-center justify-center transition-all duration-500 ease-in-out relative overflow-hidden",
-                isScrolled ? "w-8 h-8" : "w-10 h-10"
-              )}
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 animate-pulse" />
-              <Sparkles
-                className={cn(
-                  "text-white transition-all duration-500 ease-in-out",
-                  isScrolled ? "w-4 h-4" : "w-5 h-5"
-                )}
-              />
-            </div>
-            <span
-              className={cn(
-                "font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent transition-all duration-500 ease-in-out",
-                isScrolled ? "text-lg" : "text-xl"
-              )}
-            >
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo - Apple-inspired clean branding */}
+          <div
+            className="flex items-center cursor-pointer group"
+            onClick={() => navigate("/home")}
+          >
+            <div className="text-2xl font-semibold text-gray-900 tracking-tight">
               LaiSpend
-            </span>
+            </div>
           </div>
 
-          {/* Navigation with enhanced animations */}
-          <div className="flex items-center gap-4">
+          {/* Main Navigation - Apple-style clean tabs */}
+          <div className="hidden md:flex items-center space-x-8">
             {tabs.map((tab) => {
-              const Icon = tab.icon;
               const active = isActive(tab.path);
 
               return (
@@ -129,74 +123,125 @@ const TopNavigation = () => {
                   key={tab.id}
                   onClick={() => navigate(tab.path)}
                   className={cn(
-                    "group relative flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 ease-in-out transform hover:scale-105",
-                    isScrolled ? "px-3 py-1.5" : "px-4 py-2",
-                    active
-                      ? "text-white bg-gradient-primary shadow-medium"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/80 backdrop-blur-sm"
+                    "relative text-sm font-medium transition-all duration-200 ease-in-out",
+                    "hover:text-gray-900 focus:outline-none focus:text-gray-900",
+                    active ? "text-gray-900" : "text-gray-600"
                   )}
                 >
-                  <Icon
-                    className={cn(
-                      "transition-all duration-300",
-                      isScrolled ? "w-4 h-4" : "w-5 h-5",
-                      active && "drop-shadow-sm"
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      "font-medium transition-all duration-300",
-                      isScrolled ? "text-xs" : "text-sm"
-                    )}
-                  >
-                    {tab.label}
-                  </span>
+                  {tab.label}
                   {active && (
-                    <div className="absolute inset-0 bg-white/20 rounded-xl animate-pulse" />
+                    <div className="absolute -bottom-4 left-0 right-0 h-0.5 bg-blue-600 rounded-full" />
                   )}
                 </button>
               );
             })}
+          </div>
 
-            {/* Enhanced Add Expense Button */}
+          {/* Right Side Actions - Apple-style minimal */}
+          <div className="flex items-center space-x-4">
+            {/* Shopping bag icon like Apple */}
             <Button
               onClick={() => navigate("/add-expense")}
+              variant="ghost"
+              size="sm"
               className={cn(
-                "bg-gradient-primary hover:bg-gradient-primary/90 text-white flex items-center gap-2 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-medium relative overflow-hidden",
-                isScrolled ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm"
+                "hidden md:flex items-center gap-2 px-4 py-2 rounded-full",
+                "bg-blue-600 hover:bg-blue-700 text-white",
+                "transition-all duration-200 ease-in-out",
+                "text-sm font-medium"
               )}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-              <Plus
-                className={cn(
-                  "transition-all duration-300",
-                  isScrolled ? "w-4 h-4" : "w-5 h-5"
-                )}
-              />
-              {!isScrolled && <span className="font-medium">Add Expense</span>}
+              <Plus className="w-4 h-4" />
+              Add Expense
             </Button>
 
-            {/* Enhanced Profile Button */}
+            {/* Profile - Apple-style clean */}
+            <Button
+              onClick={() => navigate("/profile")}
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "w-10 h-10 rounded-full",
+                "hover:bg-gray-100 transition-colors duration-200",
+                "text-gray-600 hover:text-gray-900"
+              )}
+            >
+              <User className="w-5 h-5" />
+            </Button>
+
+            {/* Mobile menu button - Apple-style hamburger */}
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate("/profile")}
-              className={cn(
-                "text-muted-foreground hover:text-foreground hover:bg-secondary/80 rounded-xl transition-all duration-300 transform hover:scale-105 backdrop-blur-sm",
-                isScrolled ? "w-8 h-8" : "w-10 h-10"
-              )}
+              className="md:hidden w-10 h-10 rounded-full hover:bg-gray-100 text-gray-600"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
-              <User
-                className={cn(
-                  "transition-all duration-300",
-                  isScrolled ? "w-4 h-4" : "w-5 h-5"
-                )}
-              />
+              <div className="flex flex-col space-y-1">
+                <div
+                  className={cn(
+                    "w-5 h-0.5 bg-current rounded-full transition-transform duration-200",
+                    isMobileMenuOpen && "rotate-45 translate-y-1.5"
+                  )}
+                ></div>
+                <div
+                  className={cn(
+                    "w-5 h-0.5 bg-current rounded-full transition-opacity duration-200",
+                    isMobileMenuOpen && "opacity-0"
+                  )}
+                ></div>
+                <div
+                  className={cn(
+                    "w-5 h-0.5 bg-current rounded-full transition-transform duration-200",
+                    isMobileMenuOpen && "-rotate-45 -translate-y-1.5"
+                  )}
+                ></div>
+              </div>
             </Button>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Mobile Navigation Dropdown - Apple-inspired */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-gray-200/50 bg-white/95 backdrop-blur-sm animate-in slide-in-from-top-2 duration-200">
+          <div className="px-6 py-4 space-y-3">
+            {tabs.map((tab) => {
+              const active = isActive(tab.path);
+
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    navigate(tab.path);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={cn(
+                    "block w-full text-left px-3 py-2 rounded-lg text-base font-medium transition-colors duration-200",
+                    active
+                      ? "bg-blue-50 text-blue-600"
+                      : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                  )}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+
+            {/* Mobile Add Expense Button */}
+            <Button
+              onClick={() => {
+                navigate("/add-expense");
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-3"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Expense
+            </Button>
+          </div>
+        </div>
+      )}
+    </nav>
   );
 };
 

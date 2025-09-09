@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useAuthContext } from "@/contexts/AuthContext";
-import TopNavigation from "@/components/TopNavigation";
+import AppLayout from "@/components/AppLayout";
 import RestaurantService from "@/services/restaurantService";
 import { Recommendation } from "schema";
 import { toast } from "@/components/ui/use-toast";
@@ -147,188 +147,191 @@ const Recommendations = () => {
   };
 
   return (
-    <div className="page-background-recommendations">
-      <TopNavigation />
+    <AppLayout>
+      <div className="page-background-recommendations">
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              Restaurant Recommendations
+            </h1>
+            <p className="text-muted-foreground">
+              Discover great restaurants near you with AI-powered
+              recommendations
+            </p>
+          </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Restaurant Recommendations
-          </h1>
-          <p className="text-muted-foreground">
-            Discover great restaurants near you with AI-powered recommendations
-          </p>
-        </div>
-
-        {/* Search Section */}
-        <Card className="themed-card mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Search size={20} />
-              Find Restaurants
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Custom Query Input */}
-            <div>
-              <Label
-                htmlFor="query"
-                className="text-base font-medium mb-2 block"
-              >
-                What are you looking for?
-              </Label>
-              <Textarea
-                id="query"
-                placeholder="e.g., 'Best Italian restaurants in downtown San Francisco with outdoor seating' or 'Affordable sushi near Times Square'"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="min-h-[80px] resize-none"
-              />
-            </div>
-
-            {/* OR Separator */}
-            <div className="flex items-center gap-4">
-              <hr className="flex-1" />
-              <span className="text-muted-foreground text-sm">OR</span>
-              <hr className="flex-1" />
-            </div>
-
-            {/* Simple Location Search */}
-            <div>
-              <Label
-                htmlFor="location"
-                className="text-base font-medium mb-2 block"
-              >
-                Search by location
-              </Label>
-              <div className="flex gap-2">
-                <Input
-                  id="location"
-                  placeholder="Enter city, neighborhood, or address..."
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="flex-1"
-                />
-                <Button
-                  onClick={handleSearch}
-                  disabled={isLoading}
-                  className="min-w-[120px]"
+          {/* Search Section */}
+          <Card className="themed-card mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Search size={20} />
+                Find Restaurants
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Custom Query Input */}
+              <div>
+                <Label
+                  htmlFor="query"
+                  className="text-base font-medium mb-2 block"
                 >
-                  {isLoading ? (
-                    <>
-                      <Loader2 size={16} className="mr-2 animate-spin" />
-                      Searching...
-                    </>
-                  ) : (
-                    <>
-                      <Search size={16} className="mr-2" />
-                      Search
-                    </>
-                  )}
-                </Button>
+                  What are you looking for?
+                </Label>
+                <Textarea
+                  id="query"
+                  placeholder="e.g., 'Best Italian restaurants in downtown San Francisco with outdoor seating' or 'Affordable sushi near Times Square'"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  className="min-h-[80px] resize-none"
+                />
+              </div>
+
+              {/* OR Separator */}
+              <div className="flex items-center gap-4">
+                <hr className="flex-1" />
+                <span className="text-muted-foreground text-sm">OR</span>
+                <hr className="flex-1" />
+              </div>
+
+              {/* Simple Location Search */}
+              <div>
+                <Label
+                  htmlFor="location"
+                  className="text-base font-medium mb-2 block"
+                >
+                  Search by location
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="location"
+                    placeholder="Enter city, neighborhood, or address..."
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    className="flex-1"
+                  />
+                  <Button
+                    onClick={handleSearch}
+                    disabled={isLoading}
+                    className="min-w-[120px]"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 size={16} className="mr-2 animate-spin" />
+                        Searching...
+                      </>
+                    ) : (
+                      <>
+                        <Search size={16} className="mr-2" />
+                        Search
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Quick Location Buttons */}
+              <div>
+                <Label className="text-sm text-muted-foreground mb-2 block">
+                  Quick locations:
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "San Francisco, CA",
+                    "New York, NY",
+                    "Los Angeles, CA",
+                    "Chicago, IL",
+                    "Austin, TX",
+                  ].map((quickLoc) => (
+                    <Button
+                      key={quickLoc}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleQuickLocationSearch(quickLoc)}
+                      disabled={isLoading}
+                    >
+                      {quickLoc}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <p className="text-sm text-muted-foreground">
+                Get personalized restaurant recommendations powered by AI based
+                on your profile and preferences
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Loading State */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <Loader2
+                  size={48}
+                  className="mx-auto mb-4 animate-spin text-primary"
+                />
+                <p className="text-lg font-medium">Finding restaurants...</p>
+                <p className="text-muted-foreground">
+                  This may take a few moments
+                </p>
               </div>
             </div>
+          )}
 
-            {/* Quick Location Buttons */}
-            <div>
-              <Label className="text-sm text-muted-foreground mb-2 block">
-                Quick locations:
-              </Label>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  "San Francisco, CA",
-                  "New York, NY",
-                  "Los Angeles, CA",
-                  "Chicago, IL",
-                  "Austin, TX",
-                ].map((quickLoc) => (
-                  <Button
-                    key={quickLoc}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleQuickLocationSearch(quickLoc)}
-                    disabled={isLoading}
-                  >
-                    {quickLoc}
-                  </Button>
+          {/* No Results */}
+          {hasSearched && !isLoading && recommendations.length === 0 && (
+            <Card className="themed-card">
+              <CardContent className="py-12 text-center">
+                <MapPin
+                  size={48}
+                  className="mx-auto mb-4 text-muted-foreground"
+                />
+                <h3 className="text-lg font-medium mb-2">
+                  No restaurants found
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  We couldn't find any restaurants in "{location}". Try a
+                  different location or check your spelling.
+                </p>
+                <Button onClick={() => setLocation("")}>
+                  Try Another Location
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Recommendations Results */}
+          {!isLoading && recommendations.length > 0 && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-foreground">
+                  Recommended Restaurants
+                </h2>
+                <Badge variant="secondary">
+                  {recommendations.length} restaurants found
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recommendations.map((restaurant, index) => (
+                  <RestaurantCard
+                    key={index}
+                    restaurant={restaurant}
+                    onOpenMaps={openGoogleMaps}
+                    onCall={callRestaurant}
+                    onVisitWebsite={visitWebsite}
+                    showIcon={index < 2}
+                  />
                 ))}
               </div>
             </div>
-
-            <p className="text-sm text-muted-foreground">
-              Get personalized restaurant recommendations powered by AI based on
-              your profile and preferences
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Loading State */}
-        {isLoading && (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <Loader2
-                size={48}
-                className="mx-auto mb-4 animate-spin text-primary"
-              />
-              <p className="text-lg font-medium">Finding restaurants...</p>
-              <p className="text-muted-foreground">
-                This may take a few moments
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* No Results */}
-        {hasSearched && !isLoading && recommendations.length === 0 && (
-          <Card className="themed-card">
-            <CardContent className="py-12 text-center">
-              <MapPin
-                size={48}
-                className="mx-auto mb-4 text-muted-foreground"
-              />
-              <h3 className="text-lg font-medium mb-2">No restaurants found</h3>
-              <p className="text-muted-foreground mb-4">
-                We couldn't find any restaurants in "{location}". Try a
-                different location or check your spelling.
-              </p>
-              <Button onClick={() => setLocation("")}>
-                Try Another Location
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Recommendations Results */}
-        {!isLoading && recommendations.length > 0 && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-foreground">
-                Recommended Restaurants
-              </h2>
-              <Badge variant="secondary">
-                {recommendations.length} restaurants found
-              </Badge>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recommendations.map((restaurant, index) => (
-                <RestaurantCard
-                  key={index}
-                  restaurant={restaurant}
-                  onOpenMaps={openGoogleMaps}
-                  onCall={callRestaurant}
-                  onVisitWebsite={visitWebsite}
-                  showIcon={index < 2}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 

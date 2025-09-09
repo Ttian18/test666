@@ -21,8 +21,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useAuthContext } from "@/contexts/AuthContext";
-import TopNavigation from "@/components/TopNavigation";
-import RestaurantService, { ZhongcaoResult } from "@/services/restaurantService";
+import AppLayout from "@/components/AppLayout";
+import RestaurantService, {
+  ZhongcaoResult,
+} from "@/services/restaurantService";
 import { toast } from "@/components/ui/use-toast";
 
 const Zhongcao = () => {
@@ -49,22 +51,27 @@ const Zhongcao = () => {
 
   const fetchResults = async () => {
     if (!token) {
-      console.log('🔍 No token available for fetching zhongcao results');
+      console.log("🔍 No token available for fetching zhongcao results");
       return;
     }
 
-    console.log('🔍 Fetching zhongcao results for user:', user?.email);
+    console.log("🔍 Fetching zhongcao results for user:", user?.email);
     setIsLoading(true);
     try {
       const data = await RestaurantService.getAllZhongcaoResults(token);
-      console.log('✅ Successfully fetched zhongcao results:', data.length, 'items');
+      console.log(
+        "✅ Successfully fetched zhongcao results:",
+        data.length,
+        "items"
+      );
       setResults(data);
       setHasLoaded(true);
     } catch (error) {
       console.error("❌ Error fetching zhongcao results:", error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       console.error("❌ Error details:", errorMessage);
-      
+
       toast({
         title: "Error",
         description: `Failed to load your saved restaurant discoveries: ${errorMessage}`,
@@ -84,7 +91,7 @@ const Zhongcao = () => {
 
   const handleUpload = async (file: File) => {
     if (!token) {
-      console.log('🔍 No token available for upload');
+      console.log("🔍 No token available for upload");
       toast({
         title: "Authentication Required",
         description: "Please log in to upload and analyze restaurant images",
@@ -93,11 +100,18 @@ const Zhongcao = () => {
       return;
     }
 
-    console.log('🔍 Starting upload for file:', file.name, 'Size:', file.size, 'Type:', file.type);
+    console.log(
+      "🔍 Starting upload for file:",
+      file.name,
+      "Size:",
+      file.size,
+      "Type:",
+      file.type
+    );
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      console.log('❌ Invalid file type:', file.type);
+      console.log("❌ Invalid file type:", file.type);
       toast({
         title: "Invalid File Type",
         description: "Please select an image file",
@@ -108,7 +122,7 @@ const Zhongcao = () => {
 
     // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      console.log('❌ File too large:', file.size, 'bytes');
+      console.log("❌ File too large:", file.size, "bytes");
       toast({
         title: "File Too Large",
         description: "Please select an image smaller than 10MB",
@@ -119,22 +133,23 @@ const Zhongcao = () => {
 
     setIsUploading(true);
     try {
-      console.log('🚀 Uploading image to zhongcao service...');
+      console.log("🚀 Uploading image to zhongcao service...");
       const response = await RestaurantService.uploadZhongcaoImage(file, token);
-      console.log('✅ Upload successful:', response);
-      
+      console.log("✅ Upload successful:", response);
+
       // Add the new result to the top of the list
       setResults((prev) => [response.result, ...prev]);
-      
+
       toast({
         title: "Image Analyzed Successfully",
         description: `Extracted information for ${response.restaurant_name}`,
       });
     } catch (error) {
       console.error("❌ Error uploading image:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to analyze image";
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to analyze image";
       console.error("❌ Upload error details:", errorMessage);
-      
+
       toast({
         title: "Upload Failed",
         description: errorMessage,
@@ -175,7 +190,7 @@ const Zhongcao = () => {
       setResults((prev) =>
         prev.map((result) => (result.id === id ? updated : result))
       );
-      
+
       setEditingId(null);
       toast({
         title: "Updated Successfully",
@@ -185,7 +200,8 @@ const Zhongcao = () => {
       console.error("Error updating result:", error);
       toast({
         title: "Update Failed",
-        description: error instanceof Error ? error.message : "Failed to update",
+        description:
+          error instanceof Error ? error.message : "Failed to update",
         variant: "destructive",
       });
     }
@@ -197,7 +213,7 @@ const Zhongcao = () => {
     try {
       await RestaurantService.deleteZhongcaoResult(id, token);
       setResults((prev) => prev.filter((result) => result.id !== id));
-      
+
       toast({
         title: "Deleted Successfully",
         description: "Restaurant discovery has been removed",
@@ -206,7 +222,8 @@ const Zhongcao = () => {
       console.error("Error deleting result:", error);
       toast({
         title: "Delete Failed",
-        description: error instanceof Error ? error.message : "Failed to delete",
+        description:
+          error instanceof Error ? error.message : "Failed to delete",
         variant: "destructive",
       });
     }
@@ -234,147 +251,156 @@ const Zhongcao = () => {
   };
 
   return (
-    <div className="page-background-zhongcao">
-      <TopNavigation />
-
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="bg-gradient-primary rounded-xl p-2">
-              <Camera className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-3xl font-bold text-foreground">
-              Wishlists
-            </h1>
-          </div>
-          <p className="text-muted-foreground">
-            Upload social media screenshots to discover and save restaurant information using AI
-          </p>
-        </div>
-
-        {/* Upload Section */}
-        <Card className="themed-card mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Upload size={20} />
-              Upload Restaurant Image
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div
-                className="border-2 border-dashed border-border hover:border-primary/50 rounded-lg p-8 text-center cursor-pointer transition-colors duration-200"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                {isUploading ? (
-                  <div className="flex flex-col items-center gap-3">
-                    <Loader2 size={48} className="animate-spin text-primary" />
-                    <div>
-                      <p className="font-medium">Analyzing Image...</p>
-                      <p className="text-sm text-muted-foreground">
-                        This may take a few moments
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="bg-primary/10 rounded-full p-4">
-                      <ImageIcon size={32} className="text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-medium">
-                        Click to upload restaurant image
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Upload screenshots from social media, photos of menus, or restaurant images
-                      </p>
-                    </div>
-                    <Button variant="outline" className="mt-2">
-                      Choose File
-                    </Button>
-                  </div>
-                )}
+    <AppLayout>
+      <div className="page-background-zhongcao">
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="bg-gradient-primary rounded-xl p-2">
+                <Camera className="w-6 h-6 text-white" />
               </div>
-              
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileSelect}
-                className="hidden"
-                disabled={isUploading}
-              />
-              
-              <p className="text-xs text-muted-foreground text-center">
-                Supported formats: JPG, PNG, WebP • Max size: 10MB
-              </p>
+              <h1 className="text-3xl font-bold text-foreground">Wishlists</h1>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Loading State */}
-        {isLoading && (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <Loader2 size={48} className="mx-auto mb-4 animate-spin text-primary" />
-              <p className="text-lg font-medium">Loading your discoveries...</p>
-            </div>
+            <p className="text-muted-foreground">
+              Upload social media screenshots to discover and save restaurant
+              information using AI
+            </p>
           </div>
-        )}
 
-        {/* No Results */}
-        {hasLoaded && !isLoading && results.length === 0 && (
-          <Card className="themed-card">
-            <CardContent className="py-12 text-center">
-              <div className="bg-primary/10 rounded-full p-4 w-16 h-16 mx-auto mb-4">
-                <Search size={32} className="text-primary" />
+          {/* Upload Section */}
+          <Card className="themed-card mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Upload size={20} />
+                Upload Restaurant Image
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div
+                  className="border-2 border-dashed border-border hover:border-primary/50 rounded-lg p-8 text-center cursor-pointer transition-colors duration-200"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {isUploading ? (
+                    <div className="flex flex-col items-center gap-3">
+                      <Loader2
+                        size={48}
+                        className="animate-spin text-primary"
+                      />
+                      <div>
+                        <p className="font-medium">Analyzing Image...</p>
+                        <p className="text-sm text-muted-foreground">
+                          This may take a few moments
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="bg-primary/10 rounded-full p-4">
+                        <ImageIcon size={32} className="text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium">
+                          Click to upload restaurant image
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Upload screenshots from social media, photos of menus,
+                          or restaurant images
+                        </p>
+                      </div>
+                      <Button variant="outline" className="mt-2">
+                        Choose File
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  disabled={isUploading}
+                />
+
+                <p className="text-xs text-muted-foreground text-center">
+                  Supported formats: JPG, PNG, WebP • Max size: 10MB
+                </p>
               </div>
-              <h3 className="text-lg font-medium mb-2">No discoveries yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Upload your first restaurant image to get started with AI-powered restaurant discovery
-              </p>
-              <Button onClick={() => fileInputRef.current?.click()}>
-                <Upload size={16} className="mr-2" />
-                Upload Image
-              </Button>
             </CardContent>
           </Card>
-        )}
 
-        {/* Results */}
-        {!isLoading && results.length > 0 && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-foreground">
-                Your Restaurant Wishlists
-              </h2>
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <Sparkles size={14} />
-                {results.length} discoveries
-              </Badge>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {results.map((result) => (
-                <RestaurantCard
-                  key={result.id}
-                  result={result}
-                  isEditing={editingId === result.id}
-                  editForm={editForm}
-                  onEdit={handleEdit}
-                  onSave={handleSave}
-                  onDelete={handleDelete}
-                  onCancel={handleCancel}
-                  onEditFormChange={setEditForm}
-                  formatDate={formatDate}
+          {/* Loading State */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <Loader2
+                  size={48}
+                  className="mx-auto mb-4 animate-spin text-primary"
                 />
-              ))}
+                <p className="text-lg font-medium">
+                  Loading your discoveries...
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* No Results */}
+          {hasLoaded && !isLoading && results.length === 0 && (
+            <Card className="themed-card">
+              <CardContent className="py-12 text-center">
+                <div className="bg-primary/10 rounded-full p-4 w-16 h-16 mx-auto mb-4">
+                  <Search size={32} className="text-primary" />
+                </div>
+                <h3 className="text-lg font-medium mb-2">No discoveries yet</h3>
+                <p className="text-muted-foreground mb-4">
+                  Upload your first restaurant image to get started with
+                  AI-powered restaurant discovery
+                </p>
+                <Button onClick={() => fileInputRef.current?.click()}>
+                  <Upload size={16} className="mr-2" />
+                  Upload Image
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Results */}
+          {!isLoading && results.length > 0 && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-foreground">
+                  Your Restaurant Wishlists
+                </h2>
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  <Sparkles size={14} />
+                  {results.length} discoveries
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {results.map((result) => (
+                  <RestaurantCard
+                    key={result.id}
+                    result={result}
+                    isEditing={editingId === result.id}
+                    editForm={editForm}
+                    onEdit={handleEdit}
+                    onSave={handleSave}
+                    onDelete={handleDelete}
+                    onCancel={handleCancel}
+                    onEditFormChange={setEditForm}
+                    formatDate={formatDate}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 
@@ -428,7 +454,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
               {result.restaurantName}
             </CardTitle>
           )}
-          
+
           <div className="flex gap-1 flex-shrink-0">
             {!isEditing ? (
               <>
@@ -471,7 +497,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
             )}
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Clock size={12} />
           <span>{formatDate(result.processedAt)}</span>

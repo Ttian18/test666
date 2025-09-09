@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import TopNavigation from "@/components/TopNavigation";
+import AppLayout from "@/components/AppLayout";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import * as Schema from "schema";
@@ -447,524 +447,529 @@ const AddExpense = () => {
   };
 
   return (
-    <div className="page-background-add-expense">
-      <TopNavigation />
-
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/home")}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft size={20} />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Add Expense</h1>
+    <AppLayout>
+      <div className="page-background-add-expense">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          {/* Header */}
+          <div className="flex items-center gap-4 mb-8">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/home")}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft size={20} />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">
+                Add Expense
+              </h1>
+            </div>
           </div>
-        </div>
 
-        {/* Desktop Two-Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column - Add Expense Forms */}
-          <div className="space-y-6">
-            {/* Receipt Upload Option */}
-            <Card className="luxury-form">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Camera size={20} />
-                  Upload Receipt
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {receiptFile && (
-                    <div className="bg-secondary p-3 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        {processingStatus === "completed" && (
-                          <CheckCircle size={16} className="text-green-500" />
-                        )}
-                        {processingStatus === "error" && (
-                          <AlertCircle size={16} className="text-red-500" />
-                        )}
-                        <p className="text-sm font-medium">
-                          📄 {receiptFile.name}
+          {/* Desktop Two-Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left Column - Add Expense Forms */}
+            <div className="space-y-6">
+              {/* Receipt Upload Option */}
+              <Card className="luxury-form">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Camera size={20} />
+                    Upload Receipt
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {receiptFile && (
+                      <div className="bg-secondary p-3 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          {processingStatus === "completed" && (
+                            <CheckCircle size={16} className="text-green-500" />
+                          )}
+                          {processingStatus === "error" && (
+                            <AlertCircle size={16} className="text-red-500" />
+                          )}
+                          <p className="text-sm font-medium">
+                            📄 {receiptFile.name}
+                          </p>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {processingStatus === "uploading" && "Uploading..."}
+                          {processingStatus === "processing" &&
+                            "Processing with AI..."}
+                          {processingStatus === "completed" &&
+                            "Processed successfully"}
+                          {processingStatus === "error" && "Processing failed"}
+                          {processingStatus === "idle" &&
+                            isProcessing &&
+                            "Processing..."}
                         </p>
+                        {parsedReceiptData &&
+                          processingStatus === "completed" && (
+                            <div className="mt-2 text-xs text-muted-foreground">
+                              <p>
+                                Extracted: {parsedReceiptData.merchant} - $
+                                {parsedReceiptData.total_amount}
+                              </p>
+                              <p>
+                                {parsedReceiptData.items?.length || 0} items
+                                found
+                              </p>
+                            </div>
+                          )}
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        {processingStatus === "uploading" && "Uploading..."}
-                        {processingStatus === "processing" &&
-                          "Processing with AI..."}
-                        {processingStatus === "completed" &&
-                          "Processed successfully"}
-                        {processingStatus === "error" && "Processing failed"}
-                        {processingStatus === "idle" &&
-                          isProcessing &&
-                          "Processing..."}
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Button
+                        variant="outline"
+                        className="h-20 flex-col"
+                        asChild
+                        disabled={isProcessing || isSubmitting || !token}
+                      >
+                        <label htmlFor="receipt-camera">
+                          <Camera size={24} className="mb-2" />
+                          <span>📸 Take Receipt Photo</span>
+                          <input
+                            id="receipt-camera"
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            className="hidden"
+                            onChange={handleReceiptUpload}
+                            disabled={isProcessing || isSubmitting || !token}
+                          />
+                        </label>
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        className="h-20 flex-col"
+                        asChild
+                        disabled={isProcessing || isSubmitting || !token}
+                      >
+                        <label htmlFor="receipt-upload">
+                          <Upload size={24} className="mb-2" />
+                          <span>Upload from Gallery</span>
+                          <input
+                            id="receipt-upload"
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleReceiptUpload}
+                            disabled={isProcessing || isSubmitting || !token}
+                          />
+                        </label>
+                      </Button>
+                    </div>
+
+                    {!token && (
+                      <p className="text-sm text-muted-foreground text-center">
+                        Please log in to upload receipts
                       </p>
-                      {parsedReceiptData &&
-                        processingStatus === "completed" && (
-                          <div className="mt-2 text-xs text-muted-foreground">
+                    )}
+
+                    {processingStatus === "completed" && parsedReceiptData && (
+                      <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-green-800 mb-2">
+                              ✅ Receipt processed successfully! Review the
+                              details:
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={clearReceipt}
+                            className="text-green-600 hover:text-green-700"
+                          >
+                            Clear
+                          </Button>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 mb-3">
+                          <div className="text-xs text-green-700">
                             <p>
-                              Extracted: {parsedReceiptData.merchant} - $
+                              <strong>Merchant:</strong>{" "}
+                              {parsedReceiptData.merchant}
+                            </p>
+                            <p>
+                              <strong>Date:</strong> {parsedReceiptData.date}
+                            </p>
+                            <p>
+                              <strong>Time:</strong>{" "}
+                              {parsedReceiptData.time || "N/A"}
+                            </p>
+                          </div>
+                          <div className="text-xs text-green-700">
+                            <p>
+                              <strong>Total:</strong> $
                               {parsedReceiptData.total_amount}
                             </p>
                             <p>
-                              {parsedReceiptData.items?.length || 0} items found
+                              <strong>Tax:</strong> $
+                              {parsedReceiptData.tax_amount || 0}
+                            </p>
+                            <p>
+                              <strong>Payment:</strong>{" "}
+                              {parsedReceiptData.payment_method || "N/A"}
                             </p>
                           </div>
-                        )}
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <Button
-                      variant="outline"
-                      className="h-20 flex-col"
-                      asChild
-                      disabled={isProcessing || isSubmitting || !token}
-                    >
-                      <label htmlFor="receipt-camera">
-                        <Camera size={24} className="mb-2" />
-                        <span>📸 Take Receipt Photo</span>
-                        <input
-                          id="receipt-camera"
-                          type="file"
-                          accept="image/*"
-                          capture="environment"
-                          className="hidden"
-                          onChange={handleReceiptUpload}
-                          disabled={isProcessing || isSubmitting || !token}
-                        />
-                      </label>
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      className="h-20 flex-col"
-                      asChild
-                      disabled={isProcessing || isSubmitting || !token}
-                    >
-                      <label htmlFor="receipt-upload">
-                        <Upload size={24} className="mb-2" />
-                        <span>Upload from Gallery</span>
-                        <input
-                          id="receipt-upload"
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleReceiptUpload}
-                          disabled={isProcessing || isSubmitting || !token}
-                        />
-                      </label>
-                    </Button>
-                  </div>
-
-                  {!token && (
-                    <p className="text-sm text-muted-foreground text-center">
-                      Please log in to upload receipts
-                    </p>
-                  )}
-
-                  {processingStatus === "completed" && parsedReceiptData && (
-                    <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-green-800 mb-2">
-                            ✅ Receipt processed successfully! Review the
-                            details:
-                          </p>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={clearReceipt}
-                          className="text-green-600 hover:text-green-700"
-                        >
-                          Clear
-                        </Button>
-                      </div>
 
-                      <div className="grid grid-cols-2 gap-4 mb-3">
-                        <div className="text-xs text-green-700">
-                          <p>
-                            <strong>Merchant:</strong>{" "}
-                            {parsedReceiptData.merchant}
-                          </p>
-                          <p>
-                            <strong>Date:</strong> {parsedReceiptData.date}
-                          </p>
-                          <p>
-                            <strong>Time:</strong>{" "}
-                            {parsedReceiptData.time || "N/A"}
-                          </p>
-                        </div>
-                        <div className="text-xs text-green-700">
-                          <p>
-                            <strong>Total:</strong> $
-                            {parsedReceiptData.total_amount}
-                          </p>
-                          <p>
-                            <strong>Tax:</strong> $
-                            {parsedReceiptData.tax_amount || 0}
-                          </p>
-                          <p>
-                            <strong>Payment:</strong>{" "}
-                            {parsedReceiptData.payment_method || "N/A"}
-                          </p>
-                        </div>
-                      </div>
+                        {parsedReceiptData.items &&
+                          parsedReceiptData.items.length > 0 && (
+                            <div className="mt-3">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                  setShowReceiptDetails(!showReceiptDetails)
+                                }
+                                className="text-green-700 border-green-300 hover:bg-green-100"
+                              >
+                                {showReceiptDetails ? "Hide" : "Show"} Receipt
+                                Items ({parsedReceiptData.items.length})
+                              </Button>
 
-                      {parsedReceiptData.items &&
-                        parsedReceiptData.items.length > 0 && (
-                          <div className="mt-3">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() =>
-                                setShowReceiptDetails(!showReceiptDetails)
-                              }
-                              className="text-green-700 border-green-300 hover:bg-green-100"
-                            >
-                              {showReceiptDetails ? "Hide" : "Show"} Receipt
-                              Items ({parsedReceiptData.items.length})
-                            </Button>
-
-                            {showReceiptDetails && (
-                              <div className="mt-2 max-h-32 overflow-y-auto bg-white rounded border">
-                                <table className="w-full text-xs">
-                                  <thead className="bg-green-100">
-                                    <tr>
-                                      <th className="text-left p-2 font-medium">
-                                        Item
-                                      </th>
-                                      <th className="text-center p-2 font-medium">
-                                        Qty
-                                      </th>
-                                      <th className="text-right p-2 font-medium">
-                                        Price
-                                      </th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {parsedReceiptData.items.map(
-                                      (item, index) => (
-                                        <tr
-                                          key={index}
-                                          className="border-t border-green-100"
-                                        >
-                                          <td className="p-2 text-green-800">
-                                            {item.name}
-                                          </td>
-                                          <td className="p-2 text-center text-green-700">
-                                            {item.quantity}
-                                          </td>
-                                          <td className="p-2 text-right text-green-700">
-                                            ${item.price}
-                                          </td>
-                                        </tr>
-                                      )
-                                    )}
-                                  </tbody>
-                                </table>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                    </div>
-                  )}
-
-                  {processingStatus === "error" && (
-                    <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-red-800 mb-1">
-                            ❌ Receipt processing failed
-                          </p>
-                          <p className="text-xs text-red-700">
-                            Please try again or enter the expense details
-                            manually
-                          </p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={clearReceipt}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          Clear
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Manual Entry Form */}
-            <Card className="luxury-form">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText size={20} />
-                    Expense Details
-                    {parsedReceiptData && (
-                      <span className="text-sm font-normal text-green-600">
-                        (Auto-filled from receipt)
-                      </span>
-                    )}
-                  </CardTitle>
-                  {(receiptFile ||
-                    expenseData.amount ||
-                    expenseData.merchant) && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={resetForm}
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      Reset Form
-                    </Button>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <Label htmlFor="amount">Amount *</Label>
-                    <div className="relative">
-                      <DollarSign
-                        size={18}
-                        className="absolute left-3 top-3 text-muted-foreground"
-                      />
-                      <Input
-                        id="amount"
-                        type="number"
-                        step="0.01"
-                        placeholder="0.00"
-                        value={expenseData.amount}
-                        onChange={(e) =>
-                          handleInputChange("amount", e.target.value)
-                        }
-                        className="luxury-input pl-10 text-lg font-semibold"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="category">Category *</Label>
-                    <Select
-                      value={expenseData.category}
-                      onValueChange={(value) =>
-                        handleInputChange("category", value)
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Schema.categories.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            <div className="flex items-center gap-2">
-                              <Tag size={16} />
-                              {category}
+                              {showReceiptDetails && (
+                                <div className="mt-2 max-h-32 overflow-y-auto bg-white rounded border">
+                                  <table className="w-full text-xs">
+                                    <thead className="bg-green-100">
+                                      <tr>
+                                        <th className="text-left p-2 font-medium">
+                                          Item
+                                        </th>
+                                        <th className="text-center p-2 font-medium">
+                                          Qty
+                                        </th>
+                                        <th className="text-right p-2 font-medium">
+                                          Price
+                                        </th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {parsedReceiptData.items.map(
+                                        (item, index) => (
+                                          <tr
+                                            key={index}
+                                            className="border-t border-green-100"
+                                          >
+                                            <td className="p-2 text-green-800">
+                                              {item.name}
+                                            </td>
+                                            <td className="p-2 text-center text-green-700">
+                                              {item.quantity}
+                                            </td>
+                                            <td className="p-2 text-right text-green-700">
+                                              ${item.price}
+                                            </td>
+                                          </tr>
+                                        )
+                                      )}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              )}
                             </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+                          )}
+                      </div>
+                    )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {processingStatus === "error" && (
+                      <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-red-800 mb-1">
+                              ❌ Receipt processing failed
+                            </p>
+                            <p className="text-xs text-red-700">
+                              Please try again or enter the expense details
+                              manually
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={clearReceipt}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            Clear
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Manual Entry Form */}
+              <Card className="luxury-form">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText size={20} />
+                      Expense Details
+                      {parsedReceiptData && (
+                        <span className="text-sm font-normal text-green-600">
+                          (Auto-filled from receipt)
+                        </span>
+                      )}
+                    </CardTitle>
+                    {(receiptFile ||
+                      expenseData.amount ||
+                      expenseData.merchant) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={resetForm}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        Reset Form
+                      </Button>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <Label htmlFor="amount">Amount *</Label>
+                      <div className="relative">
+                        <DollarSign
+                          size={18}
+                          className="absolute left-3 top-3 text-muted-foreground"
+                        />
+                        <Input
+                          id="amount"
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          value={expenseData.amount}
+                          onChange={(e) =>
+                            handleInputChange("amount", e.target.value)
+                          }
+                          className="luxury-input pl-10 text-lg font-semibold"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="category">Category *</Label>
+                      <Select
+                        value={expenseData.category}
+                        onValueChange={(value) =>
+                          handleInputChange("category", value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Schema.categories.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              <div className="flex items-center gap-2">
+                                <Tag size={16} />
+                                {category}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <Label htmlFor="merchant">Merchant</Label>
+                      <Input
+                        id="merchant"
+                        placeholder="Where did you spend?"
+                        value={expenseData.merchant}
+                        onChange={(e) =>
+                          handleInputChange("merchant", e.target.value)
+                        }
+                        className="luxury-input"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="date">Date</Label>
+                      <div className="relative">
+                        <Calendar
+                          size={18}
+                          className="absolute left-3 top-3 text-muted-foreground"
+                        />
+                        <Input
+                          id="date"
+                          type="date"
+                          value={expenseData.date}
+                          onChange={(e) =>
+                            handleInputChange("date", e.target.value)
+                          }
+                          className="luxury-input pl-10"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                   <div>
-                    <Label htmlFor="merchant">Merchant</Label>
-                    <Input
-                      id="merchant"
-                      placeholder="Where did you spend?"
-                      value={expenseData.merchant}
+                    <Label htmlFor="note">Note (optional)</Label>
+                    <Textarea
+                      id="note"
+                      placeholder="Add a note about this expense"
+                      value={expenseData.note}
                       onChange={(e) =>
-                        handleInputChange("merchant", e.target.value)
+                        handleInputChange("note", e.target.value)
                       }
+                      rows={3}
                       className="luxury-input"
                     />
                   </div>
 
-                  <div>
-                    <Label htmlFor="date">Date</Label>
-                    <div className="relative">
-                      <Calendar
-                        size={18}
-                        className="absolute left-3 top-3 text-muted-foreground"
-                      />
-                      <Input
-                        id="date"
-                        type="date"
-                        value={expenseData.date}
-                        onChange={(e) =>
-                          handleInputChange("date", e.target.value)
-                        }
-                        className="luxury-input pl-10"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="note">Note (optional)</Label>
-                  <Textarea
-                    id="note"
-                    placeholder="Add a note about this expense"
-                    value={expenseData.note}
-                    onChange={(e) => handleInputChange("note", e.target.value)}
-                    rows={3}
-                    className="luxury-input"
-                  />
-                </div>
-
-                <div className="border-t pt-6">
-                  <Button
-                    onClick={handleSubmit}
-                    disabled={
-                      !expenseData.amount ||
-                      !expenseData.category ||
-                      isProcessing ||
-                      isSubmitting ||
-                      !token
-                    }
-                    className="luxury-button-primary w-full mb-3"
-                  >
-                    {isSubmitting && "Creating Expense..."}
-                    {isProcessing && "Processing Receipt..."}
-                    {!isSubmitting &&
-                      !isProcessing &&
-                      parsedReceiptData &&
-                      "Confirm & Save Expense"}
-                    {!isSubmitting &&
-                      !isProcessing &&
-                      !parsedReceiptData &&
-                      "Add Expense"}
-                  </Button>
-
-                  <Button
-                    onClick={() => navigate("/home")}
-                    disabled={isSubmitting || isProcessing}
-                    className="luxury-button w-full"
-                  >
-                    Cancel
-                  </Button>
-
-                  {!token && (
-                    <p className="text-sm text-muted-foreground text-center mt-2">
-                      Please log in to add expenses
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right Column - Recent Transactions */}
-          <div className="space-y-6">
-            <Card className="luxury-form h-fit lg:sticky lg:top-8">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2">
-                    <Receipt size={20} />
-                    Recent Transactions
-                  </CardTitle>
-                  {hasLoadedTransactions && transactions.length > 0 && (
-                    <Badge
-                      variant="secondary"
-                      className="flex items-center gap-1"
+                  <div className="border-t pt-6">
+                    <Button
+                      onClick={handleSubmit}
+                      disabled={
+                        !expenseData.amount ||
+                        !expenseData.category ||
+                        isProcessing ||
+                        isSubmitting ||
+                        !token
+                      }
+                      className="luxury-button-primary w-full mb-3"
                     >
-                      {transactions.length} transactions
-                    </Badge>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="p-0">
-                {/* Scrollable container for transactions */}
-                <div className="max-h-[600px] overflow-y-auto p-6">
-                  {/* Loading State */}
-                  {isLoadingTransactions && (
-                    <div className="flex items-center justify-center py-8">
-                      <div className="text-center">
-                        <Clock
-                          size={32}
-                          className="mx-auto mb-3 animate-spin text-primary"
-                        />
-                        <p className="text-sm font-medium">
-                          Loading your transactions...
-                        </p>
-                      </div>
-                    </div>
-                  )}
+                      {isSubmitting && "Creating Expense..."}
+                      {isProcessing && "Processing Receipt..."}
+                      {!isSubmitting &&
+                        !isProcessing &&
+                        parsedReceiptData &&
+                        "Confirm & Save Expense"}
+                      {!isSubmitting &&
+                        !isProcessing &&
+                        !parsedReceiptData &&
+                        "Add Expense"}
+                    </Button>
 
-                  {/* No Transactions */}
-                  {hasLoadedTransactions &&
-                    !isLoadingTransactions &&
-                    transactions.length === 0 && (
-                      <div className="py-8 text-center">
-                        <div className="bg-primary/10 rounded-full p-4 w-16 h-16 mx-auto mb-4">
-                          <Receipt size={32} className="text-primary" />
+                    <Button
+                      onClick={() => navigate("/home")}
+                      disabled={isSubmitting || isProcessing}
+                      className="luxury-button w-full"
+                    >
+                      Cancel
+                    </Button>
+
+                    {!token && (
+                      <p className="text-sm text-muted-foreground text-center mt-2">
+                        Please log in to add expenses
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Column - Recent Transactions */}
+            <div className="space-y-6">
+              <Card className="luxury-form h-fit lg:sticky lg:top-8">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <Receipt size={20} />
+                      Recent Transactions
+                    </CardTitle>
+                    {hasLoadedTransactions && transactions.length > 0 && (
+                      <Badge
+                        variant="secondary"
+                        className="flex items-center gap-1"
+                      >
+                        {transactions.length} transactions
+                      </Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                  {/* Scrollable container for transactions */}
+                  <div className="max-h-[600px] overflow-y-auto p-6">
+                    {/* Loading State */}
+                    {isLoadingTransactions && (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="text-center">
+                          <Clock
+                            size={32}
+                            className="mx-auto mb-3 animate-spin text-primary"
+                          />
+                          <p className="text-sm font-medium">
+                            Loading your transactions...
+                          </p>
                         </div>
-                        <h3 className="text-lg font-medium mb-2">
-                          No transactions yet
-                        </h3>
-                        <p className="text-muted-foreground">
-                          Your transactions will appear here after you add your
-                          first expense
-                        </p>
                       </div>
                     )}
 
-                  {/* Transactions List */}
-                  {!isLoadingTransactions && transactions.length > 0 && (
-                    <div className="space-y-4">
-                      {transactions.map((transaction) => (
-                        <TransactionCard
-                          key={transaction.id}
-                          transaction={transaction}
-                          isEditing={editingTransactionId === transaction.id}
-                          editForm={editTransactionForm}
-                          onEdit={handleEditTransaction}
-                          onSave={handleSaveTransaction}
-                          onDelete={handleDeleteTransaction}
-                          onCancel={handleCancelEdit}
-                          onEditFormChange={setEditTransactionForm}
-                          formatDate={formatDate}
-                          categories={Schema.categories}
-                        />
-                      ))}
-
-                      {/* Show more indicator if there are more transactions */}
-                      {transactions.length >= 10 && (
-                        <div className="text-center py-4 border-t">
-                          <p className="text-sm text-muted-foreground">
-                            Showing last 10 transactions
+                    {/* No Transactions */}
+                    {hasLoadedTransactions &&
+                      !isLoadingTransactions &&
+                      transactions.length === 0 && (
+                        <div className="py-8 text-center">
+                          <div className="bg-primary/10 rounded-full p-4 w-16 h-16 mx-auto mb-4">
+                            <Receipt size={32} className="text-primary" />
+                          </div>
+                          <h3 className="text-lg font-medium mb-2">
+                            No transactions yet
+                          </h3>
+                          <p className="text-muted-foreground">
+                            Your transactions will appear here after you add
+                            your first expense
                           </p>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => navigate("/reports")}
-                            className="mt-2"
-                          >
-                            View All Transactions
-                          </Button>
                         </div>
                       )}
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+
+                    {/* Transactions List */}
+                    {!isLoadingTransactions && transactions.length > 0 && (
+                      <div className="space-y-4">
+                        {transactions.map((transaction) => (
+                          <TransactionCard
+                            key={transaction.id}
+                            transaction={transaction}
+                            isEditing={editingTransactionId === transaction.id}
+                            editForm={editTransactionForm}
+                            onEdit={handleEditTransaction}
+                            onSave={handleSaveTransaction}
+                            onDelete={handleDeleteTransaction}
+                            onCancel={handleCancelEdit}
+                            onEditFormChange={setEditTransactionForm}
+                            formatDate={formatDate}
+                            categories={Schema.categories}
+                          />
+                        ))}
+
+                        {/* Show more indicator if there are more transactions */}
+                        {transactions.length >= 10 && (
+                          <div className="text-center py-4 border-t">
+                            <p className="text-sm text-muted-foreground">
+                              Showing last 10 transactions
+                            </p>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => navigate("/reports")}
+                              className="mt-2"
+                            >
+                              View All Transactions
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 
