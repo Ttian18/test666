@@ -135,17 +135,18 @@ Before you begin, ensure you have the following installed:
    Then update each file with your actual API keys and database credentials:
 
    **Root `.env`** (Docker Compose Configuration):
+
    ```env
    # Database Configuration (Production - Neon)
    DATABASE_URL="postgresql://neondb_owner:npg_***@ep-wild-math-***.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-   
+
    # JWT Configuration
    JWT_SECRET="your-jwt-secret-key-2024"
-   
+
    # API Keys
    OPENAI_API_KEY=sk-proj-***
    GOOGLE_PLACES_API_KEY=AIzaSyD***
-   
+
    # Server Configuration
    NODE_ENV="production"
    PORT=5001
@@ -154,13 +155,14 @@ Before you begin, ensure you have the following installed:
    ```
 
    **`packages/server/.env`** (Backend Development):
+
    ```env
    # Server Configuration - Local Development
    PORT=5001
    HOST=0.0.0.0
    CORS_ORIGIN=*
    NODE_ENV=development
-   
+
    # API Keys (same as root .env)
    JWT_SECRET="your-jwt-secret-key-2024"
    OPENAI_API_KEY=sk-proj-***
@@ -169,24 +171,37 @@ Before you begin, ensure you have the following installed:
    ```
 
    **`packages/client/.env`** (Frontend Build):
+
    ```env
    # Backend API URL
    VITE_API_URL=http://localhost:5001
-   
+
    # Environment
    NODE_ENV=development
    ```
 
-4. **Set up the database**
+4. **Build the schema package**
+
+   Build the shared schema package to ensure all type definitions are available:
+
+   ```bash
+   cd packages/schema
+   npm run build
+   ```
+
+5. **Set up the database**
+
+   The application uses a remote Neon PostgreSQL database. Initialize the Prisma client and verify the connection:
 
    ```bash
    cd packages/server
    npx prisma generate
    npx prisma db push
-   npx prisma db seed
    ```
 
-5. **Verify environment setup**
+   **Note**: Database seeding is not required as the remote database is already deployed with data.
+
+6. **Verify environment setup**
 
    Ensure all three `.env` files are properly configured with your API keys and database credentials.
 
@@ -275,12 +290,14 @@ cd packages/server
 npx prisma db push
 ```
 
-**Seed the database:**
+**Seed the database** (Optional - Remote database already contains data):
 
 ```bash
 cd packages/server
 npm run seed
 ```
+
+**Note**: The remote Neon database is already populated with data, so seeding is typically not needed.
 
 **Open Prisma Studio:**
 
@@ -288,6 +305,28 @@ npm run seed
 cd packages/server
 npx prisma studio
 ```
+
+### Troubleshooting Common Issues
+
+**"Prisma client not initialized" error:**
+
+```bash
+cd packages/server
+npx prisma generate
+```
+
+**"Could not resolve ./types/zhongcao" error:**
+
+```bash
+cd packages/schema
+npm run build
+```
+
+**Database connection issues:**
+
+- Verify your `DATABASE_URL` in `.env` files
+- Ensure the remote database is accessible
+- Check network connectivity to Neon database
 
 ### Client Package Development
 
@@ -1360,16 +1399,19 @@ Get comprehensive dashboard data for authenticated user.
 Your project requires **three separate .env files** because each serves a different purpose:
 
 #### **1. Root `.env`** (Docker Compose Configuration)
+
 - **Purpose**: Used by Docker Compose for container orchestration
 - **Location**: `/.env`
 - **Contains**: Database URLs, API keys, Docker-specific variables
 
 #### **2. Server `.env`** (Backend Runtime Configuration)
+
 - **Purpose**: Server-specific runtime configuration
 - **Location**: `/packages/server/.env`
 - **Contains**: Server host/port, CORS settings, API keys, database connection
 
 #### **3. Client `.env`** (Frontend Build Configuration)
+
 - **Purpose**: Vite build-time environment variables
 - **Location**: `/packages/client/.env`
 - **Contains**: `VITE_*` prefixed variables for frontend build
@@ -1381,7 +1423,7 @@ To get started quickly, use the provided example files:
 ```bash
 # Copy example files and rename them
 cp env.example.root .env
-cp packages/server/env.example.server packages/server/.env  
+cp packages/server/env.example.server packages/server/.env
 cp packages/client/env.example.client packages/client/.env
 
 # Then edit each file with your actual values:
@@ -1393,6 +1435,7 @@ cp packages/client/env.example.client packages/client/.env
 ### 🔧 **Configuration Details**
 
 #### **Root `.env`** (Master Configuration)
+
 ```env
 # Database Configuration (Production - Neon)
 DATABASE_URL="postgresql://neondb_owner:npg_***@ep-wild-math-***.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
@@ -1417,6 +1460,7 @@ POSTGRES_PASSWORD="nextai_password"
 ```
 
 #### **Server `.env`** (Local Development)
+
 ```env
 # Server Configuration - Local Development
 PORT=5001
@@ -1432,6 +1476,7 @@ DATABASE_URL="postgresql://neondb_owner:npg_***@ep-wild-math-***.aws.neon.tech/n
 ```
 
 #### **Client `.env`** (Frontend Build)
+
 ```env
 # Backend API URL
 VITE_API_URL=http://localhost:5001
@@ -1443,11 +1488,13 @@ NODE_ENV=development
 ### 🚀 **Deployment Considerations**
 
 #### **For Production:**
+
 - Update `VITE_API_URL` to your production server URL
 - Set `NODE_ENV=production` in appropriate files
 - Ensure all sensitive keys are properly secured
 
 #### **For Development:**
+
 - Use `localhost` URLs for local development
 - Set `NODE_ENV=development` for better debugging
 
