@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   MapPin,
   Star,
@@ -13,6 +14,7 @@ import {
   ChefHat,
   MessageSquare,
   Sparkles,
+  History,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,6 +31,7 @@ import restaurantIcon from "@/assets/restaurant-icon.png";
 
 const Recommendations = () => {
   const { token, user } = useAuthContext();
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState("");
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
@@ -152,9 +155,19 @@ const Recommendations = () => {
         <div className="max-w-6xl mx-auto px-6 py-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">
-              Restaurant Recommendations
-            </h1>
+            <div className="flex items-center justify-between mb-2">
+              <h1 className="text-3xl font-bold text-foreground">
+                Restaurant Recommendations
+              </h1>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/search-history")}
+                className="flex items-center gap-2"
+              >
+                <History className="h-4 w-4" />
+                Search History
+              </Button>
+            </div>
             <p className="text-muted-foreground">
               Discover great restaurants near you with AI-powered
               recommendations

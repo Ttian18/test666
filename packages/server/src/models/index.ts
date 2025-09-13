@@ -5,6 +5,7 @@ export { default as prisma } from "./database/client.ts";
 export { default as Profile } from "./entities/Profile.ts";
 export { default as Transaction } from "./entities/Transaction.ts";
 export { default as Voucher } from "./entities/Voucher.ts";
+export { default as RestaurantSearchHistory } from "./entities/RestaurantSearchHistory.ts";
 // Note: Restaurant model commented out - not in Prisma schema
 // export { default as Restaurant } from "./entities/Restaurant.ts";
 

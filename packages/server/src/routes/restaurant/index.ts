@@ -5,6 +5,7 @@ import { validateLocation } from "../../utils/validation/validationUtils.ts";
 import { getUserForPersonalization } from "../../services/auth/authUtils.ts";
 import zhongcaoRoutes from "./zhongcaoRoutes.ts";
 import menuAnalysisRoutes from "./menuAnalysisRoutes.ts";
+import searchHistoryRoutes from "./searchHistoryRoutes.ts";
 import {
   GetRestaurantRecommendationsRequestSchema,
   GetRestaurantRecommendationsResponseSchema,
@@ -156,5 +157,6 @@ router.get("/", async (req, res) => {
 // Mount sub-routes (only authorized endpoints)
 router.use("/zhongcao", zhongcaoRoutes);
 router.use("/menu-analysis", menuAnalysisRoutes);
+router.use("/search-history", searchHistoryRoutes);
 
 export default router;

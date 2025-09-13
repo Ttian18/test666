@@ -11,6 +11,7 @@ import {
   GetRestaurantRecommendationsRequestSchema,
   GetRestaurantRecommendationsResponseSchema,
 } from "schema";
+import RestaurantSearchHistory from "../../models/entities/RestaurantSearchHistory.ts";
 
 // Initialize LangChain logging configuration for Restaurant Recommendation Service
 // Note: Handlers are created per-session in the function for better isolation
@@ -111,6 +112,72 @@ I enjoy discovering new places to eat.`;
   }
 
   return profile;
+}
+
+/**
+ * Save search history to database asynchronously
+ * @param response - The validated recommendation response
+ * @param userData - User data used for personalization
+ */
+async function saveSearchHistoryAsync(
+  response: any,
+  userData: any
+): Promise<void> {
+  try {
+    // Extract location from query if possible
+    const query = response.query || "";
+    const location = extractLocationFromQuery(query);
+
+    // Check if we have a recent similar search (within 1 hour) to avoid duplicates
+    const recentSearch = await RestaurantSearchHistory.findByQuery(
+      userData.id,
+      query,
+      1 // 1 hour
+    );
+
+    if (recentSearch) {
+      console.log("Similar search found recently, skipping save");
+      return;
+    }
+
+    // Save the search history
+    await RestaurantSearchHistory.create({
+      user_id: userData.id,
+      search_query: query,
+      location: location || undefined,
+      search_results: response.answer,
+      result_count: response.answer?.length || 0,
+      user_preferences: userData,
+    });
+
+    console.log(`Search history saved for user ${userData.id}: "${query}"`);
+  } catch (error) {
+    console.error("Error saving search history:", error);
+    // Don't throw - this is a background operation
+  }
+}
+
+/**
+ * Extract location from search query
+ * @param query - The search query string
+ * @returns Extracted location or null
+ */
+function extractLocationFromQuery(query: string): string | null {
+  // Simple location extraction - look for common patterns
+  const locationPatterns = [
+    /(?:in|at|near|around)\s+([^,]+?)(?:\s|$)/i,
+    /restaurants?\s+(?:in|at|near|around)\s+([^,]+?)(?:\s|$)/i,
+    /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+(?:restaurants?|food)/i,
+  ];
+
+  for (const pattern of locationPatterns) {
+    const match = query.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+
+  return null;
 }
 
 // 3) Custom Prompt Template (no markdown code fences)
@@ -255,6 +322,12 @@ export async function getRestaurantRecommendations(requestData: any) {
 
   const validatedResponse =
     GetRestaurantRecommendationsResponseSchema.parse(response);
+
+  // Save search history to database (async, don't wait for completion)
+  saveSearchHistoryAsync(validatedResponse, userData).catch((error) => {
+    console.error("Failed to save search history:", error);
+    // Don't throw error to avoid affecting the main response
+  });
 
   // Finalize the markdown log with session summary
   if (sessionMarkdownHandler) {

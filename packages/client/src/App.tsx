@@ -21,6 +21,7 @@ import Home from "./pages/Home";
 import Reports from "./pages/Reports";
 import MenuAnalysis from "./pages/MenuAnalysis";
 import Recommendations from "./pages/Recommendations";
+import SearchHistory from "./pages/SearchHistory";
 import Zhongcao from "./pages/Zhongcao";
 import AddExpense from "./pages/AddExpense";
 import Questionnaire from "./pages/Questionnaire";
@@ -124,6 +125,14 @@ const App = () => {
                   element={
                     <ProtectedRoute>
                       <Recommendations />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/search-history"
+                  element={
+                    <ProtectedRoute>
+                      <SearchHistory />
                     </ProtectedRoute>
                   }
                 />
