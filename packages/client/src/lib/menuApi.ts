@@ -6,6 +6,21 @@ const menuApi = axios.create({
   timeout: 300000, // 5 minutes timeout for AI processing (increased from 30 seconds)
 });
 
+// Request interceptor to add JWT token
+menuApi.interceptors.request.use(
+  (config) => {
+    // Get token from sessionStorage (same as profileApi)
+    const token = sessionStorage.getItem("meal_mint_token");
+    if (token) {
+      config.headers["x-auth-token"] = token;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Response interceptor for error handling
 menuApi.interceptors.response.use(
   (response) => response,

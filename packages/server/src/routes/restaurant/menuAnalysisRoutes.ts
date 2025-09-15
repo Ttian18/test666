@@ -56,6 +56,51 @@ router.post("/", uploadImageMemory.single("image"), async (req, res) => {
     const imageBuffer = req.file.buffer;
     const imageMimeType = req.file.mimetype;
 
+    // Extract userId from JWT for profile-based tags
+    let userId = null;
+    let profileTags = [];
+    let tagSource = "defaults";
+
+    try {
+      const authHeader = req.header("x-auth-token");
+      if (authHeader) {
+        const jwt = (await import("jsonwebtoken")).default;
+        const JWT_SECRET = process.env.JWT_SECRET || "your_secure_secret";
+        const decoded = jwt.verify(authHeader, JWT_SECRET);
+        if (decoded && decoded.id && typeof decoded.id === "number") {
+          userId = decoded.id;
+
+          // Fetch user profile for personalized tags
+          try {
+            const profile = await profileService.getUserProfile(decoded.id);
+            if (
+              profile &&
+              profile.lifestylePreferences &&
+              profile.lifestylePreferences.diningStyle
+            ) {
+              profileTags = mapProfileDiningStyleToTags(
+                profile.lifestylePreferences.diningStyle
+              );
+              if (profileTags.length > 0) {
+                tagSource = "profile";
+              }
+            }
+          } catch (profileError) {
+            console.warn(
+              "Profile fetch failed, proceeding without profile:",
+              profileError.message
+            );
+          }
+        }
+      }
+    } catch (jwtError) {
+      // JWT invalid or expired, continue without userId
+      console.warn(
+        "JWT validation failed, proceeding without userId:",
+        jwtError.message
+      );
+    }
+
     // Check cache for same menu and budget
     if (
       menuAnalysisCache.hasSameMenu(imageBuffer) &&
@@ -71,13 +116,20 @@ router.post("/", uploadImageMemory.single("image"), async (req, res) => {
       });
     }
 
+    // Determine final tags using the tag merge strategy
+    const { finalTags, source } = determineFinalTags({
+      requestTags: [], // No request tags in legacy endpoint
+      ignoreProfileTags: false,
+      profileTags,
+    });
+
     // Process the menu image
     const result = await menuAnalysisController.handleRecommend({
       imageBuffer,
       imageMimeType,
       budget: Number(budget),
       userNote,
-      userId, // Pass userId for history tracking (required)
+      tags: finalTags,
     });
 
     // Cache the result
@@ -91,6 +143,7 @@ router.post("/", uploadImageMemory.single("image"), async (req, res) => {
     res.status(200).json({
       message: "Menu analysis completed successfully",
       cached: false,
+      tagSource: source,
       ...result,
     });
   } catch (error) {
