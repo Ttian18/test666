@@ -153,7 +153,6 @@ const Reports = () => {
       const chartResponse = await apiService.getChartData({
         period: timeframe,
         category: category,
-        chart_type: "spending",
         user_id: userId,
       });
       setChartData({ ...chartResponse }); // Spread to ensure new object reference
