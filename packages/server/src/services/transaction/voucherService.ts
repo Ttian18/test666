@@ -1,9 +1,9 @@
-import prisma from "../../models/database/client.js";
+import prisma from "../../models/database/client.ts";
 import { findMerchantCategory, categories as allCategories } from "schema";
 import OpenAI from "openai";
-import * as fs from "fs";
-import * as path from "path";
-import { normalizeImageForOpenAI } from "../../utils/upload/uploadUtils.js";
+import fs from "fs";
+import path from "path";
+import { normalizeImageForOpenAI } from "../../utils/upload/uploadUtils.ts";
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -19,10 +19,7 @@ const openai = new OpenAI({
  * @param {string} mimeType - MIME type of the image
  * @returns {Promise<Object>} Parsed receipt data
  */
-async function parseReceiptWithOpenAI(
-  imageBuffer: Buffer,
-  mimeType: string
-): Promise<any> {
+async function parseReceiptWithOpenAI(imageBuffer, mimeType) {
   const base64 = imageBuffer.toString("base64");
   const dataUrl = `data:${mimeType};base64,${base64}`;
 
@@ -95,8 +92,7 @@ async function parseReceiptWithOpenAI(
     };
   } catch (error) {
     console.error("OpenAI parsing error:", error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to parse receipt: ${errorMessage}`);
+    throw new Error(`Failed to parse receipt: ${error.message}`);
   }
 }
 
@@ -105,8 +101,8 @@ async function parseReceiptWithOpenAI(
  * @param {string} merchantCategory - Merchant category
  * @returns {string} Transaction category
  */
-function mapMerchantToTransactionCategory(merchantCategory: string): string {
-  const categoryMap: { [key: string]: string } = {
+function mapMerchantToTransactionCategory(merchantCategory) {
+  const categoryMap = {
     "Food & Dining": "Food",
     Grocery: "Food",
     "Gas & Fuel": "Transportation",
@@ -128,11 +124,7 @@ function mapMerchantToTransactionCategory(merchantCategory: string): string {
  * @param {Object} options - Processing options
  * @returns {Promise<Object>} Processed voucher with transaction
  */
-export const processVoucher = async (
-  userId: number,
-  fileData: any,
-  options: any = {}
-) => {
+export const processVoucher = async (userId, fileData, options = {}) => {
   if (!userId || typeof userId !== "number") {
     throw new Error("Valid user ID (integer) is required");
   }
@@ -212,8 +204,7 @@ export const processVoucher = async (
     };
   } catch (error) {
     console.error("Error processing voucher:", error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to process voucher: ${errorMessage}`);
+    throw new Error(`Failed to process voucher: ${error.message}`);
   }
 };
 
@@ -224,11 +215,7 @@ export const processVoucher = async (
  * @param {Object} options - Processing options
  * @returns {Promise<Object>} Bulk processing results
  */
-export const processBulkVouchers = async (
-  userId: number,
-  filesData: any[],
-  options: any = {}
-) => {
+export const processBulkVouchers = async (userId, filesData, options = {}) => {
   if (!userId || typeof userId !== "number") {
     throw new Error("Valid user ID (integer) is required");
   }
@@ -253,7 +240,7 @@ export const processBulkVouchers = async (
     } catch (error) {
       errors.push({
         filename: fileData.originalname,
-        error: error instanceof Error ? error.message : String(error),
+        error: error.message,
       });
     }
   }
@@ -276,13 +263,13 @@ export const processBulkVouchers = async (
  * @param {Date} options.endDate - Filter to date
  * @returns {Promise<Array>} Array of user's vouchers
  */
-export const getUserVouchers = async (userId: number, options: any = {}) => {
+export const getUserVouchers = async (userId, options = {}) => {
   if (!userId || typeof userId !== "number") {
     throw new Error("Valid user ID (integer) is required");
   }
 
   const { limit, offset, startDate, endDate } = options;
-  const where: any = { user_id: userId };
+  const where = { user_id: userId };
 
   if (startDate || endDate) {
     where.timestamp = {};
@@ -309,7 +296,7 @@ export const getUserVouchers = async (userId: number, options: any = {}) => {
  * @param {number} voucherId - The voucher ID
  * @returns {Promise<Object|null>} Voucher object or null
  */
-export const getVoucherById = async (userId: number, voucherId: number) => {
+export const getVoucherById = async (userId, voucherId) => {
   if (!userId || typeof userId !== "number") {
     throw new Error("Valid user ID (integer) is required");
   }
@@ -338,11 +325,7 @@ export const getVoucherById = async (userId: number, voucherId: number) => {
  * @param {Object} parsedData - Updated parsed data
  * @returns {Promise<Object|null>} Updated voucher or null if not found
  */
-export const updateVoucher = async (
-  userId: number,
-  voucherId: number,
-  parsedData: any
-) => {
+export const updateVoucher = async (userId, voucherId, parsedData) => {
   if (!userId || typeof userId !== "number") {
     throw new Error("Valid user ID (integer) is required");
   }
@@ -395,7 +378,7 @@ export const updateVoucher = async (
  * @param {number} voucherId - The voucher ID
  * @returns {Promise<Object|null>} Created transaction or null if voucher not found
  */
-export const confirmVoucher = async (userId: number, voucherId: number) => {
+export const confirmVoucher = async (userId, voucherId) => {
   if (!userId || typeof userId !== "number") {
     throw new Error("Valid user ID (integer) is required");
   }
@@ -422,17 +405,16 @@ export const confirmVoucher = async (userId: number, voucherId: number) => {
   }
 
   // Create transaction from voucher
-  const parsedData = voucher.parsed_data as any;
   const transaction = await prisma.transaction.create({
     data: {
       user_id: userId,
-      date: new Date(parsedData.date) || new Date(),
-      amount: parsedData.total_amount,
-      category: parsedData.transaction_category || "Others",
-      merchant: parsedData.merchant,
+      date: new Date(voucher.parsed_data.date) || new Date(),
+      amount: voucher.parsed_data.total_amount,
+      category: voucher.parsed_data.transaction_category || "Others",
+      merchant: voucher.parsed_data.merchant,
       source: "voucher",
       receipt_img: voucher.image_path,
-      merchant_category: parsedData.merchant_category || "Others",
+      merchant_category: voucher.parsed_data.merchant_category || "Others",
     },
   });
 
@@ -445,7 +427,7 @@ export const confirmVoucher = async (userId: number, voucherId: number) => {
  * @param {number} voucherId - The voucher ID
  * @returns {Promise<boolean>} True if deleted, false if not found
  */
-export const deleteVoucher = async (userId: number, voucherId: number) => {
+export const deleteVoucher = async (userId, voucherId) => {
   if (!userId || typeof userId !== "number") {
     throw new Error("Valid user ID (integer) is required");
   }
@@ -494,13 +476,13 @@ export const deleteVoucher = async (userId: number, voucherId: number) => {
  * @param {Date} options.endDate - End date for statistics
  * @returns {Promise<Object>} Voucher statistics
  */
-export const getVoucherStats = async (userId: number, options: any = {}) => {
+export const getVoucherStats = async (userId, options = {}) => {
   if (!userId || typeof userId !== "number") {
     throw new Error("Valid user ID (integer) is required");
   }
 
   const { startDate, endDate } = options;
-  const where: any = { user_id: userId };
+  const where = { user_id: userId };
 
   if (startDate || endDate) {
     where.timestamp = {};
