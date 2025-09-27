@@ -14,7 +14,7 @@ services:
       - ../packages/server/uploads:/app/packages/server/uploads
       - ../packages/server/logs:/app/packages/server/logs
     ports:
-      - "5001:5001"
+      - "5555:5001"
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5001/health || exit 1"]
@@ -30,7 +30,7 @@ services:
       dockerfile: docker/Dockerfile.frontend
     container_name: nextai-frontend
     ports:
-      - "8080:80"
+      - "8888:80"
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost/ || exit 1"]

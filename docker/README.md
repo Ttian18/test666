@@ -43,7 +43,7 @@ The server uses your existing `.env` file from the project root, which should co
 ## Service Details
 
 - **Container Name**: `nextai-server`
-- **Port**: `5001` (mapped to host:5001)
+- **Port**: `5001` (mapped to host:5555)
 - **Health Check**: `/health` endpoint
 - **Volumes**: 
   - `uploads/` - Persistent file uploads
@@ -85,7 +85,7 @@ After starting, verify the server is running:
 
 ```bash
 # Health check
-curl http://localhost:5001/health
+curl http://localhost:5555/health
 
 # Should return:
 # {"status":"OK","timestamp":"...","environment":"development","version":"1.0.1"}

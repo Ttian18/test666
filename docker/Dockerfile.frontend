@@ -21,8 +21,8 @@ RUN npm run build
 WORKDIR /app/packages/client
 COPY packages/client ./
 
-# Set API URL for production build
-ENV VITE_API_URL=http://76.94.218.158:5001
+# Set API URL for production build - use domain with proxy
+ENV VITE_API_URL=https://20241202.xyz
 
 # Build the application with production environment
 RUN npm run build
