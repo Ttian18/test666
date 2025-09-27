@@ -29,24 +29,16 @@ const Questionnaire = () => {
   const progress = (currentStep / totalSteps) * 100;
 
   const expenseCategories = [
-    "Food & Dining",
-    "Transportation",
-    "Shopping",
-    "Entertainment",
-    "Healthcare",
-    "Education",
-    "Travel",
-    "Housing",
-    "Utilities",
-    "Subscriptions",
+    "Food & Dining", "Transportation", "Shopping", "Entertainment",
+    "Utilities", "Healthcare", "Education", "Travel", "Subscriptions"
   ];
 
   const handleCategoryToggle = (category: string) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       expenseCategories: prev.expenseCategories.includes(category)
-        ? prev.expenseCategories.filter((c) => c !== category)
-        : [...prev.expenseCategories, category],
+        ? prev.expenseCategories.filter(c => c !== category)
+        : [...prev.expenseCategories, category]
     }));
   };
 
@@ -66,9 +58,9 @@ const Questionnaire = () => {
 
   const handleFinish = () => {
     OnboardingUtils.markQuestionnaireCompleted();
-    localStorage.setItem("userProfile", JSON.stringify(formData));
-    console.log("🏠 Navigating to home after completing questionnaire");
-    navigate("/home");
+    localStorage.setItem('userProfile', JSON.stringify(formData));
+    console.log('🏠 Navigating to home after completing questionnaire');
+    navigate('/home');
   };
 
   const renderStep = () => {
@@ -78,9 +70,7 @@ const Questionnaire = () => {
           <Card className="shadow-soft">
             <CardHeader>
               <CardTitle>Monthly Budget</CardTitle>
-              <p className="text-muted-foreground">
-                How much do you plan to spend each month?
-              </p>
+              <p className="text-muted-foreground">How much do you plan to spend each month?</p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
@@ -90,12 +80,7 @@ const Questionnaire = () => {
                   type="number"
                   placeholder="2000"
                   value={formData.monthlyBudget}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      monthlyBudget: e.target.value,
-                    }))
-                  }
+                  onChange={(e) => setFormData(prev => ({ ...prev, monthlyBudget: e.target.value }))}
                   className="text-lg"
                 />
               </div>
@@ -106,9 +91,7 @@ const Questionnaire = () => {
                   type="number"
                   placeholder="3500"
                   value={formData.income}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, income: e.target.value }))
-                  }
+                  onChange={(e) => setFormData(prev => ({ ...prev, income: e.target.value }))}
                 />
               </div>
             </CardContent>
@@ -120,9 +103,7 @@ const Questionnaire = () => {
           <Card className="shadow-soft">
             <CardHeader>
               <CardTitle>Expense Categories</CardTitle>
-              <p className="text-muted-foreground">
-                Which categories do you typically spend on?
-              </p>
+              <p className="text-muted-foreground">Which categories do you typically spend on?</p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
@@ -139,19 +120,14 @@ const Questionnaire = () => {
                   </div>
                 ))}
               </div>
-
+              
               <div>
                 <Label htmlFor="custom">Other Category</Label>
                 <Input
                   id="custom"
                   placeholder="Add custom category..."
                   value={formData.customCategory}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      customCategory: e.target.value,
-                    }))
-                  }
+                  onChange={(e) => setFormData(prev => ({ ...prev, customCategory: e.target.value }))}
                 />
               </div>
             </CardContent>
@@ -163,9 +139,7 @@ const Questionnaire = () => {
           <Card className="shadow-soft">
             <CardHeader>
               <CardTitle>Spending Preferences</CardTitle>
-              <p className="text-muted-foreground">
-                Tell us about your spending style
-              </p>
+              <p className="text-muted-foreground">Tell us about your spending style</p>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
@@ -175,9 +149,7 @@ const Questionnaire = () => {
                 </p>
                 <Slider
                   value={formData.spendingStyle}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, spendingStyle: value }))
-                  }
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, spendingStyle: value }))}
                   max={5}
                   min={1}
                   step={1}
@@ -197,9 +169,7 @@ const Questionnaire = () => {
                 </p>
                 <Slider
                   value={formData.savingPriority}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, savingPriority: value }))
-                  }
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, savingPriority: value }))}
                   max={5}
                   min={1}
                   step={1}
@@ -215,9 +185,7 @@ const Questionnaire = () => {
           <Card className="shadow-soft">
             <CardHeader>
               <CardTitle>Financial Goals</CardTitle>
-              <p className="text-muted-foreground">
-                How focused are you on financial planning?
-              </p>
+              <p className="text-muted-foreground">How focused are you on financial planning?</p>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
@@ -227,9 +195,7 @@ const Questionnaire = () => {
                 </p>
                 <Slider
                   value={formData.financialGoals}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, financialGoals: value }))
-                  }
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, financialGoals: value }))}
                   max={5}
                   min={1}
                   step={1}
@@ -245,9 +211,7 @@ const Questionnaire = () => {
           <Card className="shadow-soft">
             <CardHeader>
               <CardTitle>Savings Goal</CardTitle>
-              <p className="text-muted-foreground">
-                Set a target to work towards
-              </p>
+              <p className="text-muted-foreground">Set a target to work towards</p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
@@ -257,12 +221,7 @@ const Questionnaire = () => {
                   type="number"
                   placeholder="5000"
                   value={formData.savingsGoal}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      savingsGoal: e.target.value,
-                    }))
-                  }
+                  onChange={(e) => setFormData(prev => ({ ...prev, savingsGoal: e.target.value }))}
                 />
               </div>
               <div>
@@ -271,12 +230,7 @@ const Questionnaire = () => {
                   id="deadline"
                   type="date"
                   value={formData.deadline}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      deadline: e.target.value,
-                    }))
-                  }
+                  onChange={(e) => setFormData(prev => ({ ...prev, deadline: e.target.value }))}
                 />
               </div>
             </CardContent>
@@ -295,15 +249,9 @@ const Questionnaire = () => {
                 <div className="flex justify-between items-center p-3 bg-secondary rounded-lg">
                   <div>
                     <p className="font-medium">Monthly Budget</p>
-                    <p className="text-sm text-muted-foreground">
-                      ${formData.monthlyBudget}
-                    </p>
+                    <p className="text-sm text-muted-foreground">${formData.monthlyBudget}</p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setCurrentStep(1)}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => setCurrentStep(1)}>
                     <Edit size={16} />
                   </Button>
                 </div>
@@ -315,11 +263,7 @@ const Questionnaire = () => {
                       {formData.expenseCategories.length} categories selected
                     </p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setCurrentStep(2)}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => setCurrentStep(2)}>
                     <Edit size={16} />
                   </Button>
                 </div>
@@ -332,11 +276,7 @@ const Questionnaire = () => {
                         ${formData.savingsGoal} by {formData.deadline}
                       </p>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setCurrentStep(5)}
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => setCurrentStep(5)}>
                       <Edit size={16} />
                     </Button>
                   </div>
@@ -378,7 +318,9 @@ const Questionnaire = () => {
 
       {/* Content */}
       <div className="flex-1 p-6">
-        <div className="max-w-sm mx-auto">{renderStep()}</div>
+        <div className="max-w-sm mx-auto">
+          {renderStep()}
+        </div>
       </div>
 
       {/* Navigation */}
