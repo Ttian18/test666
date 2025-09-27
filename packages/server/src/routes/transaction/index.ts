@@ -1,11 +1,11 @@
 import express from "express";
-import transactionRoutes from "./transactionRoutes.ts";
-import voucherRoutes from "./voucherRoutes.ts";
+import transactionRoutes from "./transactionRoutes";
+import voucherRoutes from "./voucherRoutes";
 
 const router = express.Router();
 
 // Mount sub-routes - specific routes MUST come before general routes
-router.use("/vouchers", voucherRoutes);
 router.use("/", transactionRoutes);
+router.use("/vouchers", voucherRoutes);
 
 export default router;
