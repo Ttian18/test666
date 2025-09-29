@@ -15,11 +15,25 @@ model User {
   password          String
   profileComplete   Boolean            @default(false)
   updatedAt         DateTime           @updatedAt
+  profile           Profile?
   menuAnalyses      MenuAnalysis[]
   zhongcaoResults   ZhongcaoResult[]
   blacklistedTokens BlacklistedToken[]
   transactions      Transaction[]
   vouchers          Voucher[]
+}
+
+model Profile {
+  id                    Int      @id @default(autoincrement())
+  userId                Int      @unique
+  monthlyBudget         Float
+  monthlyIncome         Float
+  expensePreferences    Json
+  savingsGoals          Json
+  lifestylePreferences  Json
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model BlacklistedToken {
@@ -88,4 +102,3 @@ model MenuAnalysis {
   updatedAt     DateTime @updatedAt
   user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
-

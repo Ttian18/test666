@@ -12,7 +12,11 @@
     "test": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' jest",
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' jest --watch",
     "test:coverage": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' jest --coverage",
-    "test:reco": "NODE_OPTIONS=\"--loader ts-node/esm\" node test/runRecommendation.ts"
+    "test:reco": "NODE_OPTIONS=\"--loader ts-node/esm\" node test/runRecommendation.ts",
+    "test-db": "ts-node scripts/test-db-connection.ts",
+    "connect-db": "ts-node scripts/connect-db.ts",
+    "query-db": "ts-node scripts/query-db.ts",
+    "example-db": "ts-node scripts/example-usage.ts"
   },
   "prisma": {
     "schema": "src/models/database/schema.prisma",
@@ -24,6 +28,7 @@
     "@langchain/core": "^0.3.68",
     "@langchain/openai": "^0.6.7",
     "@prisma/client": "^5.22.0",
+    "@types/pg": "^8.15.5",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -32,6 +37,7 @@
     "langchain": "^0.3.30",
     "multer": "^2.0.2",
     "openai": "^5.12.2",
+    "pg": "^8.16.3",
     "schema": "file:../schema",
     "sharp": "^0.34.3",
     "tesseract.js": "^5.0.4",

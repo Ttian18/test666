@@ -24,18 +24,18 @@ const LandingNavigation = () => {
   };
 
   const tabs = [
-    {
-      id: "blogs",
-      label: "Blogs",
-      icon: BookOpen,
-      path: "/blogs",
-    },
-    {
-      id: "pricing",
-      label: "Pricing",
-      icon: DollarSign,
-      path: "/pricing",
-    },
+    // {
+    //   id: "blogs",
+    //   label: "Blogs",
+    //   icon: BookOpen,
+    //   path: "/blogs",
+    // },
+    // {
+    //   id: "pricing",
+    //   label: "Pricing",
+    //   icon: DollarSign,
+    //   path: "/pricing",
+    // },
     {
       id: "about",
       label: "About",

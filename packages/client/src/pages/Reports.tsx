@@ -1,305 +1,411 @@
 import { useState } from "react";
-import { TrendingUp, Calendar, Filter, TrendingDown } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChevronLeft, ChevronRight, Check, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import AppLayout from "@/components/AppLayout";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-} from "recharts";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Slider } from "@/components/ui/slider";
+import { Progress } from "@/components/ui/progress";
+import { useNavigate } from "react-router-dom";
+import { OnboardingUtils } from "@/utils/onboarding";
 
-const Reports = () => {
-  const [timeframe, setTimeframe] = useState("Month");
+const Questionnaire = () => {
+  const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState({
+    monthlyBudget: "",
+    income: "",
+    expenseCategories: [] as string[],
+    customCategory: "",
+    spendingStyle: [3],
+    savingPriority: [3],
+    financialGoals: [3],
+    savingsGoal: "",
+    deadline: "",
+  });
 
-  const categoryData = [
-    { name: "Food & Dining", value: 450, color: "#8B5CF6" },
-    { name: "Transportation", value: 320, color: "#10B981" },
-    { name: "Shopping", value: 280, color: "#F59E0B" },
-    { name: "Entertainment", value: 190, color: "#EF4444" },
+  const totalSteps = 5;
+  const progress = (currentStep / totalSteps) * 100;
+
+  const expenseCategories = [
+    "Food & Dining",
+    "Transportation",
+    "Shopping",
+    "Entertainment",
+    "Healthcare",
+    "Education",
+    "Travel",
+    "Housing",
+    "Utilities",
+    "Subscriptions",
   ];
 
-  const dailyData = [
-    { day: "Mon", amount: 60 },
-    { day: "Tue", amount: 45 },
-    { day: "Wed", amount: 80 },
-    { day: "Thu", amount: 120 },
-    { day: "Fri", amount: 150 },
-    { day: "Sat", amount: 180 },
-    { day: "Sun", amount: 90 },
-  ];
+  const handleCategoryToggle = (category: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      expenseCategories: prev.expenseCategories.includes(category)
+        ? prev.expenseCategories.filter((c) => c !== category)
+        : [...prev.expenseCategories, category],
+    }));
+  };
 
-  const totalSpent = 1240;
-  const budgetProgress = [
-    { category: "Food & Dining", spent: 450, budget: 585, color: "#8B5CF6" },
-    { category: "Transportation", spent: 320, budget: 416, color: "#10B981" },
-    { category: "Shopping", spent: 280, budget: 364, color: "#F59E0B" },
-    { category: "Entertainment", spent: 190, budget: 247, color: "#EF4444" },
-  ];
+  const handleNext = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      setCurrentStep(6); // Show summary
+    }
+  };
 
-  const recentExpenses = [
-    {
-      name: "Fresh Market Cafe",
-      category: "Food & Dining",
-      amount: 67.5,
-      change: "+12%",
-    },
-    { name: "Uber", category: "Transportation", amount: 45.3, change: "-5%" },
-    { name: "Amazon", category: "Shopping", amount: 89.99, change: "+23%" },
-    { name: "Netflix", category: "Entertainment", amount: 15.99, change: "0%" },
-  ];
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
 
-  return (
-    <AppLayout>
-      <div className="page-background-reports">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                Spending Reports
-              </h1>
-              <p className="text-muted-foreground">Your financial insights</p>
-            </div>
+  const handleFinish = () => {
+    OnboardingUtils.markQuestionnaireCompleted();
+    localStorage.setItem("userProfile", JSON.stringify(formData));
+    console.log("🏠 Navigating to home after completing questionnaire");
+    navigate("/home");
+  };
 
-            <div className="flex items-center gap-4">
-              <div className="flex gap-2">
-                {["Week", "Month", "Year"].map((period) => (
-                  <Button
-                    key={period}
-                    variant={timeframe === period ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setTimeframe(period)}
-                    className={
-                      timeframe === period ? "bg-primary text-white" : ""
-                    }
-                  >
-                    {period}
-                  </Button>
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <Card className="shadow-soft">
+            <CardHeader>
+              <CardTitle>Monthly Budget</CardTitle>
+              <p className="text-muted-foreground">
+                How much do you plan to spend each month?
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="budget">Monthly Budget ($)</Label>
+                <Input
+                  id="budget"
+                  type="number"
+                  placeholder="2000"
+                  value={formData.monthlyBudget}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      monthlyBudget: e.target.value,
+                    }))
+                  }
+                  className="text-lg"
+                />
+              </div>
+              <div>
+                <Label htmlFor="income">Monthly Income (Optional)</Label>
+                <Input
+                  id="income"
+                  type="number"
+                  placeholder="3500"
+                  value={formData.income}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, income: e.target.value }))
+                  }
+                />
+              </div>
+            </CardContent>
+          </Card>
+        );
+
+      case 2:
+        return (
+          <Card className="shadow-soft">
+            <CardHeader>
+              <CardTitle>Expense Categories</CardTitle>
+              <p className="text-muted-foreground">
+                Which categories do you typically spend on?
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                {expenseCategories.map((category) => (
+                  <div key={category} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={category}
+                      checked={formData.expenseCategories.includes(category)}
+                      onCheckedChange={() => handleCategoryToggle(category)}
+                    />
+                    <Label htmlFor={category} className="text-sm">
+                      {category}
+                    </Label>
+                  </div>
                 ))}
               </div>
-            </div>
-          </div>
 
-          {/* Metric Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <Card className="themed-card">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Spent</p>
-                    <p className="text-2xl font-bold text-expense">
-                      ${totalSpent}
-                    </p>
-                  </div>
-                  <div className="text-expense">$</div>
+              <div>
+                <Label htmlFor="custom">Other Category</Label>
+                <Input
+                  id="custom"
+                  placeholder="Add custom category..."
+                  value={formData.customCategory}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      customCategory: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+            </CardContent>
+          </Card>
+        );
+
+      case 3:
+        return (
+          <Card className="shadow-soft">
+            <CardHeader>
+              <CardTitle>Spending Preferences</CardTitle>
+              <p className="text-muted-foreground">
+                Tell us about your spending style
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <Label>Spending Style</Label>
+                <p className="text-sm text-muted-foreground mb-3">
+                  1 = Very Conservative, 5 = Very Liberal
+                </p>
+                <Slider
+                  value={formData.spendingStyle}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, spendingStyle: value }))
+                  }
+                  max={5}
+                  min={1}
+                  step={1}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                  <span>Conservative</span>
+                  <span>Moderate</span>
+                  <span>Liberal</span>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
-            <Card className="themed-card">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
+              <div>
+                <Label>Saving Priority</Label>
+                <p className="text-sm text-muted-foreground mb-3">
+                  How important is saving money to you?
+                </p>
+                <Slider
+                  value={formData.savingPriority}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, savingPriority: value }))
+                  }
+                  max={5}
+                  min={1}
+                  step={1}
+                  className="w-full"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        );
+
+      case 4:
+        return (
+          <Card className="shadow-soft">
+            <CardHeader>
+              <CardTitle>Financial Goals</CardTitle>
+              <p className="text-muted-foreground">
+                How focused are you on financial planning?
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <Label>Financial Planning Focus</Label>
+                <p className="text-sm text-muted-foreground mb-3">
+                  1 = Just tracking, 5 = Detailed planning
+                </p>
+                <Slider
+                  value={formData.financialGoals}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, financialGoals: value }))
+                  }
+                  max={5}
+                  min={1}
+                  step={1}
+                  className="w-full"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        );
+
+      case 5:
+        return (
+          <Card className="shadow-soft">
+            <CardHeader>
+              <CardTitle>Savings Goal</CardTitle>
+              <p className="text-muted-foreground">
+                Set a target to work towards
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="savings-goal">Target Amount ($)</Label>
+                <Input
+                  id="savings-goal"
+                  type="number"
+                  placeholder="5000"
+                  value={formData.savingsGoal}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      savingsGoal: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor="deadline">Target Date</Label>
+                <Input
+                  id="deadline"
+                  type="date"
+                  value={formData.deadline}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      deadline: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+            </CardContent>
+          </Card>
+        );
+
+      case 6:
+        return (
+          <Card className="shadow-soft">
+            <CardHeader>
+              <CardTitle>Profile Summary</CardTitle>
+              <p className="text-muted-foreground">Review your information</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-3 bg-secondary rounded-lg">
                   <div>
+                    <p className="font-medium">Monthly Budget</p>
                     <p className="text-sm text-muted-foreground">
-                      vs Last Month
+                      ${formData.monthlyBudget}
                     </p>
-                    <p className="text-2xl font-bold text-success">-8%</p>
                   </div>
-                  <div className="text-success">
-                    <TrendingDown size={24} />
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCurrentStep(1)}
+                  >
+                    <Edit size={16} />
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
 
-            <Card className="themed-card">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
+                <div className="flex justify-between items-center p-3 bg-secondary rounded-lg">
                   <div>
-                    <p className="text-sm text-muted-foreground">This Week</p>
-                    <p className="text-2xl font-bold text-primary">$403</p>
+                    <p className="font-medium">Selected Categories</p>
+                    <p className="text-sm text-muted-foreground">
+                      {formData.expenseCategories.length} categories selected
+                    </p>
                   </div>
-                  <div className="text-primary">📅</div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCurrentStep(2)}
+                  >
+                    <Edit size={16} />
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
 
-            <Card className="themed-card">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Avg Daily</p>
-                    <p className="text-2xl font-bold text-warning">$57.60</p>
+                {formData.savingsGoal && (
+                  <div className="flex justify-between items-center p-3 bg-secondary rounded-lg">
+                    <div>
+                      <p className="font-medium">Savings Goal</p>
+                      <p className="text-sm text-muted-foreground">
+                        ${formData.savingsGoal} by {formData.deadline}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setCurrentStep(5)}
+                    >
+                      <Edit size={16} />
+                    </Button>
                   </div>
-                  <div className="text-warning">📊</div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                )}
+              </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-            {/* Spending by Category */}
-            <Card className="themed-card">
-              <CardHeader>
-                <CardTitle>Spending by Category</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64 mb-6">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={categoryData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={100}
-                        paddingAngle={5}
-                        dataKey="value"
-                      >
-                        {categoryData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
+              <Button
+                onClick={handleFinish}
+                className="w-full bg-gradient-primary hover:opacity-90 h-12 text-lg font-semibold"
+              >
+                <Check className="mr-2" size={20} />
+                Complete Setup
+              </Button>
+            </CardContent>
+          </Card>
+        );
 
-                <div className="space-y-4">
-                  {categoryData.map((category, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: category.color }}
-                        />
-                        <span className="font-medium">{category.name}</span>
-                      </div>
-                      <span className="font-bold">${category.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+      default:
+        return null;
+    }
+  };
 
-            {/* Daily Spending This Week */}
-            <Card className="themed-card">
-              <CardHeader>
-                <CardTitle>Daily Spending This Week</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={dailyData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="day" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar
-                        dataKey="amount"
-                        fill="#8B5CF6"
-                        radius={[4, 4, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <div className="bg-gradient-primary p-6 text-white">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-xl font-semibold">Personal Finance Setup</h1>
+          {currentStep < 6 && (
+            <span className="text-white/80 text-sm">
+              Step {currentStep} of {totalSteps}
+            </span>
+          )}
+        </div>
+        {currentStep < 6 && (
+          <Progress value={progress} className="h-2 bg-white/20" />
+        )}
+      </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mt-8">
-            {/* Recent Expenses */}
-            <Card className="themed-card">
-              <CardHeader>
-                <CardTitle>Recent Expenses</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentExpenses.map((expense, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between py-3"
-                    >
-                      <div>
-                        <p className="font-semibold">{expense.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {expense.category}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold">${expense.amount}</p>
-                        <p
-                          className={`text-xs ${
-                            expense.change.startsWith("+")
-                              ? "text-expense"
-                              : expense.change.startsWith("-")
-                              ? "text-success"
-                              : "text-muted-foreground"
-                          }`}
-                        >
-                          {expense.change}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+      {/* Content */}
+      <div className="flex-1 p-6">
+        <div className="max-w-sm mx-auto">{renderStep()}</div>
+      </div>
 
-            {/* Budget Progress */}
-            <Card className="themed-card">
-              <CardHeader>
-                <CardTitle>Budget Progress</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {budgetProgress.map((item, index) => (
-                    <div key={index}>
-                      <div className="flex justify-between mb-2">
-                        <span className="font-medium">{item.category}</span>
-                        <span className="font-semibold">
-                          ${item.spent} / ${item.budget}
-                        </span>
-                      </div>
-                      <div className="w-full bg-secondary rounded-full h-2">
-                        <div
-                          className="h-2 rounded-full transition-all duration-300"
-                          style={{
-                            width: `${Math.min(
-                              (item.spent / item.budget) * 100,
-                              100
-                            )}%`,
-                            backgroundColor: item.color,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+      {/* Navigation */}
+      {currentStep < 6 && (
+        <div className="p-6 bg-background border-t">
+          <div className="flex gap-3 max-w-sm mx-auto">
+            <Button
+              variant="outline"
+              onClick={handleBack}
+              disabled={currentStep === 1}
+              className="flex-1"
+            >
+              <ChevronLeft size={18} className="mr-2" />
+              Back
+            </Button>
+            <Button
+              onClick={handleNext}
+              className="flex-1 bg-gradient-primary hover:opacity-90"
+            >
+              {currentStep === totalSteps ? "Review" : "Next"}
+              <ChevronRight size={18} className="ml-2" />
+            </Button>
           </div>
         </div>
-      </div>
-    </AppLayout>
+      )}
+    </div>
   );
 };
 
-export default Reports;
+export default Questionnaire;

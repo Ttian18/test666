@@ -37,18 +37,18 @@ test_service() {
 
 # Main tests
 echo "1. Testing Backend Health Check"
-test_service "Backend" "http://76.94.218.158:5001/health" "OK"
+test_service "Backend" "https://20241202.xyz/api/health" "OK"
 backend_status=$?
 
 echo "2. Testing Frontend Access"
-test_service "Frontend" "http://76.94.218.158:8080" "BudgetMate"
+test_service "Frontend" "https://20241202.xyz" "BudgetMate"
 frontend_status=$?
 
 echo "3. Testing Frontend Static Assets"
 # Get actual CSS filename from the HTML
-CSS_FILE=$(curl -s "http://76.94.218.158:8080" | grep -o 'assets/[^"]*\.css' | head -1)
+CSS_FILE=$(curl -s "https://20241202.xyz" | grep -o 'assets/[^"]*\.css' | head -1)
 if [ -n "$CSS_FILE" ]; then
-    test_service "Frontend CSS" "http://76.94.218.158:8080/$CSS_FILE" ".*"
+    test_service "Frontend CSS" "https://20241202.xyz/$CSS_FILE" ".*"
     css_status=$?
 else
     echo -n "Testing Frontend CSS... "
@@ -57,7 +57,7 @@ else
 fi
 
 echo "4. Testing Backend API Endpoint"
-test_service "Categories API" "http://76.94.218.158:5001/transactions/categories" "categories"
+test_service "Categories API" "https://20241202.xyz/api/transactions/categories" "categories"
 api_status=$?
 
 # Container status check
@@ -93,9 +93,9 @@ if [ $passed_tests -eq $total_tests ]; then
     echo -e "${GREEN}🎉 All tests passed! Frontend deployment successful!${NC}"
     echo ""
     echo "Access your application:"
-    echo "🌐 Frontend: http://76.94.218.158:8080"
-    echo "⚡ Backend API: http://76.94.218.158:5001"
-    echo "📊 Health Check: http://76.94.218.158:5001/health"
+    echo "🌐 Frontend: https://20241202.xyz"
+    echo "⚡ Backend API: https://20241202.xyz/api"
+    echo "📊 Health Check: https://20241202.xyz/api/health"
     exit 0
 else
     echo -e "${RED}❌ Some tests failed. Please check the deployment.${NC}"
