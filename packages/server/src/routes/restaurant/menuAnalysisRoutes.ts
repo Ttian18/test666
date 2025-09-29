@@ -36,6 +36,121 @@ router.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
 
+// POST /menu-analysis - Analyze menu image and provide budget recommendations (legacy endpoint)
+router.post("/", uploadImageMemory.single("image"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return handleError(createError.missingImage(), res);
+    }
+
+    if (!req.file) {
+      return handleError(createError.missingImage(), res);
+    }
+
+    const { budget, userNote = "" } = req.body;
+
+    if (!budget || !Number.isFinite(Number(budget)) || Number(budget) <= 0) {
+      return handleError(createError.invalidBudget(), res);
+    }
+
+    const imageBuffer = req.file.buffer;
+    const imageMimeType = req.file.mimetype;
+
+    // Extract userId from JWT for profile-based tags
+    let userId = null;
+    let profileTags = [];
+    let tagSource = "defaults";
+
+    try {
+      const authHeader = req.header("x-auth-token");
+      if (authHeader) {
+        const jwt = (await import("jsonwebtoken")).default;
+        const JWT_SECRET = process.env.JWT_SECRET || "your_secure_secret";
+        const decoded = jwt.verify(authHeader, JWT_SECRET);
+        if (decoded && decoded.id && typeof decoded.id === "number") {
+          userId = decoded.id;
+
+          // Fetch user profile for personalized tags
+          try {
+            const profile = await profileService.getUserProfile(decoded.id);
+            if (
+              profile &&
+              profile.lifestylePreferences &&
+              profile.lifestylePreferences.diningStyle
+            ) {
+              profileTags = mapProfileDiningStyleToTags(
+                profile.lifestylePreferences.diningStyle
+              );
+              if (profileTags.length > 0) {
+                tagSource = "profile";
+              }
+            }
+          } catch (profileError) {
+            console.warn(
+              "Profile fetch failed, proceeding without profile:",
+              profileError.message
+            );
+          }
+        }
+      }
+    } catch (jwtError) {
+      // JWT invalid or expired, continue without userId
+      console.warn(
+        "JWT validation failed, proceeding without userId:",
+        jwtError.message
+      );
+    }
+
+    // Check cache for same menu and budget
+    if (
+      menuAnalysisCache.hasSameMenu(imageBuffer) &&
+      menuAnalysisCache.hasSameBudget(Number(budget))
+    ) {
+      const cached = menuAnalysisCache.getLastRecommendation();
+      return res.status(200).json({
+        message: "Cached recommendation",
+        cached: true,
+        menuInfo: cached.menuInfo,
+        recommendation: cached.recommendation,
+        timestamp: cached.ts,
+      });
+    }
+
+    // Determine final tags using the tag merge strategy
+    const { finalTags, source } = determineFinalTags({
+      requestTags: [], // No request tags in legacy endpoint
+      ignoreProfileTags: false,
+      profileTags,
+    });
+
+    // Process the menu image
+    const result = await menuAnalysisController.handleRecommend({
+      imageBuffer,
+      imageMimeType,
+      budget: Number(budget),
+      userNote,
+      tags: finalTags,
+    });
+
+    // Cache the result
+    menuAnalysisCache.setLastRecommendation({
+      imageBuffer,
+      menuInfo: result.menuInfo,
+      recommendation: result.recommendation,
+      budget: Number(budget),
+    });
+
+    res.status(200).json({
+      message: "Menu analysis completed successfully",
+      cached: false,
+      tagSource: source,
+      ...result,
+    });
+  } catch (error) {
+    handleError(error, res);
+  }
+});
+
 // POST /menu-analysis/recommend - Enhanced menu analysis with better validation and caching
 router.post(
   "/recommend",

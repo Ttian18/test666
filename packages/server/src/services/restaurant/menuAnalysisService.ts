@@ -56,7 +56,7 @@ export default class MenuAnalysisService {
     const userPrompt =
       "From this menu image, extract a JSON object with: { currency: string, items: [{ name: string, description?: string, price: number, category?: string }] }." +
       " Ensure prices are numeric, and do not include currency symbols in the number." +
-      " CRITICAL: OUTPUT DISH NAME IN CHINESE" +
+      " Extract dish names in the same language as they appear on the menu." +
       " If no menu items are visible, return { currency: '$', items: [] }.";
 
     try {
