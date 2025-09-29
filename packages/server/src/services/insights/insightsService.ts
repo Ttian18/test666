@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { findMerchantCategory } from "schema";
+import { findMerchantCategory, categories } from "schema";
 
 // Use global prisma instance in tests, otherwise create new instance
 const prisma = global.prisma || new PrismaClient();
@@ -20,7 +20,7 @@ const prisma = global.prisma || new PrismaClient();
  * @param {Date} options.endDate - Custom end date
  * @returns {Promise<Object>} Spending summary with period breakdown
  */
-export const getSpendingSummary = async (userId, options = {}) => {
+export const getSpendingSummary = async (userId: number, options: any = {}) => {
   if (
     !userId ||
     typeof userId !== "number" ||
@@ -39,7 +39,7 @@ export const getSpendingSummary = async (userId, options = {}) => {
   } = options;
 
   // Build base where clause
-  const where = { user_id: userId };
+  const where: any = { user_id: userId };
 
   if (category) {
     where.category = category;
@@ -100,7 +100,10 @@ export const getSpendingSummary = async (userId, options = {}) => {
  * @param {number} options.limit - Limit number of categories returned
  * @returns {Promise<Object>} Category analysis with spending breakdown
  */
-export const getCategoryAnalysis = async (userId, options = {}) => {
+export const getCategoryAnalysis = async (
+  userId: number,
+  options: any = {}
+) => {
   if (
     !userId ||
     typeof userId !== "number" ||
@@ -110,13 +113,18 @@ export const getCategoryAnalysis = async (userId, options = {}) => {
     throw new Error("Valid user ID (integer) is required");
   }
 
-  const { startDate, endDate, limit = 10 } = options;
-  const where = { user_id: userId };
+  const { startDate, endDate, limit = 10, category } = options;
+  const where: any = { user_id: userId };
 
   if (startDate || endDate) {
     where.date = {};
     if (startDate) where.date.gte = new Date(startDate);
     if (endDate) where.date.lte = new Date(endDate);
+  }
+
+  // Add category filter if specified
+  if (category && category !== "all") {
+    where.category = category;
   }
 
   // Get category breakdown
@@ -138,10 +146,15 @@ export const getCategoryAnalysis = async (userId, options = {}) => {
 
   const total = totalSpending._sum.amount || 0;
 
+  // Filter to only include valid categories from our schema
+  const validCategoryData = categoryData.filter((item) =>
+    categories.includes(item.category)
+  );
+
   return {
     userId,
     totalAmount: total,
-    categories: categoryData.map((item) => ({
+    categories: validCategoryData.map((item) => ({
       category: item.category,
       totalAmount: item._sum.amount,
       transactionCount: item._count.id,
@@ -160,7 +173,10 @@ export const getCategoryAnalysis = async (userId, options = {}) => {
  * @param {number} options.limit - Limit number of merchants returned
  * @returns {Promise<Object>} Merchant analysis with spending breakdown
  */
-export const getMerchantAnalysis = async (userId, options = {}) => {
+export const getMerchantAnalysis = async (
+  userId: number,
+  options: any = {}
+) => {
   if (
     !userId ||
     typeof userId !== "number" ||
@@ -170,13 +186,18 @@ export const getMerchantAnalysis = async (userId, options = {}) => {
     throw new Error("Valid user ID (integer) is required");
   }
 
-  const { startDate, endDate, limit = 10 } = options;
-  const where = { user_id: userId };
+  const { startDate, endDate, limit = 10, category } = options;
+  const where: any = { user_id: userId };
 
   if (startDate || endDate) {
     where.date = {};
     if (startDate) where.date.gte = new Date(startDate);
     if (endDate) where.date.lte = new Date(endDate);
+  }
+
+  // Add category filter if specified
+  if (category && category !== "all") {
+    where.category = category;
   }
 
   // Get merchant breakdown
@@ -220,7 +241,7 @@ export const getMerchantAnalysis = async (userId, options = {}) => {
  * @param {number} options.periods - Number of periods to analyze
  * @returns {Promise<Object>} Spending trends with period comparisons
  */
-export const getSpendingTrends = async (userId, options = {}) => {
+export const getSpendingTrends = async (userId: number, options: any = {}) => {
   if (
     !userId ||
     typeof userId !== "number" ||
@@ -230,7 +251,7 @@ export const getSpendingTrends = async (userId, options = {}) => {
     throw new Error("Valid user ID (integer) is required");
   }
 
-  const { period = "monthly", periods = 12 } = options;
+  const { period = "monthly", periods = 12, category } = options;
 
   // Calculate date range based on period and periods
   const endDate = new Date();
@@ -246,18 +267,30 @@ export const getSpendingTrends = async (userId, options = {}) => {
     case "monthly":
       startDate.setMonth(endDate.getMonth() - periods);
       break;
+    case "yearly":
+      startDate.setFullYear(endDate.getFullYear() - periods);
+      break;
     default:
-      throw new Error("Invalid period. Use 'daily', 'weekly', or 'monthly'");
+      throw new Error(
+        "Invalid period. Use 'daily', 'weekly', 'monthly', or 'yearly'"
+      );
+  }
+
+  const where: any = {
+    user_id: userId,
+    date: {
+      gte: startDate,
+      lte: endDate,
+    },
+  };
+
+  // Add category filter if specified
+  if (category && category !== "all") {
+    where.category = category;
   }
 
   const transactions = await prisma.transaction.findMany({
-    where: {
-      user_id: userId,
-      date: {
-        gte: startDate,
-        lte: endDate,
-      },
-    },
+    where,
     orderBy: { date: "asc" },
   });
 
@@ -290,8 +323,8 @@ export const getSpendingTrends = async (userId, options = {}) => {
  * @returns {Promise<Object>} Budget analysis with spending vs budget
  */
 export const getBudgetAnalysis = async (
-  userId,
-  monthlyBudget,
+  userId: number,
+  monthlyBudget: number,
   options = {}
 ) => {
   if (
