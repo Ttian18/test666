@@ -36,68 +36,6 @@ router.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
 
-// POST /menu-analysis - Analyze menu image and provide budget recommendations (legacy endpoint)
-router.post("/", uploadImageMemory.single("image"), async (req, res) => {
-  try {
-    if (!req.file) {
-      return handleError(createError.missingImage(), res);
-    }
-
-    if (!req.file) {
-      return handleError(createError.missingImage(), res);
-    }
-
-    const { budget, userNote = "" } = req.body;
-
-    if (!budget || !Number.isFinite(Number(budget)) || Number(budget) <= 0) {
-      return handleError(createError.invalidBudget(), res);
-    }
-
-    const imageBuffer = req.file.buffer;
-    const imageMimeType = req.file.mimetype;
-
-    // Check cache for same menu and budget
-    if (
-      menuAnalysisCache.hasSameMenu(imageBuffer) &&
-      menuAnalysisCache.hasSameBudget(Number(budget))
-    ) {
-      const cached = menuAnalysisCache.getLastRecommendation();
-      return res.status(200).json({
-        message: "Cached recommendation",
-        cached: true,
-        menuInfo: cached.menuInfo,
-        recommendation: cached.recommendation,
-        timestamp: cached.ts,
-      });
-    }
-
-    // Process the menu image
-    const result = await menuAnalysisController.handleRecommend({
-      imageBuffer,
-      imageMimeType,
-      budget: Number(budget),
-      userNote,
-      userId, // Pass userId for history tracking (required)
-    });
-
-    // Cache the result
-    menuAnalysisCache.setLastRecommendation({
-      imageBuffer,
-      menuInfo: result.menuInfo,
-      recommendation: result.recommendation,
-      budget: Number(budget),
-    });
-
-    res.status(200).json({
-      message: "Menu analysis completed successfully",
-      cached: false,
-      ...result,
-    });
-  } catch (error) {
-    handleError(error, res);
-  }
-});
-
 // POST /menu-analysis/recommend - Enhanced menu analysis with better validation and caching
 router.post(
   "/recommend",

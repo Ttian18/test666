@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import Profile from "../../models/entities/Profile.ts";
 
 // Use global prisma instance in tests, otherwise create new instance
 const prisma = global.prisma || new PrismaClient();
@@ -53,25 +52,26 @@ export const createOrUpdateProfile = async (
       throw new Error("User not found");
     }
 
-    // Create/update profile using the updated Profile entity
-    let profile = await Profile.findOne({ userId });
-
-    if (!profile) {
-      // Create new profile
-      profile = new Profile({
-        userId: userId.toString(),
-        ...profileData,
-      });
-    } else {
-      // Update existing profile
-      Object.keys(profileData).forEach((key) => {
-        if (profile && key in profile) {
-          (profile as any)[key] = profileData[key];
-        }
-      });
-    }
-
-    await profile.save();
+    // Create or update profile using Prisma
+    const profile = await prisma.profile.upsert({
+      where: { userId: userId },
+      update: {
+        monthlyBudget: profileData.monthlyBudget,
+        monthlyIncome: profileData.monthlyIncome,
+        expensePreferences: profileData.expensePreferences,
+        savingsGoals: profileData.savingsGoals,
+        lifestylePreferences: profileData.lifestylePreferences || {},
+        updatedAt: new Date(),
+      },
+      create: {
+        userId: userId,
+        monthlyBudget: profileData.monthlyBudget,
+        monthlyIncome: profileData.monthlyIncome,
+        expensePreferences: profileData.expensePreferences,
+        savingsGoals: profileData.savingsGoals,
+        lifestylePreferences: profileData.lifestylePreferences || {},
+      },
+    });
 
     // Mark user as profile complete using Prisma
     await prisma.user.update({
@@ -106,7 +106,9 @@ export const getUserProfile = async (userId: number) => {
   }
 
   try {
-    const profile = await Profile.findOne({ userId: userId.toString() });
+    const profile = await prisma.profile.findUnique({
+      where: { userId: userId },
+    });
 
     if (!profile) {
       return null;
@@ -114,6 +116,8 @@ export const getUserProfile = async (userId: number) => {
 
     // Return safe profile data
     return {
+      id: profile.id,
+      userId: profile.userId,
       monthlyBudget: profile.monthlyBudget,
       monthlyIncome: profile.monthlyIncome,
       expensePreferences: profile.expensePreferences,
@@ -156,7 +160,9 @@ export const getUserDataForPersonalization = async (userId: number) => {
     }
 
     // Get profile data
-    const profile = await Profile.findOne({ userId: userId.toString() });
+    const profile = await prisma.profile.findUnique({
+      where: { userId: userId },
+    });
 
     if (!profile) {
       return {
@@ -189,15 +195,6 @@ export const getUserDataForPersonalization = async (userId: number) => {
  * @returns User data if valid, null if not found
  */
 export const validateUser = async (userId: number) => {
-  if (
-    !userId ||
-    typeof userId !== "number" ||
-    userId <= 0 ||
-    !Number.isInteger(userId)
-  ) {
-    return null;
-  }
-
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
