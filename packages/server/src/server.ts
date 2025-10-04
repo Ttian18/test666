@@ -10,6 +10,7 @@ import authRoutes from "./routes/auth/index.ts";
 import restaurantRoutes from "./routes/restaurant/index.ts";
 import transactionRoutes from "./routes/transaction/index.ts";
 import insightsRoutes from "./routes/insights/index.ts";
+import profileRoutes from "./routes/profile/profileRoutes.ts";
 
 // Import services
 import tokenCleanupService from "./services/auth/tokenCleanupService.ts";
@@ -67,6 +68,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/restaurants", restaurantRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/insights", insightsRoutes);
+app.use("/api/users", profileRoutes);
 
 // Global error handler
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {

@@ -11,16 +11,30 @@ model User {
   id                      Int                        @id @default(autoincrement())
   email                   String                     @unique
   name                    String?
+  avatar                  String?                    // 头像URL
+  phone                   String?                    // 手机号
+  dateOfBirth             DateTime?                  // 生日
+  gender                  String?                    // 性别
+  location                String?                    // 位置信息
+  timezone                String?                    // 时区
+  language                String                     @default("en") // 语言偏好
   createdAt               DateTime                   @default(now())
-  password                String
-  profileComplete         Boolean                    @default(false)
   updatedAt               DateTime                   @updatedAt
+  profileComplete         Boolean                    @default(false)
+  isEmailVerified         Boolean                    @default(false)
+  isPhoneVerified         Boolean                    @default(false)
+  lastLoginAt             DateTime?
+  password                String
+
+  // 关联关系
+  profile                 UserProfile?
   menuAnalyses            MenuAnalysis[]
   zhongcaoResults         ZhongcaoResult[]
   blacklistedTokens       BlacklistedToken[]
   transactions            Transaction[]
   vouchers                Voucher[]
   restaurantSearchHistory RestaurantSearchHistory[]
+  behaviors               UserBehavior[]
 }
 
 model BlacklistedToken {
@@ -105,3 +119,66 @@ model RestaurantSearchHistory {
   @@map("restaurant_search_history")
 }
 
+model UserProfile {
+  id                    Int                @id @default(autoincrement())
+  userId                Int                @unique
+  user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 财务信息
+  monthlyIncome         Float?
+  monthlyBudget         Float?
+  currency              String             @default("USD")
+  budgetAllocation      Json?              // 预算分配
+
+  // 饮食偏好
+  dietaryRestrictions   String[]           // 饮食限制
+  cuisinePreferences    String[]           // 菜系偏好
+  allergies             String[]           // 过敏信息
+  spiceTolerance        String?            // 辣度承受
+  mealTiming            Json?              // 用餐时间偏好
+
+  // 生活方式
+  activityLevel         String?            // 活动水平
+  healthGoals           String[]           // 健康目标
+  cookingSkill          String?            // 烹饪水平
+  kitchenEquipment      String[]           // 厨房设备
+
+  // 消费偏好
+  priceRangePreference  String?            // 价格区间偏好
+  brandPreferences     String[]           // 品牌偏好
+  shoppingHabits        Json?              // 购物习惯
+
+  // 通知设置
+  emailNotifications    Boolean            @default(true)
+  pushNotifications     Boolean            @default(true)
+  smsNotifications      Boolean            @default(false)
+
+  // 隐私设置
+  profileVisibility     String             @default("private")
+  dataSharing           Boolean            @default(false)
+  analyticsOptIn        Boolean            @default(false)
+
+  // 系统字段
+  completionPercentage  Int                @default(0)
+  onboardingStep        Int                @default(0)
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  @@map("user_profiles")
+}
+
+// 用户行为分析表
+model UserBehavior {
+  id                Int                @id @default(autoincrement())
+  userId            Int
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  actionType        String             // "view", "click", "purchase", "search"
+  actionTarget      String             // 操作对象
+  actionData        Json?              // 操作详细数据
+  sessionId         String?            // 会话ID
+  deviceInfo        Json?              // 设备信息
+  timestamp         DateTime           @default(now())
+
+  @@map("user_behaviors")
+}
