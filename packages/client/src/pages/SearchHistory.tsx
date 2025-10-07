@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuthContext } from "../contexts/AuthContext";
-import { RestaurantService } from "../services/restaurantService";
+import RestaurantService from "../services/restaurantService";
 import { useToast } from "../hooks/use-toast";
 import {
   Card,
