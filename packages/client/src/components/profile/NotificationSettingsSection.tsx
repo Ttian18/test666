@@ -91,29 +91,29 @@ const NotificationSettingsSection: React.FC<
     onUpdate({ frequency: newFrequency });
   };
 
-  const weekDays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bell className="w-5 h-5" />
-          通知设置
+          Notification Settings
         </CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* 通知渠道 */}
+        {/* Notification channels */}
         <div>
-          <Label className="text-base font-medium">通知渠道</Label>
+          <Label className="text-base font-medium">Notification Channels</Label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
             <div className="flex items-center justify-between p-3 border rounded-lg">
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-blue-500" />
                 <div>
-                  <div className="font-medium">邮件通知</div>
+                  <div className="font-medium">Email Notifications</div>
                   <div className="text-sm text-muted-foreground">
-                    接收邮件提醒
+                    Receive email reminders
                   </div>
                 </div>
               </div>
@@ -127,9 +127,9 @@ const NotificationSettingsSection: React.FC<
               <div className="flex items-center gap-3">
                 <Smartphone className="w-5 h-5 text-green-500" />
                 <div>
-                  <div className="font-medium">推送通知</div>
+                  <div className="font-medium">Push Notifications</div>
                   <div className="text-sm text-muted-foreground">
-                    手机推送提醒
+                    Mobile push reminders
                   </div>
                 </div>
               </div>
@@ -143,9 +143,9 @@ const NotificationSettingsSection: React.FC<
               <div className="flex items-center gap-3">
                 <MessageSquare className="w-5 h-5 text-orange-500" />
                 <div>
-                  <div className="font-medium">短信通知</div>
+                  <div className="font-medium">SMS Notifications</div>
                   <div className="text-sm text-muted-foreground">
-                    重要消息短信提醒
+                    Important SMS reminders
                   </div>
                 </div>
               </div>
@@ -159,9 +159,9 @@ const NotificationSettingsSection: React.FC<
               <div className="flex items-center gap-3">
                 <Bell className="w-5 h-5 text-purple-500" />
                 <div>
-                  <div className="font-medium">应用内通知</div>
+                  <div className="font-medium">In-App Notifications</div>
                   <div className="text-sm text-muted-foreground">
-                    应用内消息提醒
+                    In-app message reminders
                   </div>
                 </div>
               </div>
@@ -173,76 +173,76 @@ const NotificationSettingsSection: React.FC<
           </div>
         </div>
 
-        {/* 通知类型 */}
+        {/* Notification types */}
         <div>
-          <Label className="text-base font-medium">通知类型</Label>
+          <Label className="text-base font-medium">Notification Types</Label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
             {[
               {
                 key: "budgetAlerts",
-                label: "预算提醒",
+                label: "Budget Alerts",
                 icon: "💰",
-                description: "预算超支或接近限制",
+                description: "Budget exceeded or near limit",
               },
               {
                 key: "expenseReminders",
-                label: "支出提醒",
+                label: "Expense Reminders",
                 icon: "💳",
-                description: "大额支出或异常消费",
+                description: "Large or unusual spending",
               },
               {
                 key: "savingsGoalUpdates",
-                label: "储蓄目标",
+                label: "Savings Goals",
                 icon: "🎯",
-                description: "储蓄进度和目标达成",
+                description: "Savings progress and goal achievement",
               },
               {
                 key: "unusualSpending",
-                label: "异常消费",
+                label: "Unusual Spending",
                 icon: "⚠️",
-                description: "检测到异常消费模式",
+                description: "Unusual spending patterns detected",
               },
               {
                 key: "restaurantRecommendations",
-                label: "餐厅推荐",
+                label: "Restaurant Recommendations",
                 icon: "🍽️",
-                description: "个性化餐厅推荐",
+                description: "Personalized restaurant suggestions",
               },
               {
                 key: "menuAnalysis",
-                label: "菜单分析",
+                label: "Menu Analysis",
                 icon: "📊",
-                description: "菜单分析结果通知",
+                description: "Menu analysis results",
               },
               {
                 key: "specialOffers",
-                label: "特价信息",
+                label: "Special Offers",
                 icon: "🎉",
-                description: "优惠活动和特价信息",
+                description: "Promotions and special deals",
               },
               {
                 key: "accountSecurity",
-                label: "账户安全",
+                label: "Account Security",
                 icon: "🔒",
-                description: "登录异常和安全提醒",
+                description: "Login alerts and security reminders",
               },
               {
                 key: "productUpdates",
-                label: "产品更新",
+                label: "Product Updates",
                 icon: "🆕",
-                description: "新功能和产品更新",
+                description: "New features and product updates",
               },
               {
                 key: "weeklyReports",
-                label: "周报",
+                label: "Weekly Reports",
                 icon: "📈",
-                description: "每周消费报告",
+                description: "Weekly spending reports",
               },
               {
                 key: "monthlyReports",
-                label: "月报",
+                label: "Monthly Reports",
                 icon: "📊",
-                description: "每月消费分析报告",
+                description: "Monthly spending analysis reports",
               },
             ].map((type) => (
               <div
@@ -267,16 +267,16 @@ const NotificationSettingsSection: React.FC<
           </div>
         </div>
 
-        {/* 通知时间 */}
+        {/* Notification timing */}
         <div>
-          <Label className="text-base font-medium">通知时间</Label>
+          <Label className="text-base font-medium">Notification Timing</Label>
           <div className="space-y-4 mt-3">
-            {/* 免打扰时间 */}
+            {/* Quiet hours */}
             <div className="p-4 border rounded-lg">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4" />
-                  <span className="font-medium">免打扰时间</span>
+                  <span className="font-medium">Quiet Hours</span>
                 </div>
                 <Switch
                   checked={timing.quietHours.enabled}
@@ -292,7 +292,7 @@ const NotificationSettingsSection: React.FC<
               {timing.quietHours.enabled && (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm">开始时间</Label>
+                    <Label className="text-sm">Start Time</Label>
                     <input
                       type="time"
                       value={timing.quietHours.start}
@@ -306,7 +306,7 @@ const NotificationSettingsSection: React.FC<
                     />
                   </div>
                   <div>
-                    <Label className="text-sm">结束时间</Label>
+                    <Label className="text-sm">End Time</Label>
                     <input
                       type="time"
                       value={timing.quietHours.end}
@@ -323,10 +323,10 @@ const NotificationSettingsSection: React.FC<
               )}
             </div>
 
-            {/* 报告时间设置 */}
+            {/* Report timing settings */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label className="text-sm">周报发送时间</Label>
+                <Label className="text-sm">Weekly Report Day</Label>
                 <select
                   value={timing.weeklyReportDay}
                   onChange={(e) =>
@@ -343,7 +343,7 @@ const NotificationSettingsSection: React.FC<
               </div>
 
               <div>
-                <Label className="text-sm">月报发送日期</Label>
+                <Label className="text-sm">Monthly Report Date</Label>
                 <select
                   value={timing.monthlyReportDate}
                   onChange={(e) =>
@@ -353,42 +353,46 @@ const NotificationSettingsSection: React.FC<
                 >
                   {Array.from({ length: 28 }, (_, i) => i + 1).map((date) => (
                     <option key={date} value={date}>
-                      {date}日
+                      Day {date}
                     </option>
                   ))}
                 </select>
               </div>
             </div>
 
-            {/* 时区设置 */}
+            {/* Timezone settings */}
             <div>
-              <Label className="text-sm">时区</Label>
+              <Label className="text-sm">Timezone</Label>
               <select
                 value={timing.timezone}
                 onChange={(e) => updateTiming("timezone", e.target.value)}
                 className="w-full px-3 py-2 border border-input bg-background rounded-md mt-1"
               >
-                <option value="Asia/Shanghai">北京时间 (UTC+8)</option>
-                <option value="America/New_York">纽约时间 (UTC-5)</option>
-                <option value="Europe/London">伦敦时间 (UTC+0)</option>
-                <option value="Asia/Tokyo">东京时间 (UTC+9)</option>
-                <option value="America/Los_Angeles">洛杉矶时间 (UTC-8)</option>
+                <option value="Asia/Shanghai">Beijing Time (UTC+8)</option>
+                <option value="America/New_York">New York Time (UTC-5)</option>
+                <option value="Europe/London">London Time (UTC+0)</option>
+                <option value="Asia/Tokyo">Tokyo Time (UTC+9)</option>
+                <option value="America/Los_Angeles">
+                  Los Angeles Time (UTC-8)
+                </option>
               </select>
             </div>
           </div>
         </div>
 
-        {/* 通知频率 */}
+        {/* Notification frequency */}
         <div>
-          <Label className="text-base font-medium">通知频率</Label>
+          <Label className="text-base font-medium">
+            Notification Frequency
+          </Label>
           <div className="space-y-4 mt-3">
             <div>
-              <Label className="text-sm">预算提醒频率</Label>
+              <Label className="text-sm">Budget Alert Frequency</Label>
               <div className="flex gap-2 mt-1">
                 {[
-                  { value: "immediate", label: "立即" },
-                  { value: "daily", label: "每日" },
-                  { value: "weekly", label: "每周" },
+                  { value: "immediate", label: "Immediate" },
+                  { value: "daily", label: "Daily" },
+                  { value: "weekly", label: "Weekly" },
                 ].map((option) => (
                   <Button
                     key={option.value}
@@ -409,12 +413,12 @@ const NotificationSettingsSection: React.FC<
             </div>
 
             <div>
-              <Label className="text-sm">推荐通知频率</Label>
+              <Label className="text-sm">Recommendation Frequency</Label>
               <div className="flex gap-2 mt-1">
                 {[
-                  { value: "real_time", label: "实时" },
-                  { value: "daily_digest", label: "每日汇总" },
-                  { value: "weekly_digest", label: "每周汇总" },
+                  { value: "real_time", label: "Real-time" },
+                  { value: "daily_digest", label: "Daily Digest" },
+                  { value: "weekly_digest", label: "Weekly Digest" },
                 ].map((option) => (
                   <Button
                     key={option.value}
@@ -435,12 +439,12 @@ const NotificationSettingsSection: React.FC<
             </div>
 
             <div>
-              <Label className="text-sm">报告频率</Label>
+              <Label className="text-sm">Report Frequency</Label>
               <div className="flex gap-2 mt-1">
                 {[
-                  { value: "weekly", label: "每周" },
-                  { value: "monthly", label: "每月" },
-                  { value: "quarterly", label: "每季度" },
+                  { value: "weekly", label: "Weekly" },
+                  { value: "monthly", label: "Monthly" },
+                  { value: "quarterly", label: "Quarterly" },
                 ].map((option) => (
                   <Button
                     key={option.value}
@@ -458,40 +462,40 @@ const NotificationSettingsSection: React.FC<
           </div>
         </div>
 
-        {/* 通知预览 */}
+        {/* Notification preview */}
         <div className="bg-muted/50 p-4 rounded-lg">
           <div className="flex items-center gap-2 mb-2">
             <Bell className="w-4 h-4 text-primary" />
-            <span className="font-medium">通知预览</span>
+            <span className="font-medium">Notification Preview</span>
           </div>
           <div className="space-y-2 text-sm">
             <p>
-              • 预算提醒:{" "}
+              • Budget Alerts:{" "}
               {frequency.budgetAlerts === "immediate"
-                ? "立即通知"
+                ? "Immediate notification"
                 : frequency.budgetAlerts === "daily"
-                ? "每日汇总"
-                : "每周汇总"}
+                ? "Daily digest"
+                : "Weekly digest"}
             </p>
             <p>
-              • 餐厅推荐:{" "}
+              • Restaurant Recommendations:{" "}
               {frequency.recommendations === "real_time"
-                ? "实时推送"
+                ? "Real-time push"
                 : frequency.recommendations === "daily_digest"
-                ? "每日汇总"
-                : "每周汇总"}
+                ? "Daily digest"
+                : "Weekly digest"}
             </p>
             <p>
-              • 消费报告:{" "}
+              • Spending Reports:{" "}
               {frequency.reports === "weekly"
-                ? "每周发送"
+                ? "Weekly delivery"
                 : frequency.reports === "monthly"
-                ? "每月发送"
-                : "每季度发送"}
+                ? "Monthly delivery"
+                : "Quarterly delivery"}
             </p>
             {timing.quietHours.enabled && (
               <p>
-                • 免打扰时间: {timing.quietHours.start} -{" "}
+                • Quiet Hours: {timing.quietHours.start} -{" "}
                 {timing.quietHours.end}
               </p>
             )}

@@ -34,7 +34,9 @@ const Profile = () => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">加载失败</h2>
+          <h2 className="text-2xl font-bold text-red-600 mb-4">
+            Loading Failed
+          </h2>
           <p className="text-muted-foreground">{error}</p>
         </div>
       </div>
@@ -44,32 +46,32 @@ const Profile = () => {
   const sections = [
     {
       id: "basic-info",
-      title: "基本信息",
+      title: "Basic Information",
       icon: User,
       component: BasicInfoSection,
       completionRequired: true,
     },
     {
       id: "dietary-preferences",
-      title: "饮食偏好",
+      title: "Dietary Preferences",
       icon: Utensils,
       component: DietaryPreferencesSection,
     },
     {
       id: "financial-settings",
-      title: "财务设置",
+      title: "Financial Settings",
       icon: DollarSign,
       component: FinancialSettingsSection,
     },
     {
       id: "notification-settings",
-      title: "通知设置",
+      title: "Notification Settings",
       icon: Bell,
       component: NotificationSettingsSection,
     },
     {
       id: "privacy-settings",
-      title: "隐私设置",
+      title: "Privacy Settings",
       icon: Shield,
       component: PrivacySettingsSection,
     },
@@ -77,15 +79,15 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      {/* 页面标题和进度 */}
+      {/* Page title and progress */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">个人资料</h1>
+        <h1 className="text-3xl font-bold mb-4">Profile</h1>
 
-        {/* 完成度指示器 */}
+        {/* Completion indicator */}
         <Card className="mb-6">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-lg font-medium">资料完整度</span>
+              <span className="text-lg font-medium">Profile Completion</span>
               <Badge variant="outline" className="text-sm">
                 {profile?.completionPercentage || 0}%
               </Badge>
@@ -119,7 +121,7 @@ const Profile = () => {
         </Card>
       </div>
 
-      {/* 标签页导航 */}
+      {/* Tab navigation */}
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
@@ -138,7 +140,7 @@ const Profile = () => {
           ))}
         </TabsList>
 
-        {/* 标签页内容 */}
+        {/* Tab content */}
         {sections.map((section) => {
           const Component = section.component;
           return (

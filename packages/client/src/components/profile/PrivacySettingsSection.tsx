@@ -96,36 +96,36 @@ const PrivacySettingsSection: React.FC<PrivacySettingsSectionProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Shield className="w-5 h-5" />
-          隐私设置
+          Privacy Settings
         </CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* 账户隐私 */}
+        {/* Account privacy */}
         <div>
-          <Label className="text-base font-medium">账户隐私</Label>
+          <Label className="text-base font-medium">Account Privacy</Label>
           <div className="space-y-4 mt-3">
             <div>
-              <Label className="text-sm">资料可见性</Label>
+              <Label className="text-sm">Profile Visibility</Label>
               <div className="flex gap-2 mt-1">
                 {[
                   {
                     value: "public",
-                    label: "公开",
+                    label: "Public",
                     icon: Eye,
-                    description: "所有人可见",
+                    description: "Visible to everyone",
                   },
                   {
                     value: "friends",
-                    label: "好友",
+                    label: "Friends",
                     icon: MessageSquare,
-                    description: "仅好友可见",
+                    description: "Visible to friends only",
                   },
                   {
                     value: "private",
-                    label: "私密",
+                    label: "Private",
                     icon: EyeOff,
-                    description: "仅自己可见",
+                    description: "Visible to you only",
                   },
                 ].map((option) => (
                   <Button
@@ -150,9 +150,9 @@ const PrivacySettingsSection: React.FC<PrivacySettingsSectionProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-center justify-between p-3 border rounded-lg">
                 <div>
-                  <div className="font-medium">显示真实姓名</div>
+                  <div className="font-medium">Show Real Name</div>
                   <div className="text-sm text-muted-foreground">
-                    在公开资料中显示
+                    Display in public profile
                   </div>
                 </div>
                 <Switch
@@ -166,9 +166,9 @@ const PrivacySettingsSection: React.FC<PrivacySettingsSectionProps> = ({
 
               <div className="flex items-center justify-between p-3 border rounded-lg">
                 <div>
-                  <div className="font-medium">显示位置信息</div>
+                  <div className="font-medium">Show Location</div>
                   <div className="text-sm text-muted-foreground">
-                    显示所在城市
+                    Display city
                   </div>
                 </div>
                 <Switch
@@ -182,9 +182,9 @@ const PrivacySettingsSection: React.FC<PrivacySettingsSectionProps> = ({
 
               <div className="flex items-center justify-between p-3 border rounded-lg">
                 <div>
-                  <div className="font-medium">显示年龄</div>
+                  <div className="font-medium">Show Age</div>
                   <div className="text-sm text-muted-foreground">
-                    显示年龄信息
+                    Display age information
                   </div>
                 </div>
                 <Switch
@@ -199,33 +199,36 @@ const PrivacySettingsSection: React.FC<PrivacySettingsSectionProps> = ({
           </div>
         </div>
 
-        {/* 数据使用 */}
+        {/* Data usage */}
         <div>
-          <Label className="text-base font-medium">数据使用</Label>
+          <Label className="text-base font-medium">Data Usage</Label>
           <div className="space-y-3 mt-3">
             {[
               {
                 key: "analytics",
-                label: "分析数据收集",
-                description: "用于改进产品功能和用户体验",
+                label: "Analytics Data Collection",
+                description:
+                  "Used to improve product features and user experience",
                 icon: "📊",
               },
               {
                 key: "personalization",
-                label: "个性化数据使用",
-                description: "用于提供个性化推荐和服务",
+                label: "Personalization Data Usage",
+                description:
+                  "Used to provide personalized recommendations and services",
                 icon: "🎯",
               },
               {
                 key: "marketing",
-                label: "营销数据使用",
-                description: "用于发送相关广告和促销信息",
+                label: "Marketing Data Usage",
+                description:
+                  "Used to send relevant ads and promotional information",
                 icon: "📢",
               },
               {
                 key: "thirdPartySharing",
-                label: "第三方数据共享",
-                description: "与合作伙伴共享匿名数据",
+                label: "Third-party Data Sharing",
+                description: "Share anonymous data with partners",
                 icon: "🤝",
               },
             ].map((item) => (
@@ -255,14 +258,18 @@ const PrivacySettingsSection: React.FC<PrivacySettingsSectionProps> = ({
           </div>
         </div>
 
-        {/* 活动隐私 */}
+        {/* Activity privacy */}
         <div>
-          <Label className="text-base font-medium">活动隐私</Label>
+          <Label className="text-base font-medium">Activity Privacy</Label>
           <div className="space-y-4 mt-3">
             {[
-              { key: "transactions", label: "交易记录", icon: "💳" },
-              { key: "recommendations", label: "推荐记录", icon: "🍽️" },
-              { key: "reviews", label: "评价记录", icon: "⭐" },
+              { key: "transactions", label: "Transaction History", icon: "💳" },
+              {
+                key: "recommendations",
+                label: "Recommendation History",
+                icon: "🍽️",
+              },
+              { key: "reviews", label: "Review History", icon: "⭐" },
             ].map((item) => (
               <div key={item.key}>
                 <div className="flex items-center gap-2 mb-2">
@@ -271,9 +278,9 @@ const PrivacySettingsSection: React.FC<PrivacySettingsSectionProps> = ({
                 </div>
                 <div className="flex gap-2">
                   {[
-                    { value: "private", label: "私密" },
-                    { value: "friends", label: "好友" },
-                    { value: "public", label: "公开" },
+                    { value: "private", label: "Private" },
+                    { value: "friends", label: "Friends" },
+                    { value: "public", label: "Public" },
                   ].map((option) => (
                     <Button
                       key={option.value}
@@ -298,25 +305,25 @@ const PrivacySettingsSection: React.FC<PrivacySettingsSectionProps> = ({
           </div>
         </div>
 
-        {/* 搜索和联系 */}
+        {/* Search and contact */}
         <div>
-          <Label className="text-base font-medium">搜索和联系</Label>
+          <Label className="text-base font-medium">Search and Contact</Label>
           <div className="space-y-3 mt-3">
             {[
               {
                 key: "byEmail",
-                label: "通过邮箱搜索",
-                description: "允许其他用户通过邮箱找到您",
+                label: "Search by Email",
+                description: "Allow others to find you by email",
               },
               {
                 key: "byPhone",
-                label: "通过手机号搜索",
-                description: "允许其他用户通过手机号找到您",
+                label: "Search by Phone",
+                description: "Allow others to find you by phone number",
               },
               {
                 key: "byName",
-                label: "通过姓名搜索",
-                description: "允许其他用户通过姓名找到您",
+                label: "Search by Name",
+                description: "Allow others to find you by name",
               },
             ].map((item) => (
               <div
@@ -340,12 +347,12 @@ const PrivacySettingsSection: React.FC<PrivacySettingsSectionProps> = ({
           </div>
         </div>
 
-        {/* 数据保留 */}
+        {/* Data retention */}
         <div>
-          <Label className="text-base font-medium">数据保留</Label>
+          <Label className="text-base font-medium">Data Retention</Label>
           <div className="space-y-3 mt-3">
             <div>
-              <Label className="text-sm">数据保留期限</Label>
+              <Label className="text-sm">Data Retention Period</Label>
               <select
                 className="w-full px-3 py-2 border border-input bg-background rounded-md mt-1"
                 onChange={(e) => onUpdate({ dataRetention: e.target.value })}
@@ -353,18 +360,18 @@ const PrivacySettingsSection: React.FC<PrivacySettingsSectionProps> = ({
                   profile?.privacySettings?.dataRetention || "2years"
                 }
               >
-                <option value="1year">1年</option>
-                <option value="2years">2年</option>
-                <option value="5years">5年</option>
-                <option value="forever">永久保留</option>
+                <option value="1year">1 Year</option>
+                <option value="2years">2 Years</option>
+                <option value="5years">5 Years</option>
+                <option value="forever">Forever</option>
               </select>
             </div>
 
             <div className="flex items-center justify-between p-3 border rounded-lg">
               <div>
-                <div className="font-medium">自动删除非活跃数据</div>
+                <div className="font-medium">Auto-delete Inactive Data</div>
                 <div className="text-sm text-muted-foreground">
-                  自动删除长期未使用的数据
+                  Automatically delete long-unused data
                 </div>
               </div>
               <Switch
@@ -377,17 +384,19 @@ const PrivacySettingsSection: React.FC<PrivacySettingsSectionProps> = ({
           </div>
         </div>
 
-        {/* 通讯权限 */}
+        {/* Communication permissions */}
         <div>
-          <Label className="text-base font-medium">通讯权限</Label>
+          <Label className="text-base font-medium">
+            Communication Permissions
+          </Label>
           <div className="space-y-3 mt-3">
             <div>
-              <Label className="text-sm">允许接收消息</Label>
+              <Label className="text-sm">Allow Messages From</Label>
               <div className="flex gap-2 mt-1">
                 {[
-                  { value: "everyone", label: "所有人" },
-                  { value: "friends", label: "仅好友" },
-                  { value: "none", label: "不允许" },
+                  { value: "everyone", label: "Everyone" },
+                  { value: "friends", label: "Friends Only" },
+                  { value: "none", label: "No One" },
                 ].map((option) => (
                   <Button
                     key={option.value}
@@ -406,12 +415,12 @@ const PrivacySettingsSection: React.FC<PrivacySettingsSectionProps> = ({
             </div>
 
             <div>
-              <Label className="text-sm">允许接收通知</Label>
+              <Label className="text-sm">Allow Notifications From</Label>
               <div className="flex gap-2 mt-1">
                 {[
-                  { value: "everyone", label: "所有人" },
-                  { value: "friends", label: "仅好友" },
-                  { value: "none", label: "不允许" },
+                  { value: "everyone", label: "Everyone" },
+                  { value: "friends", label: "Friends Only" },
+                  { value: "none", label: "No One" },
                 ].map((option) => (
                   <Button
                     key={option.value}
@@ -434,17 +443,21 @@ const PrivacySettingsSection: React.FC<PrivacySettingsSectionProps> = ({
           </div>
         </div>
 
-        {/* 两步验证 */}
+        {/* Two-factor authentication */}
         <div>
-          <Label className="text-base font-medium">两步验证</Label>
+          <Label className="text-base font-medium">
+            Two-Factor Authentication
+          </Label>
           <div className="space-y-4 mt-3">
             <div className="flex items-center justify-between p-3 border rounded-lg">
               <div className="flex items-center gap-3">
                 <Key className="w-5 h-5 text-primary" />
                 <div>
-                  <div className="font-medium">启用两步验证</div>
+                  <div className="font-medium">
+                    Enable Two-Factor Authentication
+                  </div>
                   <div className="text-sm text-muted-foreground">
-                    增强账户安全性
+                    Enhance account security
                   </div>
                 </div>
               </div>
@@ -458,12 +471,16 @@ const PrivacySettingsSection: React.FC<PrivacySettingsSectionProps> = ({
 
             {twoFactorAuth.enabled && (
               <div>
-                <Label className="text-sm">验证方式</Label>
+                <Label className="text-sm">Verification Method</Label>
                 <div className="flex gap-2 mt-1">
                   {[
-                    { value: "sms", label: "短信", icon: "📱" },
-                    { value: "email", label: "邮箱", icon: "📧" },
-                    { value: "authenticator", label: "验证器", icon: "🔐" },
+                    { value: "sms", label: "SMS", icon: "📱" },
+                    { value: "email", label: "Email", icon: "📧" },
+                    {
+                      value: "authenticator",
+                      label: "Authenticator",
+                      icon: "🔐",
+                    },
                   ].map((option) => (
                     <Button
                       key={option.value}
@@ -488,15 +505,17 @@ const PrivacySettingsSection: React.FC<PrivacySettingsSectionProps> = ({
           </div>
         </div>
 
-        {/* 隐私说明 */}
+        {/* Privacy notice */}
         <Alert>
           <Info className="h-4 w-4" />
-          <AlertTitle>隐私保护说明</AlertTitle>
+          <AlertTitle>Privacy Protection Notice</AlertTitle>
           <AlertDescription className="text-sm">
-            我们重视您的隐私保护。所有数据都经过加密存储，仅在必要时用于提供服务。
-            您可以随时修改这些设置，或联系我们的隐私团队了解更多信息。
+            We value your privacy protection. All data is encrypted in storage
+            and only used when necessary to provide services. You can modify
+            these settings at any time, or contact our privacy team for more
+            information.
             <a href="/privacy" className="text-primary hover:underline ml-1">
-              查看完整隐私政策
+              View complete privacy policy
             </a>
           </AlertDescription>
         </Alert>

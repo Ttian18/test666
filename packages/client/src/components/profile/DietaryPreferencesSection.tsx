@@ -37,70 +37,70 @@ const DietaryPreferencesSection: React.FC<DietaryPreferencesSectionProps> = ({
   const dietaryOptions = [
     {
       id: "vegan",
-      label: "纯素食",
+      label: "Vegan",
       icon: Leaf,
       color: "bg-green-100 text-green-800",
     },
     {
       id: "vegetarian",
-      label: "素食",
+      label: "Vegetarian",
       icon: Leaf,
       color: "bg-green-100 text-green-800",
     },
     {
       id: "pescatarian",
-      label: "鱼素",
+      label: "Pescatarian",
       icon: Utensils,
       color: "bg-cyan-100 text-cyan-800",
     },
     {
       id: "keto",
-      label: "生酮饮食",
+      label: "Keto",
       icon: Coffee,
       color: "bg-orange-100 text-orange-800",
     },
     {
       id: "paleo",
-      label: "原始人饮食",
+      label: "Paleo",
       icon: Heart,
       color: "bg-red-100 text-red-800",
     },
     {
       id: "halal",
-      label: "清真",
+      label: "Halal",
       icon: Star,
       color: "bg-purple-100 text-purple-800",
     },
     {
       id: "kosher",
-      label: "犹太洁食",
+      label: "Kosher",
       icon: Star,
       color: "bg-purple-100 text-purple-800",
     },
   ];
 
   const allergyOptions = [
-    { id: "nuts", label: "坚果", severity: "high" },
-    { id: "shellfish", label: "贝类海鲜", severity: "high" },
-    { id: "dairy", label: "乳制品", severity: "medium" },
-    { id: "eggs", label: "鸡蛋", severity: "medium" },
-    { id: "soy", label: "大豆", severity: "medium" },
-    { id: "gluten", label: "麸质", severity: "medium" },
-    { id: "fish", label: "鱼类", severity: "medium" },
-    { id: "sesame", label: "芝麻", severity: "low" },
+    { id: "nuts", label: "Nuts", severity: "high" },
+    { id: "shellfish", label: "Shellfish", severity: "high" },
+    { id: "dairy", label: "Dairy", severity: "medium" },
+    { id: "eggs", label: "Eggs", severity: "medium" },
+    { id: "soy", label: "Soy", severity: "medium" },
+    { id: "gluten", label: "Gluten", severity: "medium" },
+    { id: "fish", label: "Fish", severity: "medium" },
+    { id: "sesame", label: "Sesame", severity: "low" },
   ];
 
   const cuisineOptions = [
-    { id: "chinese", label: "中式", flag: "🇨🇳" },
-    { id: "italian", label: "意式", flag: "🇮🇹" },
-    { id: "japanese", label: "日式", flag: "🇯🇵" },
-    { id: "korean", label: "韩式", flag: "🇰🇷" },
-    { id: "thai", label: "泰式", flag: "🇹🇭" },
-    { id: "indian", label: "印式", flag: "🇮🇳" },
-    { id: "mexican", label: "墨西哥", flag: "🇲🇽" },
-    { id: "french", label: "法式", flag: "🇫🇷" },
-    { id: "american", label: "美式", flag: "🇺🇸" },
-    { id: "mediterranean", label: "地中海", flag: "🫒" },
+    { id: "chinese", label: "Chinese", flag: "🇨🇳" },
+    { id: "italian", label: "Italian", flag: "🇮🇹" },
+    { id: "japanese", label: "Japanese", flag: "🇯🇵" },
+    { id: "korean", label: "Korean", flag: "🇰🇷" },
+    { id: "thai", label: "Thai", flag: "🇹🇭" },
+    { id: "indian", label: "Indian", flag: "🇮🇳" },
+    { id: "mexican", label: "Mexican", flag: "🇲🇽" },
+    { id: "french", label: "French", flag: "🇫🇷" },
+    { id: "american", label: "American", flag: "🇺🇸" },
+    { id: "mediterranean", label: "Mediterranean", flag: "🫒" },
   ];
 
   const toggleRestriction = (id: string) => {
@@ -174,14 +174,14 @@ const DietaryPreferencesSection: React.FC<DietaryPreferencesSectionProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Utensils className="w-5 h-5" />
-          饮食偏好
+          Dietary Preferences
         </CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* 饮食限制 */}
+        {/* Dietary restrictions */}
         <div>
-          <Label>饮食限制</Label>
+          <Label>Dietary Restrictions</Label>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
             {dietaryOptions.map((option) => (
               <Badge
@@ -201,9 +201,9 @@ const DietaryPreferencesSection: React.FC<DietaryPreferencesSectionProps> = ({
           </div>
         </div>
 
-        {/* 过敏信息 */}
+        {/* Allergy information */}
         <div>
-          <Label className="text-red-600">过敏信息 *重要</Label>
+          <Label className="text-red-600">Allergy Information *Important</Label>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
             {allergyOptions.map((option) => (
               <Badge
@@ -223,9 +223,9 @@ const DietaryPreferencesSection: React.FC<DietaryPreferencesSectionProps> = ({
           </div>
         </div>
 
-        {/* 菜系偏好 */}
+        {/* Cuisine preferences */}
         <div>
-          <Label>喜欢的菜系</Label>
+          <Label>Favorite Cuisines</Label>
           <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mt-2">
             {cuisineOptions.map((cuisine) => (
               <div
@@ -246,10 +246,10 @@ const DietaryPreferencesSection: React.FC<DietaryPreferencesSectionProps> = ({
           </div>
         </div>
 
-        {/* 口味偏好 */}
+        {/* Taste preferences */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label>辣度承受</Label>
+            <Label>Spice Tolerance</Label>
             <div className="mt-2 space-y-2">
               <Slider
                 value={[spiceLevel]}
@@ -259,30 +259,30 @@ const DietaryPreferencesSection: React.FC<DietaryPreferencesSectionProps> = ({
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>不能吃辣</span>
-                <span>超级辣</span>
+                <span>No Spice</span>
+                <span>Extra Hot</span>
               </div>
               <div className="text-center">
                 <Badge variant="outline">
-                  当前:{" "}
+                  Current:{" "}
                   {spiceLevel === 0
-                    ? "不能吃辣"
+                    ? "No Spice"
                     : spiceLevel === 1
-                    ? "微辣"
+                    ? "Mild"
                     : spiceLevel === 2
-                    ? "轻度辣"
+                    ? "Moderate"
                     : spiceLevel === 3
-                    ? "中度辣"
+                    ? "Medium Hot"
                     : spiceLevel === 4
-                    ? "重度辣"
-                    : "超级辣"}
+                    ? "Hot"
+                    : "Extra Hot"}
                 </Badge>
               </div>
             </div>
           </div>
 
           <div>
-            <Label>甜度偏好</Label>
+            <Label>Sweetness Preference</Label>
             <div className="mt-2 space-y-2">
               <div className="flex gap-2">
                 {["low", "medium", "high"].map((level) => (
@@ -302,10 +302,10 @@ const DietaryPreferencesSection: React.FC<DietaryPreferencesSectionProps> = ({
                     }
                   >
                     {level === "low"
-                      ? "低糖"
+                      ? "Low Sugar"
                       : level === "medium"
-                      ? "中等"
-                      : "高糖"}
+                      ? "Medium"
+                      : "High Sugar"}
                   </Button>
                 ))}
               </div>
@@ -313,12 +313,12 @@ const DietaryPreferencesSection: React.FC<DietaryPreferencesSectionProps> = ({
           </div>
         </div>
 
-        {/* 营养目标 */}
+        {/* Nutrition goals */}
         <div>
-          <Label>营养目标</Label>
+          <Label>Nutrition Goals</Label>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
             <div>
-              <Label className="text-sm">每日卡路里</Label>
+              <Label className="text-sm">Daily Calories</Label>
               <input
                 type="number"
                 placeholder="2000"
@@ -339,7 +339,7 @@ const DietaryPreferencesSection: React.FC<DietaryPreferencesSectionProps> = ({
               />
             </div>
             <div>
-              <Label className="text-sm">蛋白质 (g)</Label>
+              <Label className="text-sm">Protein (g)</Label>
               <input
                 type="number"
                 placeholder="150"
@@ -364,7 +364,7 @@ const DietaryPreferencesSection: React.FC<DietaryPreferencesSectionProps> = ({
               />
             </div>
             <div>
-              <Label className="text-sm">碳水化合物 (g)</Label>
+              <Label className="text-sm">Carbohydrates (g)</Label>
               <input
                 type="number"
                 placeholder="250"
@@ -389,7 +389,7 @@ const DietaryPreferencesSection: React.FC<DietaryPreferencesSectionProps> = ({
               />
             </div>
             <div>
-              <Label className="text-sm">脂肪 (g)</Label>
+              <Label className="text-sm">Fat (g)</Label>
               <input
                 type="number"
                 placeholder="80"
@@ -416,12 +416,12 @@ const DietaryPreferencesSection: React.FC<DietaryPreferencesSectionProps> = ({
           </div>
         </div>
 
-        {/* 用餐时间 */}
+        {/* Meal times */}
         <div>
-          <Label>用餐时间</Label>
+          <Label>Meal Times</Label>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
             <div>
-              <Label className="text-sm">早餐</Label>
+              <Label className="text-sm">Breakfast</Label>
               <input
                 type="time"
                 defaultValue="08:00"
@@ -441,7 +441,7 @@ const DietaryPreferencesSection: React.FC<DietaryPreferencesSectionProps> = ({
               />
             </div>
             <div>
-              <Label className="text-sm">午餐</Label>
+              <Label className="text-sm">Lunch</Label>
               <input
                 type="time"
                 defaultValue="12:00"
@@ -461,7 +461,7 @@ const DietaryPreferencesSection: React.FC<DietaryPreferencesSectionProps> = ({
               />
             </div>
             <div>
-              <Label className="text-sm">晚餐</Label>
+              <Label className="text-sm">Dinner</Label>
               <input
                 type="time"
                 defaultValue="18:00"

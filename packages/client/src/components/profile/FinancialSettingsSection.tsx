@@ -35,31 +35,31 @@ const FinancialSettingsSection: React.FC<FinancialSettingsSectionProps> = ({
   const categories = [
     {
       key: "dining",
-      label: "餐饮",
+      label: "Dining",
       icon: "🍽️",
       color: "bg-red-100 text-red-800",
     },
     {
       key: "groceries",
-      label: "食材",
+      label: "Groceries",
       icon: "🛒",
       color: "bg-green-100 text-green-800",
     },
     {
       key: "entertainment",
-      label: "娱乐",
+      label: "Entertainment",
       icon: "🎬",
       color: "bg-purple-100 text-purple-800",
     },
     {
       key: "transportation",
-      label: "交通",
+      label: "Transportation",
       icon: "🚗",
       color: "bg-blue-100 text-blue-800",
     },
     {
       key: "other",
-      label: "其他",
+      label: "Other",
       icon: "📦",
       color: "bg-gray-100 text-gray-800",
     },
@@ -100,15 +100,15 @@ const FinancialSettingsSection: React.FC<FinancialSettingsSectionProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <DollarSign className="w-5 h-5" />
-          财务设置
+          Financial Settings
         </CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* 收入信息 */}
+        {/* Income information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="monthlyIncome">月收入</Label>
+            <Label htmlFor="monthlyIncome">Monthly Income</Label>
             <div className="relative">
               <Input
                 id="monthlyIncome"
@@ -119,7 +119,7 @@ const FinancialSettingsSection: React.FC<FinancialSettingsSectionProps> = ({
                   setMonthlyIncome(value);
                   onUpdate({ monthlyIncome: value });
                 }}
-                placeholder="请输入月收入"
+                placeholder="Enter monthly income"
                 className="pl-8"
               />
               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
@@ -129,24 +129,24 @@ const FinancialSettingsSection: React.FC<FinancialSettingsSectionProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="incomeSource">收入来源</Label>
+            <Label htmlFor="incomeSource">Income Source</Label>
             <select
               id="incomeSource"
               className="w-full px-3 py-2 border border-input bg-background rounded-md"
               onChange={(e) => onUpdate({ incomeSource: e.target.value })}
             >
-              <option value="salary">工资</option>
-              <option value="freelance">自由职业</option>
-              <option value="business">创业</option>
-              <option value="investment">投资</option>
-              <option value="other">其他</option>
+              <option value="salary">Salary</option>
+              <option value="freelance">Freelance</option>
+              <option value="business">Business</option>
+              <option value="investment">Investment</option>
+              <option value="other">Other</option>
             </select>
           </div>
         </div>
 
-        {/* 预算设置 */}
+        {/* Budget settings */}
         <div>
-          <Label htmlFor="monthlyBudget">月度预算</Label>
+          <Label htmlFor="monthlyBudget">Monthly Budget</Label>
           <div className="relative">
             <Input
               id="monthlyBudget"
@@ -157,7 +157,7 @@ const FinancialSettingsSection: React.FC<FinancialSettingsSectionProps> = ({
                 setMonthlyBudget(value);
                 onUpdate({ monthlyBudget: value });
               }}
-              placeholder="请输入月度预算"
+              placeholder="Enter monthly budget"
               className="pl-8"
             />
             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
@@ -166,32 +166,32 @@ const FinancialSettingsSection: React.FC<FinancialSettingsSectionProps> = ({
           </div>
           {monthlyIncome > 0 && (
             <p className="text-xs text-muted-foreground mt-1">
-              预算占收入比例:{" "}
+              Budget as % of income:{" "}
               {((monthlyBudget / monthlyIncome) * 100).toFixed(1)}%
             </p>
           )}
         </div>
 
-        {/* 预算分配总览 */}
+        {/* Budget allocation overview */}
         {monthlyBudget > 0 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label>预算分配</Label>
+              <Label>Budget Allocation</Label>
               <div className="flex items-center gap-2">
                 <Badge variant="outline">
-                  已分配: {formatCurrency(totalAllocated)}
+                  Allocated: {formatCurrency(totalAllocated)}
                 </Badge>
                 <Badge variant={remaining >= 0 ? "default" : "destructive"}>
-                  {remaining >= 0 ? "剩余" : "超支"}:{" "}
+                  {remaining >= 0 ? "Remaining" : "Over"}:{" "}
                   {formatCurrency(Math.abs(remaining))}
                 </Badge>
               </div>
             </div>
 
-            {/* 进度条 */}
+            {/* Progress bar */}
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span>预算使用情况</span>
+                <span>Budget Usage</span>
                 <span>{getPercentage(totalAllocated)}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
@@ -213,7 +213,7 @@ const FinancialSettingsSection: React.FC<FinancialSettingsSectionProps> = ({
               </div>
             </div>
 
-            {/* 详细分配 */}
+            {/* Detailed allocation */}
             <div className="space-y-3">
               {categories.map((category) => {
                 const amount = budgetAllocation[category.key] || 0;
@@ -256,7 +256,7 @@ const FinancialSettingsSection: React.FC<FinancialSettingsSectionProps> = ({
                       className="w-full"
                     />
 
-                    {/* 快速设置按钮 */}
+                    {/* Quick set buttons */}
                     <div className="flex gap-2">
                       {[10, 20, 30].map((percent) => (
                         <Button
@@ -280,7 +280,7 @@ const FinancialSettingsSection: React.FC<FinancialSettingsSectionProps> = ({
                         onClick={() => updateBudgetAllocation(category.key, 0)}
                         className="text-xs"
                       >
-                        清零
+                        Clear
                       </Button>
                     </div>
                   </div>
@@ -290,12 +290,12 @@ const FinancialSettingsSection: React.FC<FinancialSettingsSectionProps> = ({
           </div>
         )}
 
-        {/* 储蓄目标 */}
+        {/* Savings goals */}
         <div>
-          <Label>储蓄目标</Label>
+          <Label>Savings Goals</Label>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
             <div>
-              <Label className="text-sm">目标金额</Label>
+              <Label className="text-sm">Target Amount</Label>
               <Input
                 type="number"
                 placeholder="10000"
@@ -304,7 +304,7 @@ const FinancialSettingsSection: React.FC<FinancialSettingsSectionProps> = ({
                     savingsGoals: [
                       {
                         targetAmount: parseFloat(e.target.value) || 0,
-                        purpose: "紧急基金",
+                        purpose: "Emergency Fund",
                         monthlyTarget: 0,
                       },
                     ],
@@ -313,7 +313,7 @@ const FinancialSettingsSection: React.FC<FinancialSettingsSectionProps> = ({
               />
             </div>
             <div>
-              <Label className="text-sm">目标日期</Label>
+              <Label className="text-sm">Target Date</Label>
               <Input
                 type="date"
                 onChange={(e) =>
@@ -321,7 +321,7 @@ const FinancialSettingsSection: React.FC<FinancialSettingsSectionProps> = ({
                     savingsGoals: [
                       {
                         targetDate: new Date(e.target.value),
-                        purpose: "紧急基金",
+                        purpose: "Emergency Fund",
                         monthlyTarget: 0,
                       },
                     ],
@@ -330,7 +330,7 @@ const FinancialSettingsSection: React.FC<FinancialSettingsSectionProps> = ({
               />
             </div>
             <div>
-              <Label className="text-sm">用途</Label>
+              <Label className="text-sm">Purpose</Label>
               <select
                 className="w-full px-3 py-2 border border-input bg-background rounded-md"
                 onChange={(e) =>
@@ -344,58 +344,62 @@ const FinancialSettingsSection: React.FC<FinancialSettingsSectionProps> = ({
                   })
                 }
               >
-                <option value="紧急基金">紧急基金</option>
-                <option value="旅行">旅行</option>
-                <option value="购房">购房</option>
-                <option value="教育">教育</option>
-                <option value="投资">投资</option>
-                <option value="其他">其他</option>
+                <option value="Emergency Fund">Emergency Fund</option>
+                <option value="Travel">Travel</option>
+                <option value="Home Purchase">Home Purchase</option>
+                <option value="Education">Education</option>
+                <option value="Investment">Investment</option>
+                <option value="Other">Other</option>
               </select>
             </div>
           </div>
         </div>
 
-        {/* 消费偏好 */}
+        {/* Spending preferences */}
         <div>
-          <Label>消费偏好</Label>
+          <Label>Spending Preferences</Label>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
             <div>
-              <Label className="text-sm">价格区间</Label>
+              <Label className="text-sm">Price Range</Label>
               <select
                 className="w-full px-3 py-2 border border-input bg-background rounded-md"
                 onChange={(e) =>
                   onUpdate({ priceRangePreference: e.target.value })
                 }
               >
-                <option value="budget">经济实惠</option>
-                <option value="mid_range">中等价位</option>
-                <option value="premium">高端消费</option>
-                <option value="luxury">奢华消费</option>
+                <option value="budget">Budget-friendly</option>
+                <option value="mid_range">Mid-range</option>
+                <option value="premium">Premium</option>
+                <option value="luxury">Luxury</option>
               </select>
             </div>
             <div>
-              <Label className="text-sm">支付方式</Label>
+              <Label className="text-sm">Payment Methods</Label>
               <div className="space-y-1">
-                {["支付宝", "微信支付", "信用卡", "现金"].map((method) => (
-                  <label key={method} className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      onChange={(e) => {
-                        const currentMethods =
-                          profile?.financialSettings?.paymentMethods || [];
-                        const newMethods = e.target.checked
-                          ? [...currentMethods, method]
-                          : currentMethods.filter((m: string) => m !== method);
-                        onUpdate({ paymentMethods: newMethods });
-                      }}
-                    />
-                    <span className="text-sm">{method}</span>
-                  </label>
-                ))}
+                {["Alipay", "WeChat Pay", "Credit Card", "Cash"].map(
+                  (method) => (
+                    <label key={method} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        onChange={(e) => {
+                          const currentMethods =
+                            profile?.financialSettings?.paymentMethods || [];
+                          const newMethods = e.target.checked
+                            ? [...currentMethods, method]
+                            : currentMethods.filter(
+                                (m: string) => m !== method
+                              );
+                          onUpdate({ paymentMethods: newMethods });
+                        }}
+                      />
+                      <span className="text-sm">{method}</span>
+                    </label>
+                  )
+                )}
               </div>
             </div>
             <div>
-              <Label className="text-sm">数据分享</Label>
+              <Label className="text-sm">Data Sharing</Label>
               <div className="space-y-2">
                 <label className="flex items-center gap-2">
                   <input
@@ -404,7 +408,7 @@ const FinancialSettingsSection: React.FC<FinancialSettingsSectionProps> = ({
                       onUpdate({ showIncomeInReports: e.target.checked })
                     }
                   />
-                  <span className="text-sm">在报告中显示收入</span>
+                  <span className="text-sm">Show income in reports</span>
                 </label>
                 <label className="flex items-center gap-2">
                   <input
@@ -413,46 +417,47 @@ const FinancialSettingsSection: React.FC<FinancialSettingsSectionProps> = ({
                       onUpdate({ shareFinancialData: e.target.checked })
                     }
                   />
-                  <span className="text-sm">分享财务数据</span>
+                  <span className="text-sm">Share financial data</span>
                 </label>
               </div>
             </div>
             <div>
-              <Label className="text-sm">货币</Label>
+              <Label className="text-sm">Currency</Label>
               <select
                 className="w-full px-3 py-2 border border-input bg-background rounded-md"
                 onChange={(e) => onUpdate({ currency: e.target.value })}
               >
-                <option value="CNY">人民币 (¥)</option>
-                <option value="USD">美元 ($)</option>
-                <option value="EUR">欧元 (€)</option>
-                <option value="JPY">日元 (¥)</option>
+                <option value="CNY">Chinese Yuan (¥)</option>
+                <option value="USD">US Dollar ($)</option>
+                <option value="EUR">Euro (€)</option>
+                <option value="JPY">Japanese Yen (¥)</option>
               </select>
             </div>
           </div>
         </div>
 
-        {/* 智能建议 */}
+        {/* Smart suggestions */}
         {monthlyIncome > 0 && monthlyBudget > 0 && (
           <div className="bg-muted/50 p-4 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-4 h-4 text-primary" />
-              <span className="font-medium">智能建议</span>
+              <span className="font-medium">Smart Suggestions</span>
             </div>
             <div className="space-y-2 text-sm">
               {monthlyBudget > monthlyIncome * 0.8 && (
                 <p className="text-yellow-600">
-                  ⚠️ 预算占收入比例较高，建议控制在80%以内
+                  ⚠️ Budget is relatively high as % of income, consider keeping
+                  it under 80%
                 </p>
               )}
               {totalAllocated > monthlyBudget && (
                 <p className="text-red-600">
-                  ❌ 预算分配超出总额，请调整各项支出
+                  ❌ Budget allocation exceeds total, please adjust expenses
                 </p>
               )}
               {monthlyIncome > 0 && monthlyBudget < monthlyIncome * 0.3 && (
                 <p className="text-green-600">
-                  ✅ 预算设置合理，有足够的储蓄空间
+                  ✅ Budget is reasonable with good savings room
                 </p>
               )}
             </div>

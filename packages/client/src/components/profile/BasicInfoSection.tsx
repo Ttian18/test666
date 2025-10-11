@@ -25,17 +25,17 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  // 头像上传处理
+  // Avatar upload handler
   const handleAvatarUpload = async (file: File) => {
     try {
       setIsUploading(true);
 
-      // 文件验证
+      // File validation
       const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
       if (!allowedTypes.includes(file.type)) {
         toast({
-          title: "文件类型错误",
-          description: "请上传 JPG、PNG 或 WebP 格式的图片",
+          title: "Invalid File Type",
+          description: "Please upload JPG, PNG or WebP format images",
           variant: "destructive",
         });
         return;
@@ -43,24 +43,24 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
 
       if (file.size > 2 * 1024 * 1024) {
         toast({
-          title: "文件过大",
-          description: "图片大小不能超过 2MB",
+          title: "File Too Large",
+          description: "Image size cannot exceed 2MB",
           variant: "destructive",
         });
         return;
       }
 
-      // 这里应该调用上传API
+      // API call should be made here
       // const result = await uploadAvatar(file);
 
       toast({
-        title: "头像更新成功",
-        description: "您的头像已成功更新",
+        title: "Avatar Updated Successfully",
+        description: "Your avatar has been updated successfully",
       });
     } catch (error) {
       toast({
-        title: "上传失败",
-        description: "头像上传失败，请重试",
+        title: "Upload Failed",
+        description: "Avatar upload failed, please try again",
         variant: "destructive",
       });
     } finally {
@@ -68,12 +68,12 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
     }
   };
 
-  // 自动检测位置
+  // Auto-detect location
   const detectLocation = async () => {
     if (!navigator.geolocation) {
       toast({
-        title: "位置检测失败",
-        description: "浏览器不支持位置检测",
+        title: "Location Detection Failed",
+        description: "Browser does not support location detection",
         variant: "destructive",
       });
       return;
@@ -86,18 +86,18 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
         try {
           const { latitude, longitude } = position.coords;
 
-          // 这里应该调用反向地理编码API
+          // Reverse geocoding API should be called here
           const locationData = {
-            country: "中国",
-            state: "北京市",
-            city: "北京市",
+            country: "China",
+            state: "Beijing",
+            city: "Beijing",
             coordinates: { lat: latitude, lng: longitude },
           };
 
           onUpdate({
             location: {
-              country: { code: "CN", name: "中国" },
-              city: { name: "北京市" },
+              country: { code: "CN", name: "China" },
+              city: { name: "Beijing" },
               coordinates: { lat: latitude, lng: longitude },
               timezone: "Asia/Shanghai",
               isPublic: false,
@@ -105,13 +105,13 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
           });
 
           toast({
-            title: "位置更新成功",
-            description: "位置信息已更新",
+            title: "Location Updated Successfully",
+            description: "Location information has been updated",
           });
         } catch (error) {
           toast({
-            title: "位置解析失败",
-            description: "无法解析位置信息",
+            title: "Location Parsing Failed",
+            description: "Unable to parse location information",
             variant: "destructive",
           });
         } finally {
@@ -120,8 +120,8 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
       },
       () => {
         toast({
-          title: "位置检测失败",
-          description: "请检查权限设置",
+          title: "Location Detection Failed",
+          description: "Please check permission settings",
           variant: "destructive",
         });
         setLocationDetecting(false);
@@ -129,12 +129,12 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
     );
   };
 
-  // 手机号验证
+  // Phone number verification
   const verifyPhone = async (phone: string) => {
     if (!phone || phone.length < 10) {
       toast({
-        title: "手机号无效",
-        description: "请输入有效的手机号",
+        title: "Invalid Phone Number",
+        description: "Please enter a valid phone number",
         variant: "destructive",
       });
       return;
@@ -143,17 +143,17 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
     setPhoneVerifying(true);
 
     try {
-      // 这里应该调用验证API
+      // Verification API should be called here
       // await verifyPhoneAPI(phone);
 
       toast({
-        title: "验证码已发送",
-        description: "请查收短信验证码",
+        title: "Verification Code Sent",
+        description: "Please check your SMS for the verification code",
       });
     } catch (error) {
       toast({
-        title: "发送失败",
-        description: "验证码发送失败",
+        title: "Sending Failed",
+        description: "Failed to send verification code",
         variant: "destructive",
       });
     } finally {
@@ -161,7 +161,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
     }
   };
 
-  // 获取姓名首字母
+  // Get name initials
   const getInitials = (name: string): string => {
     if (!name) return "U";
     const words = name.trim().split(" ");
@@ -181,12 +181,12 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <User className="w-5 h-5" />
-          基本信息
+          Basic Information
         </CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* 头像上传区域 */}
+        {/* Avatar upload area */}
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
             <Avatar className="w-24 h-24">
@@ -199,7 +199,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
               </AvatarFallback>
             </Avatar>
 
-            {/* 上传进度指示器 */}
+            {/* Upload progress indicator */}
             {isUploading && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
                 <Loader2 className="w-6 h-6 text-white animate-spin" />
@@ -215,7 +215,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
               disabled={isUploading}
             >
               <Camera className="w-4 h-4 mr-2" />
-              {isUploading ? "上传中..." : "更换头像"}
+              {isUploading ? "Uploading..." : "Change Avatar"}
             </Button>
 
             {profile?.basicInfo?.avatar && (
@@ -241,20 +241,20 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
           />
         </div>
 
-        {/* 基本信息表单 */}
+        {/* Basic information form */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="name">姓名 *</Label>
+            <Label htmlFor="name">Name *</Label>
             <Input
               id="name"
               value={profile?.basicInfo?.name || ""}
               onChange={(e) => onUpdate({ name: e.target.value })}
-              placeholder="请输入您的姓名"
+              placeholder="Enter your name"
             />
           </div>
 
           <div>
-            <Label htmlFor="email">邮箱</Label>
+            <Label htmlFor="email">Email</Label>
             <div className="flex items-center gap-2">
               <Input
                 id="email"
@@ -267,13 +267,15 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                   profile?.basicInfo?.isEmailVerified ? "default" : "secondary"
                 }
               >
-                {profile?.basicInfo?.isEmailVerified ? "已验证" : "未验证"}
+                {profile?.basicInfo?.isEmailVerified
+                  ? "Verified"
+                  : "Unverified"}
               </Badge>
             </div>
           </div>
 
           <div>
-            <Label htmlFor="phone">手机号</Label>
+            <Label htmlFor="phone">Phone</Label>
             <div className="flex items-center gap-2">
               <Input
                 id="phone"
@@ -286,12 +288,12 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                     },
                   })
                 }
-                placeholder="请输入手机号"
+                placeholder="Enter phone number"
                 className="flex-1"
               />
               {profile?.basicInfo?.phone?.isVerified ? (
                 <Badge variant="default" className="text-xs">
-                  已验证
+                  Verified
                 </Badge>
               ) : profile?.basicInfo?.phone?.number ? (
                 <Button
@@ -303,7 +305,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                   {phoneVerifying ? (
                     <Loader2 className="w-3 h-3 animate-spin" />
                   ) : (
-                    "验证"
+                    "Verify"
                   )}
                 </Button>
               ) : null}
@@ -311,7 +313,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="dateOfBirth">生日</Label>
+            <Label htmlFor="dateOfBirth">Date of Birth</Label>
             <Input
               id="dateOfBirth"
               type="date"
@@ -340,15 +342,15 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
             />
             {profile?.basicInfo?.dateOfBirth && (
               <p className="text-xs text-muted-foreground mt-1">
-                年龄:{" "}
+                Age:{" "}
                 {new Date().getFullYear() - profile.basicInfo.dateOfBirth.year}{" "}
-                岁
+                years old
               </p>
             )}
           </div>
 
           <div>
-            <Label htmlFor="gender">性别</Label>
+            <Label htmlFor="gender">Gender</Label>
             <select
               id="gender"
               value={profile?.basicInfo?.gender?.value || ""}
@@ -362,16 +364,16 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
               }
               className="w-full px-3 py-2 border border-input bg-background rounded-md"
             >
-              <option value="">请选择</option>
-              <option value="male">男性</option>
-              <option value="female">女性</option>
-              <option value="non_binary">其他</option>
-              <option value="prefer_not_to_say">不愿透露</option>
+              <option value="">Please select</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="non_binary">Non-binary</option>
+              <option value="prefer_not_to_say">Prefer not to say</option>
             </select>
           </div>
 
           <div>
-            <Label htmlFor="language">首选语言</Label>
+            <Label htmlFor="language">Preferred Language</Label>
             <select
               id="language"
               value={profile?.basicInfo?.language?.primary || "zh-CN"}
@@ -385,19 +387,19 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
               }
               className="w-full px-3 py-2 border border-input bg-background rounded-md"
             >
-              <option value="zh-CN">简体中文</option>
-              <option value="zh-TW">繁體中文</option>
+              <option value="zh-CN">Simplified Chinese</option>
+              <option value="zh-TW">Traditional Chinese</option>
               <option value="en-US">English (US)</option>
-              <option value="ja-JP">日本語</option>
-              <option value="ko-KR">한국어</option>
+              <option value="ja-JP">Japanese</option>
+              <option value="ko-KR">Korean</option>
             </select>
           </div>
         </div>
 
-        {/* 位置信息 */}
+        {/* Location information */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <Label>位置信息</Label>
+            <Label>Location Information</Label>
             <Button
               variant="ghost"
               size="sm"
@@ -409,13 +411,13 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
               ) : (
                 <MapPin className="w-4 h-4 mr-2" />
               )}
-              {locationDetecting ? "检测中..." : "自动检测"}
+              {locationDetecting ? "Detecting..." : "Auto-detect"}
             </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="country">国家/地区</Label>
+              <Label htmlFor="country">Country/Region</Label>
               <select
                 id="country"
                 value={profile?.basicInfo?.location?.country?.code || ""}
@@ -432,17 +434,17 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                 }
                 className="w-full px-3 py-2 border border-input bg-background rounded-md"
               >
-                <option value="">请选择</option>
-                <option value="CN">中国</option>
-                <option value="US">美国</option>
-                <option value="JP">日本</option>
-                <option value="KR">韩国</option>
-                <option value="SG">新加坡</option>
+                <option value="">Please select</option>
+                <option value="CN">China</option>
+                <option value="US">United States</option>
+                <option value="JP">Japan</option>
+                <option value="KR">South Korea</option>
+                <option value="SG">Singapore</option>
               </select>
             </div>
 
             <div>
-              <Label htmlFor="city">城市</Label>
+              <Label htmlFor="city">City</Label>
               <Input
                 id="city"
                 value={profile?.basicInfo?.location?.city?.name || ""}
@@ -454,15 +456,15 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                     },
                   })
                 }
-                placeholder="请输入城市名称"
+                placeholder="Enter city name"
               />
             </div>
           </div>
         </div>
 
-        {/* 个人简介 */}
+        {/* Personal bio */}
         <div>
-          <Label htmlFor="bio">个人简介</Label>
+          <Label htmlFor="bio">Bio</Label>
           <Textarea
             id="bio"
             value={profile?.basicInfo?.bio?.content || ""}
@@ -475,14 +477,14 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                 },
               })
             }
-            placeholder="简单介绍一下自己..."
+            placeholder="Tell us a bit about yourself..."
             maxLength={200}
             className="mt-2 resize-none"
             rows={3}
           />
           <div className="flex justify-between items-center mt-1">
             <p className="text-xs text-muted-foreground">
-              用于个性化推荐和社交功能
+              Used for personalized recommendations and social features
             </p>
             <p className="text-xs text-muted-foreground">
               {(profile?.basicInfo?.bio?.content || "").length}/200
@@ -490,15 +492,16 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
           </div>
         </div>
 
-        {/* 数据使用说明 */}
+        {/* Data usage notice */}
         <Alert>
           <Info className="h-4 w-4" />
-          <AlertTitle>数据使用说明</AlertTitle>
+          <AlertTitle>Data Usage Notice</AlertTitle>
           <AlertDescription className="text-sm">
-            您的基本信息将用于个性化推荐、位置服务和账户安全。
-            我们承诺保护您的隐私，详情请查看
+            Your basic information will be used for personalized
+            recommendations, location services, and account security. We are
+            committed to protecting your privacy. For details, please see our{" "}
             <a href="/privacy" className="text-primary hover:underline">
-              隐私政策
+              Privacy Policy
             </a>
           </AlertDescription>
         </Alert>
