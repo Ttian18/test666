@@ -33,6 +33,11 @@ export const useProfile = () => {
 
     try {
       setLoading(true);
+      const headers = {
+        "x-auth-token": token,
+        "Content-Type": "application/json",
+      };
+
       console.log(
         "🔍 useProfile: Fetching profile with token:",
         token.substring(0, 20) + "..."
@@ -41,12 +46,10 @@ export const useProfile = () => {
         "🔍 useProfile: API URL:",
         `${API_BASE_URL}/api/users/profile`
       );
+      console.log("🔍 useProfile: Request headers:", headers);
 
       const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
-        headers: {
-          "x-auth-token": token,
-          "Content-Type": "application/json",
-        },
+        headers: headers,
       });
 
       if (!response.ok) {
