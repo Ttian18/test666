@@ -19,6 +19,12 @@ export const useProfile = () => {
   const [error, setError] = useState<string | null>(null);
   const { user, token } = useAuthContext();
 
+  console.log("🔍 useProfile: AuthContext state:", {
+    hasUser: !!user,
+    hasToken: !!token,
+    tokenPreview: token ? token.substring(0, 20) + "..." : "NO TOKEN",
+  });
+
   const fetchProfile = async () => {
     if (!token) {
       console.warn("⚠️ useProfile: No token available, cannot fetch profile");
