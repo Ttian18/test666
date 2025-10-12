@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useAuthContext } from "@/contexts/AuthContext";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+
 export interface UserProfile {
   basicInfo: any;
   dietaryPreferences: any;
@@ -21,7 +23,7 @@ export const useProfile = () => {
 
     try {
       setLoading(true);
-      const response = await fetch("/api/users/profile", {
+      const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
         headers: {
           "x-auth-token": token,
           "Content-Type": "application/json",
@@ -45,7 +47,7 @@ export const useProfile = () => {
     if (!token) return;
 
     try {
-      const response = await fetch("/api/users/profile", {
+      const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
         method: "PUT",
         headers: {
           "x-auth-token": token,
@@ -73,7 +75,7 @@ export const useProfile = () => {
     formData.append("avatar", file);
 
     try {
-      const response = await fetch("/api/users/profile/avatar", {
+      const response = await fetch(`${API_BASE_URL}/api/users/profile/avatar`, {
         method: "POST",
         headers: {
           "x-auth-token": token,

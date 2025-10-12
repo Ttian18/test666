@@ -1,8 +1,10 @@
 import axios from "axios";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+
 // Create axios instance for auth endpoints
 const authApi = axios.create({
-  baseURL: "/api/auth", // This will use the Vite proxy to http://localhost:5001
+  baseURL: `${API_BASE_URL}/api/auth`,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",

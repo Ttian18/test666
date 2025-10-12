@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create axios instance for menu analysis and restaurant endpoints
 const menuApi = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "/api", // Use proxy for development
+  baseURL: import.meta.env.VITE_API_URL || "",
   timeout: 300000, // 5 minutes timeout for AI processing (increased from 30 seconds)
 });
 
