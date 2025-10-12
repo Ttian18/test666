@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuthContext } from "@/contexts/AuthContext";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+console.log("🌐 useProfile: API_BASE_URL configured as:", API_BASE_URL);
 
 export interface UserProfile {
   basicInfo: any;
@@ -19,10 +20,22 @@ export const useProfile = () => {
   const { user, token } = useAuthContext();
 
   const fetchProfile = async () => {
-    if (!token) return;
+    if (!token) {
+      console.warn("⚠️ useProfile: No token available, cannot fetch profile");
+      return;
+    }
 
     try {
       setLoading(true);
+      console.log(
+        "🔍 useProfile: Fetching profile with token:",
+        token.substring(0, 20) + "..."
+      );
+      console.log(
+        "🔍 useProfile: API URL:",
+        `${API_BASE_URL}/api/users/profile`
+      );
+
       const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
         headers: {
           "x-auth-token": token,
@@ -31,10 +44,21 @@ export const useProfile = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch profile");
+        const errorData = await response.json().catch(() => ({}));
+        console.error(
+          "❌ useProfile: Failed to fetch profile:",
+          response.status,
+          errorData
+        );
+        throw new Error(
+          `Failed to fetch profile: ${response.status} ${
+            errorData.message || ""
+          }`
+        );
       }
 
       const data = await response.json();
+      console.log("✅ useProfile: Profile fetched successfully");
       setProfile(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");

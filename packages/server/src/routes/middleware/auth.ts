@@ -31,7 +31,16 @@ export const authenticate = async (
 ): Promise<Response | void> => {
   const token = req.header("x-auth-token");
 
+  // Debug logging
+  console.log("🔍 Auth Middleware - Request to:", req.method, req.path);
+  console.log("🔍 Auth Middleware - Headers:", {
+    origin: req.headers.origin,
+    "x-auth-token": token ? `${token.substring(0, 20)}...` : "MISSING",
+    authorization: req.headers.authorization || "none",
+  });
+
   if (!token) {
+    console.error("❌ Auth Middleware - No token provided");
     return res.status(401).json({ message: "No token, authorization denied" });
   }
 
