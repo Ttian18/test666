@@ -1,10 +1,12 @@
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "";
 
 // Simple token utility - in production, this should come from a proper auth context
 const getAuthToken = (): string | null => {
-  // Try to get token from sessionStorage (as used in useAuth)
-  return sessionStorage.getItem("meal_mint_token");
+  // Try to get token from sessionStorage first, then localStorage (for remember me)
+  return (
+    sessionStorage.getItem("meal_mint_token") ||
+    localStorage.getItem("meal_mint_token")
+  );
 };
 
 export interface UserProfile {
@@ -45,7 +47,7 @@ export const getUserProfile = async (): Promise<UserProfile> => {
       return {};
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/auth/profile`, {
+    const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -82,8 +84,8 @@ export const createOrUpdateProfile = async (
       throw new Error("Authentication required");
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/auth/profile`, {
-      method: "POST",
+    const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         "x-auth-token": token,

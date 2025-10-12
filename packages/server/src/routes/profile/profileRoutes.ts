@@ -39,7 +39,7 @@ const upload = multer({
 });
 
 // GET /api/users/profile - 获取用户资料
-router.get("/", authenticate, async (req, res) => {
+router.get("/profile", authenticate, async (req, res) => {
   try {
     const profile = await ProfileService.getUserProfile(req.user.id);
     res.json(profile);
@@ -50,7 +50,7 @@ router.get("/", authenticate, async (req, res) => {
 });
 
 // PUT /api/users/profile - 更新用户资料
-router.put("/", authenticate, async (req, res) => {
+router.put("/profile", authenticate, async (req, res) => {
   try {
     const { section, data } = req.body;
 
@@ -112,7 +112,7 @@ router.post(
 );
 
 // DELETE /api/users/profile - 删除用户资料
-router.delete("/", authenticate, async (req, res) => {
+router.delete("/profile", authenticate, async (req, res) => {
   try {
     // 这里应该实现软删除或硬删除逻辑
     // 包括删除相关数据、文件等

@@ -102,9 +102,7 @@ const MenuAnalysis = () => {
     const testBackendConnection = async () => {
       try {
         const response = await fetch(
-          `${
-            import.meta.env.VITE_API_BASE_URL || "http://localhost:5001"
-          }/health`
+          `${import.meta.env.VITE_API_URL || "http://localhost:5001"}/health`
         );
         if (response.ok) {
           console.log("✅ Backend is accessible");
@@ -360,8 +358,7 @@ const MenuAnalysis = () => {
                   try {
                     const response = await fetch(
                       `${
-                        import.meta.env.VITE_API_BASE_URL ||
-                        "http://localhost:5001"
+                        import.meta.env.VITE_API_URL || "http://localhost:5001"
                       }/health`
                     );
                     if (response.ok) {
